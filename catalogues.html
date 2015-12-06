@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .bar rect {
+            fill: #2E527E;
+        }
+        .bar rect:hover {
+            fill: #EFC319;
+        }
+
+        .chart text {
+            fill: black;
+            font: 10px sans-serif;
+            text-anchor: right;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+
+        .guideline {
+            stroke:#ccc;
+        }
+    </style>
+</head>
+
+    <body>
+        <h1>EMLO Card Catalogues</h1>
+        <form>
+            <label><input type="radio" name="mode" value="chart" checked="yeah baby!"> Chart</label>
+            <label><input type="radio" name="mode" value="years"> Years</label>
+        </form>
+        <h2 id="title"></h2>
+        <svg class="chart"></svg>
+        <script src="d3.min.js"></script>
+        <script src="catalogues.js"></script>
+    </body>
+
+</html>
