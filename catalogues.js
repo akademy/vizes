@@ -43,11 +43,14 @@
 					return "translate(0," + i * barHeight + ")";
 				});
 
-	bar.append("rect")
-		.attr("x", xScale(0) )
-		.attr("style", function(d,i) { return "fill:" + fillColour.brighter(i/10).toString(); } )
-		.attr("width", 0 )
-		.attr("height", barHeight - 1);
+	bar.append("a")
+			.attr("xlink:href","http://www.example.com")
+		.append("rect")
+			.attr("x", xScale(0) )
+			.attr("style", function(d,i) { return "fill:" + fillColour.brighter(i/10).toString(); } )
+			.attr("width", 0 )
+			.attr("height", barHeight - 1)
+			;
 
 	bar.append("text")
 		.text(function(d) {
