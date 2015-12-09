@@ -1,22 +1,23 @@
 /**
  * Created by matthew on 05/12/2015.
  */
-var svgWidth = 960,
-	svgHeight = 500;
 
-var chartX = 200,
-	chartY = 0,
-	chartHeight = svgHeight - chartY - 50,
-	chartWidth = svgWidth - chartX;
+(function createChart(data) {
 
-var xScale = d3.scale.linear()
-	.range([chartX,chartWidth+chartX]);
+	var svgWidth = 960,
+		svgHeight = 500;
 
-var chart = d3.select(".chart")
-	.attr("width", svgWidth)
-	.attr("height", svgHeight);
+	var chartX = 200,
+		chartY = 0,
+		chartHeight = svgHeight - chartY - 50,
+		chartWidth = svgWidth - chartX;
 
-function createChart(data) {
+	var xScale = d3.scale.linear()
+		.range([chartX,chartWidth+chartX]);
+
+	var chart = d3.select(".chart")
+		.attr("width", svgWidth)
+		.attr("height", svgHeight);
 
 	var maxCount = d3.max(data, function(d) { return d.count; }),
 		minCount = d3.min(data, function(d) { return d.count; });
@@ -232,99 +233,93 @@ function createChart(data) {
 	setTimeout( function() {
 		update("chart");
 	}, 100 );
-}
-
-var data = 	[
-		{
-			name: "Bodleian card catalogue",
-			count: 48691,
-			year: {
-				start : 1500,
-				end : 1800
-			}
-		},
-		{
-			name: "Groot, Hugo de",
-			count: 8034,
-			year: {
-				start : 1500,
-				end : 1600
-			}
-		},
-		{
-			name: "Huygens, Constantijn",
-			count:7120,
-			year: {
-				start : 1700,
-				end : 1800
-			}
-		},
-		{
-			name: "Hartlib, Samuel",
-			count:4718,
-			year: {
-				start : 1600,
-				end : 1800
-			}
-		},
-		{
-			name: "Andreae, Johann Valentin",
-			count:3696,
-			year: {
-				start : 1340,
-				end : 1750
-			}
-		},
-		{
-			name: "Huygens, Christiaan",
-			count:3080,
-			year: {
-				start : 1280,
-				end : 1830
-			}
-		},
-		{
-			name: "Kircher, Athanasius",
-			count:2690,
-			year: {
-				start : 1067,
-				end : 1790
-			}
-		},
-		{
-			name: "Graffigny, Françoise de",
-			count:2524,
-			year: {
-				start : 1340,
-				end : 1650
-			}
-		},
-		{
-			name: "Lhwyd, Edward",
-			count:2128,
-			year: {
-				start : 1230,
-				end : 1340
-			}
-		},
-		{
-			name: "Wallis, John",
-			count:2001,
-			year: {
-				start : 1400,
-				end : 1450
-			}
-		},
-		{
-			name: "Mersenne, Marin",
-			count:1904,
-			year: {
-				start : 1400,
-				end : 1500
-			}
+})( [
+	{
+		name: "Bodleian card catalogue",
+		count: 48691,
+		year: {
+			start : 1500,
+			end : 1800
 		}
-	];
-
-createChart(
-	data
-);
+	},
+	{
+		name: "Groot, Hugo de",
+		count: 8034,
+		year: {
+			start : 1500,
+			end : 1600
+		}
+	},
+	{
+		name: "Huygens, Constantijn",
+		count:7120,
+		year: {
+			start : 1700,
+			end : 1800
+		}
+	},
+	{
+		name: "Hartlib, Samuel",
+		count:4718,
+		year: {
+			start : 1600,
+			end : 1800
+		}
+	},
+	{
+		name: "Andreae, Johann Valentin",
+		count:3696,
+		year: {
+			start : 1340,
+			end : 1750
+		}
+	},
+	{
+		name: "Huygens, Christiaan",
+		count:3080,
+		year: {
+			start : 1280,
+			end : 1830
+		}
+	},
+	{
+		name: "Kircher, Athanasius",
+		count:2690,
+		year: {
+			start : 1067,
+			end : 1790
+		}
+	},
+	{
+		name: "Graffigny, Françoise de",
+		count:2524,
+		year: {
+			start : 1340,
+			end : 1650
+		}
+	},
+	{
+		name: "Lhwyd, Edward",
+		count:2128,
+		year: {
+			start : 1230,
+			end : 1340
+		}
+	},
+	{
+		name: "Wallis, John",
+		count:2001,
+		year: {
+			start : 1400,
+			end : 1450
+		}
+	},
+	{
+		name: "Mersenne, Marin",
+		count:1904,
+		year: {
+			start : 1400,
+			end : 1500
+		}
+	}
+] );
