@@ -24,7 +24,7 @@
             shape-rendering: crispEdges;
         }
 
-        .guideline {
+        .guidelines line {
             stroke:#ccc;
         }
     </style>
@@ -32,9 +32,19 @@
 
     <body>
         <h1>EMLO Card Catalogues</h1>
-        <form>
+        <form class="mode">
             <label><input type="radio" name="mode" value="chart" checked="yeah baby!"> Chart</label>
             <label><input type="radio" name="mode" value="years"> Years</label>
+        </form>
+        <form  class="sort">
+            <label><input type="radio" name="sort" value="countAsc" checked="yeah baby!"> Count ascending</label>
+            <label><input type="radio" name="sort" value="countDesc"> Count descending</label>
+            <label><input type="radio" name="sort" value="nameAsc"> Name ascending</label>
+            <label><input type="radio" name="sort" value="nameDesc"> Name descending</label>
+            <label><input type="radio" name="sort" value="yearStartAsc"> Year start ascending</label>
+            <label><input type="radio" name="sort" value="yearStartDesc"> Year start descending</label>
+            <label><input type="radio" name="sort" value="yearEndAsc"> Year end ascending</label>
+            <label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>
         </form>
         <h2 id="title"></h2>
         <svg class="chart"></svg>

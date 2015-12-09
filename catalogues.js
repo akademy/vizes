@@ -20,22 +20,31 @@ function createChart(data) {
 
 	var maxCount = d3.max(data, function(d) { return d.count; }),
 		minCount = d3.min(data, function(d) { return d.count; });
-
-	xScale.domain([0, maxCount ]);
-
+		
 	var barHeight = chartHeight / data.length;
-
+	
+	var fillColour=d3.rgb("#2E527E");
+	
+	var bar, xAxis;
+	
+	orderBy("countAsc");
+	
+	xScale.domain([0, maxCount ]);
 	chart.append( "g" ).attr("class","guidelines");
 
-	var bar = chart.selectAll("g.bar")
-		.data(data)
-		.enter().append("g").attr("class","bar")
-		.attr("transform", function(d, i) {
-			return "translate(0," + i * barHeight + ")";
-		});
+	
+	bar = chart.selectAll("g.bar")
+		.data(data, function(d) { return d.name; } )
+		.enter()
+			.append("g")
+				.attr("class","bar")
+				.attr("transform", function(d, i) {
+					return "translate(0," + i * barHeight + ")";
+				});
 
 	bar.append("rect")
 		.attr("x", xScale(0) )
+		.attr("style", function(d,i) { return "fill:" + fillColour.brighter(i/10).toString(); } )
 		.attr("width", 0 )
 		.attr("height", barHeight - 1);
 
@@ -50,11 +59,11 @@ function createChart(data) {
 
 	bar.append("title")
 		.text(function (d) {
-			return d.name + ". " + d.count + " letters. From " + d.year.start + " to " + d.year.end;
+			return d.name + "\n" + d.count + " letters.\nFrom " + d.year.start + " to " + d.year.end;
 		})
 	;
 
-	var xAxis = d3.svg.axis()
+	xAxis = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom");
 
@@ -64,10 +73,73 @@ function createChart(data) {
 		.call(xAxis);
 
 
-	d3.selectAll("input").on("change", function() {
+	d3.selectAll(".mode input").on("change", function() {
 		update( this.value );
 	});
-
+	
+	d3.selectAll(".sort input").on("change", function() {
+		order( this.value );
+	});
+	
+	function generateSort( memberFunction, ascending ) {
+		return function(a,b) {
+			var compare = ((memberFunction(a) < memberFunction(b)) ? -1 : memberFunction(a) > memberFunction(b));
+			if(compare===0) {
+				compare = ( (a.name < b.name) ? -1 : a.name > b.name );
+			}
+			return (ascending) ? compare : compare*-1;
+		};
+	}
+	
+	function orderBy( by ) {
+		if( by === "nameAsc" ) {
+			data.sort( generateSort( function(o) {return o.name;}, 1 ) );
+		}
+		else if( by === "nameDesc" ) {
+			data.sort( generateSort( function(o) {return o.name;} ) );
+		}
+		else if( by === "yearStartAsc" ) {
+			data.sort( generateSort( function(o) {return o.year.start;}, 1 ) );
+		}
+		else if( by === "yearStartDesc" ) {
+			data.sort( generateSort( function(o) {return o.year.start;} ) );
+		}
+		else if( by === "yearEndAsc" ) {
+			data.sort( generateSort( function(o) {return o.year.end;}, 1 ) );
+		}
+		else if( by === "yearEndDesc" ) {
+			data.sort( generateSort( function(o) {return o.year.end;} ) );
+		}
+		else if( by === "countAsc" ) {
+			data.sort( generateSort( function(o) {return o.count;}, 1 ) );
+		}
+		else {
+			data.sort( generateSort( function(o) {return o.count;} ) );
+		}
+	}
+	
+	function order( value ) {
+		
+		orderBy( value );
+		
+		chart.selectAll("g.bar")
+			.data(data, function(d) { return d.name; } )
+			// Update bars...
+			.transition()
+			.duration(1000)
+			.attr("transform", function(d, i) {
+				return "translate(0," + i * barHeight + ")";
+			})
+			//.enter()
+			// Add new bars...
+			//.attr("transform", function(d, i) {
+			//	return "translate(0," + i * barHeight + ")";
+			//})
+			//.exit()
+			// Remove old bars...
+			//.remove();
+	}
+	
 	function update( value ) {
 		var title = "";
 
@@ -123,7 +195,7 @@ function createChart(data) {
 
 			xAxis.tickFormat( d3.format(",g") );
 		}
-		else {
+		else if ( value === "chart") {
 
 			title = "Number of letters in catalogue.";
 
@@ -162,8 +234,7 @@ function createChart(data) {
 	}, 100 );
 }
 
-createChart(
-	[
+var data = 	[
 		{
 			name: "Bodleian card catalogue",
 			count: 48691,
@@ -252,5 +323,8 @@ createChart(
 				end : 1500
 			}
 		}
-	]
+	];
+
+createChart(
+	data
 );
