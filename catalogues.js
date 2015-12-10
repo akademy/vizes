@@ -4,6 +4,7 @@
 
 (function createChart(data) {
 
+	// Set some defaults
 	var svgWidth = 960,
 		svgHeight = 500;
 
@@ -12,13 +13,16 @@
 		chartHeight = svgHeight - chartY - 50,
 		chartWidth = svgWidth - chartX;
 
+	// generate xscale range
 	var xScale = d3.scale.linear()
 		.range([chartX,chartWidth+chartX]);
 
+	// Select svg
 	var chart = d3.select(".chart")
 		.attr("width", svgWidth)
 		.attr("height", svgHeight);
 
+	// Get max/mon counts
 	var maxCount = d3.max(data, function(d) { return d.count; }),
 		minCount = d3.min(data, function(d) { return d.count; });
 		
@@ -28,12 +32,14 @@
 	
 	var bar, xAxis;
 	
+	// Set the order to start with
 	orderBy("countAsc");
 	
-	xScale.domain([0, maxCount ]);
-	chart.append( "g" ).attr("class","guidelines");
-
+	xScale.domain([0, maxCount]);
 	
+	chart.append( "g" ).attr("class","guidelines");
+	
+	// Attach data (and create) g areas, which we transform into position
 	bar = chart.selectAll("g.bar")
 		.data(data, function(d) { return d.name; } )
 		.enter()
@@ -43,6 +49,7 @@
 					return "translate(0," + i * barHeight + ")";
 				});
 
+	// Attach rectangles to g.bar and ahref tags - but initially width is zero so bars "generate" later.
 	bar.append("a")
 			.attr("xlink:href","http://www.example.com")
 		.append("rect")
@@ -52,6 +59,7 @@
 			.attr("height", barHeight - 1)
 			;
 
+	// Attach name of catalogue
 	bar.append("text")
 		.text(function(d) {
 			return d.name;
@@ -61,31 +69,34 @@
 			return chartX - 150;
 		});
 
+	// Add a hover over text
 	bar.append("title")
 		.text(function (d) {
 			return d.name + "\n" + d.count + " letters.\nFrom " + d.year.start + " to " + d.year.end;
 		})
 	;
 
+	// Create horizontal axis...
 	xAxis = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom");
 
+	// ...Draw the x-axis
 	chart.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0,"+ chartHeight + ")")
 		.call(xAxis);
 
-
+	// detectchanges in radio buttons
 	d3.selectAll(".mode input").on("change", function() {
 		update( this.value );
 	});
-	
 	d3.selectAll(".sort input").on("change", function() {
 		order( this.value );
 	});
 	
 	function generateSort( memberFunction, ascending ) {
+		/* Generate a sort function with particular features */
 		return function(a,b) {
 			var compare = ((memberFunction(a) < memberFunction(b)) ? -1 : memberFunction(a) > memberFunction(b));
 			if(compare===0) {
@@ -96,6 +107,7 @@
 	}
 	
 	function orderBy( by ) {
+		/* Change the order of "data". */
 		if( by === "nameAsc" ) {
 			data.sort( generateSort( function(o) {return o.name;}, 1 ) );
 		}
@@ -123,7 +135,7 @@
 	}
 	
 	function order( value ) {
-		
+		/* reorder bars on chart */
 		orderBy( value );
 		
 		chart.selectAll("g.bar")
@@ -145,6 +157,8 @@
 	}
 	
 	function update( value ) {
+		/* Update to the correct chart, years or counts */
+		
 		var title = "";
 
 		if ( value === "years") {
@@ -160,10 +174,12 @@
 
 			xScale.domain([xDomainMin-50, xDomainMax+50 ]);
 
+			// Use a log scale to show count as height of event box
 			var barHeightScale = d3.scale.log()
 				.range([5,barHeight-5])
 				.domain([minCount,maxCount]);
 
+			// Update rect position to show years
 			bar.select("rect")
 				.transition()
 				.duration(500)
@@ -180,6 +196,7 @@
 					return barHeightScale(d.count);
 				});
 
+			// Redraw x-axis with years
 			chart.select(".x.axis")
 				.transition()
 				.duration(500)
@@ -187,6 +204,7 @@
 
 			var xAxisTicks = xScale.ticks();
 
+			// Create some guidlelines so we can see where years come in.
 			var guidelines = chart.select("g.guidelines").selectAll( "line.guideline" )
 				.data( xAxisTicks );
 
@@ -233,10 +251,14 @@
 
 	}
 
+	// Update the chart on load, this makes the first bars "appear".
 	setTimeout( function() {
 		update("chart");
 	}, 100 );
-})( [
+	
+})( 
+// Our data...
+[
 	{
 		name: "Bodleian card catalogue",
 		count: 48691,
