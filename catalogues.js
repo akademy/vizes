@@ -2,7 +2,12 @@
  * Created by matthew on 05/12/2015.
  */
 
-(function createChart(data) {
+(function createChart(dataAll) {
+
+	var data = dataAll.catalogues,
+		links = dataAll.links;
+
+
 
 	// Set some defaults
 	var svgWidth = 960,
@@ -31,6 +36,8 @@
 	var fillColour=d3.rgb("#2E527E");
 	
 	var bar, xAxis;
+
+	var idFunction = function(d) { return d.name; };
 	
 	// Set the order to start with
 	orderBy("countAsc");
@@ -41,7 +48,7 @@
 	
 	// Attach data (and create) g areas, which we transform into position
 	bar = chart.selectAll("g.bar")
-		.data(data, function(d) { return d.name; } )
+		.data(data, idFunction )
 		.enter()
 			.append("g")
 				.attr("class","bar")
@@ -139,7 +146,7 @@
 		orderBy( value );
 		
 		chart.selectAll("g.bar")
-			.data(data, function(d) { return d.name; } )
+			.data(data, idFunction )
 			// Update bars...
 			.transition()
 			.duration(1000)
@@ -256,95 +263,4 @@
 		update("chart");
 	}, 100 );
 	
-})( 
-// Our data...
-[
-	{
-		name: "Bodleian card catalogue",
-		count: 48691,
-		year: {
-			start : 1500,
-			end : 1800
-		}
-	},
-	{
-		name: "Groot, Hugo de",
-		count: 8034,
-		year: {
-			start : 1500,
-			end : 1600
-		}
-	},
-	{
-		name: "Huygens, Constantijn",
-		count:7120,
-		year: {
-			start : 1700,
-			end : 1800
-		}
-	},
-	{
-		name: "Hartlib, Samuel",
-		count:4718,
-		year: {
-			start : 1600,
-			end : 1800
-		}
-	},
-	{
-		name: "Andreae, Johann Valentin",
-		count:3696,
-		year: {
-			start : 1340,
-			end : 1750
-		}
-	},
-	{
-		name: "Huygens, Christiaan",
-		count:3080,
-		year: {
-			start : 1280,
-			end : 1830
-		}
-	},
-	{
-		name: "Kircher, Athanasius",
-		count:2690,
-		year: {
-			start : 1067,
-			end : 1790
-		}
-	},
-	{
-		name: "Graffigny, Françoise de",
-		count:2524,
-		year: {
-			start : 1340,
-			end : 1650
-		}
-	},
-	{
-		name: "Lhwyd, Edward",
-		count:2128,
-		year: {
-			start : 1230,
-			end : 1340
-		}
-	},
-	{
-		name: "Wallis, John",
-		count:2001,
-		year: {
-			start : 1400,
-			end : 1450
-		}
-	},
-	{
-		name: "Mersenne, Marin",
-		count:1904,
-		year: {
-			start : 1400,
-			end : 1500
-		}
-	}
-] );
+})( catalogueData );
