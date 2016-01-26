@@ -7,8 +7,12 @@
         .data rect {
             fill: #2E527E;
         }
-        .data rect:hover {
+        .data:hover rect {
             fill: #EFC319 !important;
+        }
+        .data:hover text {
+            fill: #2E527E !important;
+            text-decoration: underline;
         }
 
         .data text {
@@ -46,7 +50,8 @@
 </head>
 
 <body>
-<h3 id="title"></h3>
+<h3 id="title">People</h3>
+<p>This is a big dataset, please hang on.</p>
 
 <form class="mode">
     <span>Chart type:</span>
