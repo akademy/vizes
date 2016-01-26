@@ -178,25 +178,25 @@
 	function orderBy( by ) {
 		/* Change the order of "data". */
 		if( by === "nameAsc" ) {
-			data.sort( generateSort( function(o) {return o.name;}, 1 ) );
+			data.sort( generateSort( function(o) {return o.name;}, true ) );
 		}
 		else if( by === "nameDesc" ) {
 			data.sort( generateSort( function(o) {return o.name;} ) );
 		}
 		else if( by === "yearStartAsc" ) {
-			data.sort( generateSort( function(o) {return o.year.start;}, 1 ) );
+			data.sort( generateSort( function(o) {return o.year.start;}, true ) );
 		}
 		else if( by === "yearStartDesc" ) {
 			data.sort( generateSort( function(o) {return o.year.start;} ) );
 		}
 		else if( by === "yearEndAsc" ) {
-			data.sort( generateSort( function(o) {return o.year.end;}, 1 ) );
+			data.sort( generateSort( function(o) {return o.year.end;}, true ) );
 		}
 		else if( by === "yearEndDesc" ) {
 			data.sort( generateSort( function(o) {return o.year.end;} ) );
 		}
 		else if( by === "countAsc" ) {
-			data.sort( generateSort( function(o) {return o.count;}, 1 ) );
+			data.sort( generateSort( function(o) {return o.count;}, true ) );
 		}
 		else {
 			data.sort( generateSort( function(o) {return o.count;} ) );
