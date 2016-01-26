@@ -7,11 +7,21 @@
 	var data = dataAll.catalogues,
 		links = dataAll.links;
 
-
-
 	// Set some defaults
 	var svgWidth = 960,
 		svgHeight = 500;
+
+	var force = d3.layout.force()
+		.charge(-180)
+		.linkDistance(70)
+		.size([svgWidth, svgHeight])
+
+		.nodes(data)
+		.links(links)
+		;
+
+	data = force.nodes();
+	links = force.links();
 
 	var chartX = 200,
 		chartY = 0,
@@ -35,7 +45,7 @@
 	
 	var fillColour=d3.rgb("#2E527E");
 	
-	var bar, xAxis;
+	var gData, xAxis;
 
 	var idFunction = function(d) { return d.name; };
 	
@@ -43,31 +53,32 @@
 	orderBy("countAsc");
 	
 	xScale.domain([0, maxCount]);
-	
+
 	chart.append( "g" ).attr("class","guidelines");
 	
 	// Attach data (and create) g areas, which we transform into position
-	bar = chart.selectAll("g.bar")
+	gData = chart.selectAll("g.data")
 		.data(data, idFunction )
 		.enter()
 			.append("g")
-				.attr("class","bar")
+				.attr("class","data")
 				.attr("transform", function(d, i) {
 					return "translate(0," + i * barHeight + ")";
 				});
 
-	// Attach rectangles to g.bar and ahref tags - but initially width is zero so bars "generate" later.
-	bar.append("a")
-			.attr("xlink:href","http://www.example.com")
+	// Attach rectangles to g.bar and a href tags - but initially width is zero so bars "generate" later.
+	gData
 		.append("rect")
 			.attr("x", xScale(0) )
 			.attr("style", function(d,i) { return "fill:" + fillColour.brighter(i/10).toString(); } )
 			.attr("width", 0 )
 			.attr("height", barHeight - 1)
+		//.append("a")
+		//	.attr("xlink:href","http://www.example.com")
 			;
 
 	// Attach name of catalogue
-	bar.append("text")
+	gData.append("text")
 		.text(function(d) {
 			return d.name;
 		})
@@ -77,11 +88,22 @@
 		});
 
 	// Add a hover over text
-	bar.append("title")
+	gData.append("title")
 		.text(function (d) {
 			return d.name + "\n" + d.count + " letters.\nFrom " + d.year.start + " to " + d.year.end;
 		})
 	;
+
+	//////////////
+
+	var network = chart.append( "g" ).attr("class","network");
+
+	var lineLinks = network.append("g").selectAll("line.link")
+		.data(links)
+		.enter().append("line")
+		.attr("class", "link")
+		.attr("marker-end", "url(#arrow)")
+		.attr("stroke", "#999" );
 
 	// Create horizontal axis...
 	xAxis = d3.svg.axis()
@@ -94,14 +116,7 @@
 		.attr("transform", "translate(0,"+ chartHeight + ")")
 		.call(xAxis);
 
-	// detectchanges in radio buttons
-	d3.selectAll(".mode input").on("change", function() {
-		update( this.value );
-	});
-	d3.selectAll(".sort input").on("change", function() {
-		order( this.value );
-	});
-	
+
 	function generateSort( memberFunction, ascending ) {
 		/* Generate a sort function with particular features */
 		return function(a,b) {
@@ -145,7 +160,7 @@
 		/* reorder bars on chart */
 		orderBy( value );
 		
-		chart.selectAll("g.bar")
+		chart.selectAll("g.data")
 			.data(data, idFunction )
 			// Update bars...
 			.transition()
@@ -153,6 +168,7 @@
 			.attr("transform", function(d, i) {
 				return "translate(0," + i * barHeight + ")";
 			})
+		;
 			//.enter()
 			// Add new bars...
 			//.attr("transform", function(d, i) {
@@ -168,7 +184,90 @@
 		
 		var title = "";
 
-		if ( value === "years") {
+		if( value !== "network") {
+			force.stop();
+
+			gData
+				.transition()
+				.duration(500)
+				.attr("transform", function(d, i) {
+					return "translate(0," + i * barHeight + ")";
+				});
+		}
+
+		if( value === "network" ) {
+
+			title = "Related catalogues";
+
+			var nodeHeightScale = d3.scale.log()
+				.range([5,20])
+				.domain([minCount,maxCount]);
+
+			/*force.start();
+
+			gData
+				.call(force.drag);
+
+			force.on("tick", function() {
+				lineLinks.attr("x1", function(d) { return d.x; })
+						.attr("y1", function(d) { return d.y; })
+						.attr("x2", function(d) { return d.x; })
+						.attr("y2", function(d) { return d.y; });
+
+				//gData.attr("x", function(d) { return d.x; })
+				//	.attr("y", function(d) { return d.y; });
+
+				gData
+					.attr("transform", function(d) {
+						return "translate(" + d.x + "," + d.y + ")";
+					})
+					;
+			});
+*/
+			gData.selectAll("rect")
+				.transition()
+				.duration(500)
+				.attr( "width", function( d ) { return nodeHeightScale(d.count); } )
+				.attr( "height", function( d ) { return nodeHeightScale(d.count); } )
+			;
+
+			gData
+				.transition()
+				.duration(500)
+				.attr("transform", function(d) {
+					var translate = "translate(" + (chartX + chartWidth/2) + "," + (chartY + chartHeight/2) + ")"
+					console.log( translate );
+					return translate;
+				})
+			;
+
+
+			setTimeout( function() {
+				force.start();
+
+				gData
+					.call(force.drag);
+
+				force.on("tick", function() {
+					lineLinks.attr("x1", function(d) { return d.x; })
+						.attr("y1", function(d) { return d.y; })
+						.attr("x2", function(d) { return d.x; })
+						.attr("y2", function(d) { return d.y; });
+
+					//gData.attr("x", function(d) { return d.x; })
+					//	.attr("y", function(d) { return d.y; });
+
+					gData
+						.transition()
+						.duration(200)
+						.attr("transform", function(d) {
+							return "translate(" + d.x + "," + d.y + ")";
+						})
+					;
+				});
+			}, 500 )
+		}
+		else if ( value === "years") {
 
 			title = "Year coverage of letters in catalogues";
 
@@ -187,7 +286,7 @@
 				.domain([minCount,maxCount]);
 
 			// Update rect position to show years
-			bar.select("rect")
+			gData.select("rect")
 				.transition()
 				.duration(500)
 				.attr("x", function(d) {
@@ -211,7 +310,7 @@
 
 			var xAxisTicks = xScale.ticks();
 
-			// Create some guidlelines so we can see where years come in.
+			// Create some guidelines so we can see where years come in.
 			var guidelines = chart.select("g.guidelines").selectAll( "line.guideline" )
 				.data( xAxisTicks );
 
@@ -232,7 +331,7 @@
 				return d.count;
 			})]);
 
-			bar.select("rect")
+			gData.select("rect")
 				.transition()
 				.duration(500)
 				.attr("x", xScale(0) )
@@ -258,9 +357,19 @@
 
 	}
 
+
 	// Update the chart on load, this makes the first bars "appear".
 	setTimeout( function() {
 		update("chart");
 	}, 100 );
-	
+
+
+	// detect changes in radio buttons
+	d3.selectAll(".mode input").on("change", function() {
+		update( this.value );
+	});
+	d3.selectAll(".sort input").on("change", function() {
+		order( this.value );
+	});
+
 })( catalogueData );
