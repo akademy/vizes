@@ -1,3 +1,4 @@
+// solr: http://127.0.0.1:8983/solr/locations/select?indent=on&version=2.2&q=*%3A*&fq=&start=0&rows=10&fl=geo%3Alat%2Cgeo%3Along%2Cgeonames%3Aname%2Cdcterms%3Aidentifier-uri%3A&qt=standard&wt=standard&explainOther=&hl.fl=
 var places = {
   "response": {
     "lst": {
@@ -68326,7 +68327,7 @@ var places = {
             },
             {
               "-name": "geo:lat",
-              "#text": "-8.05389,"
+              "#text": "-8.05389"
             },
             {
               "-name": "geo:long",
@@ -90286,11 +90287,11 @@ var places = {
             },
             {
               "-name": "geo:lat",
-              "#text": "44,3532"
+              "#text": "44.3532"
             },
             {
               "-name": "geo:long",
-              "#text": "11,7168"
+              "#text": "11.7168"
             },
             {
               "-name": "geonames:name",
