@@ -9,7 +9,9 @@
 	var docs = dataSolr.response.result.doc;
 	var data = [];
 
-	for( var i=0; i<docs.length;i++) {
+	var count = 370;//docs.length;//
+
+	for( var i=0; i<count;i++) {
 		var doc = docs[i];
 		var start = 0;
 		var end = 0;
@@ -18,30 +20,26 @@
 			end = doc["int"][1]["#text"] * 1;
 		}
 
-		if( start === 0 ) {
-			start = end;
-		}
-		if( end === 0 ) {
-			end = start;
-		}
-		if( start === 0 ) {
-			start = end = 1650;
+		if( docs[i]["str"][1]["#text"] === "Boldero, Edmund, 1609-1679" ) {
+			console.log("HELP");
 		}
 
 		var catalogue = {
 			name : docs[i]["str"][1]["#text"],
-			count : 0,
+			count : end - start,
 			year : {
 				start: start,
 				end: end
-			}
+			},
+			age : end - start,
+			originalPosition : i
 		};
 		data.push(catalogue);
 	}
 
 	// Set some defaults
 	var svgWidth = 1000,
-		svgHeight = 100000;
+		svgHeight = count*10;
 
 	var chartX = 250,
 		chartY = 10,
@@ -68,16 +66,12 @@
 	var gData, xAxis;
 
 
-	var idFunction = function(d) { return d.name; };
+	var idFunction = function(d) { return d.name + d.originalPosition ; };
 	var excluded = function(d) { return exclude.indexOf( d.name ) !== -1; };
 
 	var getDataCount = function(d) { return excluded(d) ? 0 : d.count; };
 	var getDataYearStart = function(d) { return excluded(d) ? 10000 : d.year.start; };
 	var getDataYearEnd = function(d) { return excluded(d) ? 0 : d.year.end; };
-
-
-	// Set the order to start with
-	orderBy("countAsc");
 
 	xScale.domain([0, maxCount]);
 
@@ -103,10 +97,10 @@
 		.attr("height", barHeight - 1)
 		//.append("a")
 		//	.attr("xlink:href","http://www.example.com")
-		.on("mouseover", function(d,i) {return d3.select("div.tooltip:nth-child("+(i+1)+")").style("visibility", "visible");})
-		.on("mousemove", function(d,i){return d3.select("div.tooltip:nth-child("+(i+1)+")").style("top",
+		.on("mouseover", function(d) {return d3.select("div.tooltip:nth-child("+(d.originalPosition+1)+")").style("visibility", "visible");})
+		.on("mousemove", function(d){return d3.select("div.tooltip:nth-child("+(d.originalPosition+1)+")").style("top",
 			(d3.event.pageY-20)+"px").style("left",(d3.event.pageX+20)+"px");})
-		.on("mouseout", function(d,i){return d3.select("div.tooltip:nth-child("+(i+1)+")").style("visibility", "hidden");})
+		.on("mouseout", function(d){return d3.select("div.tooltip:nth-child("+(d.originalPosition+1)+")").style("visibility", "hidden");})
 	;
 
 	// Attach name of catalogue
@@ -168,12 +162,17 @@
 		.style("z-index", "10")
 		.style("visibility", "hidden")
 		.html(function (d) {
-			return "<strong>" + d.name + "</strong><br/>" +
-				d.count + " letters.<br/>" +
-				"From " + d.year.start + " to " + d.year.end;
+			return "<strong>" + d.name.substring(0, d.name.length-11) + "</strong><br/>" +
+				d.year.start + " to " + d.year.end + "<br/>" +
+				"Age " + (d.age)
+				;
+
 		})
 	;
 
+	// Set the order to start with
+	// (Note this needs to come AFTER the tooltip generation as it relies on order to work)
+	orderBy("nameAsc");
 
 	function generateSort( memberFunction, ascending ) {
 		/* Generate a sort function with particular features */

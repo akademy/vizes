@@ -23,7 +23,8 @@
 			year : {
 				start: start,
 				end: end
-			}
+			},
+			originalPosition : i
 		};
 		data.push(catalogue);
 	}
@@ -57,7 +58,7 @@
 	var gData, xAxis;
 
 
-	var idFunction = function(d) { return d.name; };
+	var idFunction = function(d) { return d.name + d.originalPosition ; };
 	var excluded = function(d) { return exclude.indexOf( d.name ) !== -1; };
 
 	var getDataCount = function(d) { return excluded(d) ? 0 : d.count; };
