@@ -11,6 +11,13 @@
             fill: #EFC319 !important;
         }
 
+        .data text {
+            cursor: pointer;
+        }
+        .data text.excluded {
+            fill: grey;
+        }
+
         .chart text {
             fill: black;
             font: 10px sans-serif;
@@ -27,17 +34,28 @@
         .guidelines line {
             stroke:#ccc;
         }
+
+        .tooltip {
+            background: goldenrod;
+            background: rgba(209, 164, 35, 0.69);
+            padding: 10px;
+
+        }
     </style>
 </head>
 
     <body>
+        <h3 id="title"></h3>
+
         <form class="mode">
-            <label><input type="radio" name="mode" value="chart" checked> Chart</label>
+            <span>Chart type:</span>
+            <label><input type="radio" name="mode" value="chart" checked="yes"> Chart</label>
             <label><input type="radio" name="mode" value="years"> Years</label>
-            <label><input type="radio" name="mode" value="network"> Network</label>
+            <!-- <label><input type="radio" name="mode" value="network"> Network</label> -->
         </form>
         <form  class="sort">
-            <label><input type="radio" name="sort" value="countAsc" checked> Count ascending</label>
+            <span>Sort type:</span>
+            <label><input type="radio" name="sort" value="countAsc" checked="yes"> Count ascending</label>
             <label><input type="radio" name="sort" value="countDesc"> Count descending</label>
             <label><input type="radio" name="sort" value="nameAsc"> Name ascending</label>
             <label><input type="radio" name="sort" value="nameDesc"> Name descending</label>
@@ -46,10 +64,11 @@
             <label><input type="radio" name="sort" value="yearEndAsc"> Year end ascending</label>
             <label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>
         </form>
-        <h3 id="title"></h3>
+
         <svg class="chart"></svg>
+
         <script src="lib/d3.min.js"></script>
-        <script src="data/data.js"></script>
+        <script src="data/catalogues.js"></script>
         <script src="catalogues.js"></script>
     </body>
 
