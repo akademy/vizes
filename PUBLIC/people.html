@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .data rect {
+            fill: #2E527E;
+        }
+        .data rect:hover {
+            fill: #EFC319 !important;
+        }
+
+        .data text {
+            cursor: pointer;
+        }
+        .data text.excluded {
+            fill: grey;
+        }
+
+        .chart text {
+            fill: black;
+            font: 10px sans-serif;
+            text-anchor: right;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+
+        .guidelines line {
+            stroke:#ccc;
+        }
+
+        .tooltip {
+            background: goldenrod;
+            background: rgba(209, 164, 35, 0.69);
+            padding: 10px;
+            border-radius: 10px;
+
+        }
+    </style>
+</head>
+
+<body>
+<h3 id="title"></h3>
+
+<form class="mode">
+    <span>Chart type:</span>
+    <label><input type="radio" name="mode" value="chart" checked="yes"> Chart</label>
+    <label><input type="radio" name="mode" value="years"> Years</label>
+    <!-- <label><input type="radio" name="mode" value="network"> Network</label> -->
+</form>
+<form  class="sort">
+    <span>Sort type:</span>
+    <label><input type="radio" name="sort" value="countAsc" checked="yes"> Count ascending</label>
+    <label><input type="radio" name="sort" value="countDesc"> Count descending</label>
+    <label><input type="radio" name="sort" value="nameAsc"> Name ascending</label>
+    <label><input type="radio" name="sort" value="nameDesc"> Name descending</label>
+    <label><input type="radio" name="sort" value="yearStartAsc"> Year start ascending</label>
+    <label><input type="radio" name="sort" value="yearStartDesc"> Year start descending</label>
+    <label><input type="radio" name="sort" value="yearEndAsc"> Year end ascending</label>
+    <label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>
+</form>
+
+<svg class="chart"></svg>
+
+<script src="lib/d3.min.js"></script>
+<script src="data/people.js"></script>
+<script src="people.js"></script>
+</body>
+
+</html>
