@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <title></title>
     <style>
-        .bar rect {
+        .data rect {
             fill: #2E527E;
         }
-        .bar rect:hover {
+        .data rect:hover {
             fill: #EFC319 !important;
         }
 
@@ -31,13 +31,13 @@
 </head>
 
     <body>
-        <h1>EMLO Card Catalogues</h1>
         <form class="mode">
-            <label><input type="radio" name="mode" value="chart" checked="yeah baby!"> Chart</label>
+            <label><input type="radio" name="mode" value="chart" checked> Chart</label>
             <label><input type="radio" name="mode" value="years"> Years</label>
+            <label><input type="radio" name="mode" value="network"> Network</label>
         </form>
         <form  class="sort">
-            <label><input type="radio" name="sort" value="countAsc" checked="yeah baby!"> Count ascending</label>
+            <label><input type="radio" name="sort" value="countAsc" checked> Count ascending</label>
             <label><input type="radio" name="sort" value="countDesc"> Count descending</label>
             <label><input type="radio" name="sort" value="nameAsc"> Name ascending</label>
             <label><input type="radio" name="sort" value="nameDesc"> Name descending</label>
@@ -46,10 +46,10 @@
             <label><input type="radio" name="sort" value="yearEndAsc"> Year end ascending</label>
             <label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>
         </form>
-        <h2 id="title"></h2>
+        <h3 id="title"></h3>
         <svg class="chart"></svg>
-        <script src="d3.min.js"></script>
-        <script src="data.js"></script>
+        <script src="lib/d3.min.js"></script>
+        <script src="data/data.js"></script>
         <script src="catalogues.js"></script>
     </body>
 
