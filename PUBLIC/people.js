@@ -9,7 +9,7 @@
 	var docs = dataSolr.response.result.doc;
 	var data = [];
 
-	var count = 370;//docs.length;//
+	var count = docs.length;//370;//
 
 	for( var i=0; i<count;i++) {
 		var doc = docs[i];
