@@ -2,7 +2,7 @@
  * Created by matthew on 05/12/2015.
  */
 
-(function createChart() {
+function createChart() {
 	var mode = "years";
 
 	var dataSolr = peopleBornDied;
@@ -38,8 +38,10 @@
 	}
 
 	// Set some defaults
+	var barSpace = 15;
+
 	var svgWidth = 1000,
-		svgHeight = count*10;
+		svgHeight = count*barSpace;
 
 	var chartX = 250,
 		chartY = 10,
@@ -342,6 +344,10 @@
 	// Update the chart on load, this makes the first bars "appear".
 	setTimeout( function() {
 		update("chart");
+
+		d3.select(".loading").attr("style","display:none");
+		d3.select("form.sort").attr("style","display:block");
+
 	}, 100 );
 
 
@@ -354,4 +360,8 @@
 		order( this.value );
 	});
 
-})();
+};
+
+setTimeout( function() {
+	createChart();
+}, 1000 );
