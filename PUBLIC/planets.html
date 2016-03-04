@@ -1,0 +1,279 @@
+<html>
+<head>
+    <style>
+        .system-line {
+            stroke: white;
+            stroke-dasharray: 3,3;
+            stroke-width: 0.2;
+        }
+        .star {
+            fill: goldenrod;
+        }
+        .planet-body {
+            fill:white;
+        }
+    </style>
+</head>
+<body style="background-color: #999999">
+<script src="lib/d3.min.js"></script>
+<script>
+    (function() {
+
+        var planetData = [
+            {
+                system : "s1",
+                stars : [{
+                    name: "star1",
+                    temperature: 1000
+                }],
+                bodies : [{
+                    name: "mars-1-1",
+                    distance: 100,
+                    radius: 10
+                },
+                {
+                    name: "mars-1-2",
+                    distance: 250,
+                    radius: 3
+                }]
+            },
+            {
+                system : "s2",
+                stars : [{
+                    name: "star2",
+                    temperature: 4000
+                }],
+                bodies : [{
+                    name: "mars-2-1",
+                    distance: 80,
+                    radius: 20
+                }]
+            },
+            {
+                system : "s3",
+                stars : [{
+                    name: "star3",
+                    temperature: 2000
+                }],
+                bodies : [{
+                    name: "mars-3-1",
+                    distance: 350,
+                    radius: 15
+                }]
+            },
+            {
+                system : "s4",
+                stars : [{
+                    name: "star4",
+                    temperature: 10000
+                }],
+                bodies : [{
+                    name: "mars-4-1",
+                    distance: 275,
+                    radius: 10
+                },
+                {
+                    name: "mars-4-2",
+                    distance: 350,
+                    radius: 15
+                }]
+            },
+            {
+                system : "s5",
+                stars : [{
+                    name: "star5",
+                    temperature: 5000
+                }],
+                bodies : [{
+                    name: "mars-5-1",
+                    distance: 275,
+                    radius: 10
+                }]
+            }
+        ];
+
+        var systemHeight = 50;
+        var systemWidth = 400;
+
+        function initialSetup( data ) {
+
+            var svg = d3.select("body")
+                    .append("svg")
+                    .attr("style","background-color:black")
+                    .attr("width", systemWidth)
+                    .attr("height", systemHeight * data.length);
+
+            var gradient = svg.append("defs")
+                    .append("linearGradient")
+                    .attr("id", "gradient")
+                    .attr("x1", "0%")
+                    .attr("y1", "0%")
+                    .attr("x2", "100%")
+                    .attr("y2", "0%")
+                    .attr("spreadMethod", "pad");
+
+            gradient.append("stop")
+                    .attr("offset", "20%")
+                    .attr("stop-color", "rgba(100,0,0,0.8)")
+                    .attr("stop-opacity", 1);
+
+            gradient.append("stop")
+                    .attr("offset", "50%")
+                    .attr("stop-color", "rgba(0,100,0,0.8)")
+                    .attr("stop-opacity", 1);
+
+            gradient.append("stop")
+                    .attr("offset", "80%")
+                    .attr("stop-color", "rgba(0,0,100,0.8)")
+                    .attr("stop-opacity", 1);
+
+            /*
+            svg.append("rect")
+                    .attr("width", systemWidth)
+                    .attr("height", systemHeight * data.length)
+                    .style("fill", "url(#gradient)");
+            */
+
+            var systems = svg
+                    .selectAll(".system")
+                    .data( data, function(d) {
+                        return d.system;
+                    });
+
+            systems.enter()
+                    .append("svg:g")
+                    .classed("system", 1)
+                    //.attr("width", systemWidth)
+                    //.attr("height", systemHeight)
+                    .attr("style", function (d, i) {
+                        return "transform: translate(0," + (i * systemHeight) + "px)";
+                    });
+
+
+            systems.append("svg:rect")
+                    .attr("width", function (d) {
+                        return ( d.stars[0].temperature / 10000 )* systemWidth;
+                    })
+                    .attr("height", systemHeight)
+                    .style("fill", "url(#gradient)");
+
+            systems.append("svg:line")
+                    .classed("system-line",1)
+                    .attr("x1", 0)
+                    .attr("y1", function () {
+                        return systemHeight / 2;
+                    })
+                    .attr("x2", function () {
+                        return systemWidth;
+                    })
+                    .attr("y2", function () {
+                        return systemHeight / 2;
+                    })
+            ;
+
+            systems.append("svg:circle")
+                    .classed("star",1)
+                    .attr("cx", function (d) {
+                        return 0;
+                    })
+                    .attr("cy", function () {
+                        return systemHeight / 2;
+                    })
+                    .attr("r", function (d) {
+                        return systemHeight / 2.2 ;
+                    })
+            ;
+
+
+            var planets = systems.selectAll(".planet")
+                    .data(function (d) {
+                        return d.bodies;
+                    }, function(d) {
+                        return d.name;
+                    });
+
+            planets.enter()
+                    .append("svg:g")
+                    .classed("planet", 1);
+
+            planets.append("svg:circle")
+                    .classed("planet-body",1)
+                    .attr("cx", function (d) {
+                        return 0;//d.distance;
+                    })
+                    .attr("cy", function () {
+                        return systemHeight / 2;
+                    })
+                    .attr("r", function (d) {
+                        return 0;//d.radius;
+                    })
+
+        }
+
+        function update(data) {
+
+            var systems = d3.selectAll(".system")
+                    .data(data, function(d) {return d.system;});
+
+            /*systems.append("svg:line")
+                    .attr("x1",0)
+                    .attr("y1",function () {
+                        return systemHeight/2;
+                    })
+                    .attr("x2", function () {
+                        return systemWidth;
+                    })
+                    .attr("y2",function () {
+                        return systemHeight/2;
+                    })
+                    .attr("style","stroke:black");
+            */
+
+            systems.enter()
+                    .append("svg:g")
+                    .classed("system",1)
+                    .attr( "width", systemWidth )
+                    .attr( "height", systemHeight )
+                    .attr( "style", function(d,i) {
+                        return "transform: translate(0," + (i * systemHeight) + "px)";
+                    });
+
+            systems.exit().remove();
+
+
+            var planets = systems.selectAll(".planet")
+                    .data( function(d) {
+                        return d.bodies;
+                    }, function(d) {
+                        return d.name;
+                    });
+
+            planets.enter()
+                    .append("svg:g")
+                    .classed("planet", 1)
+                        .append("svg:circle");
+
+            planets.exit().remove();
+
+            planets.selectAll("circle")
+                    .transition()
+                    .duration( 1000 )
+                    .attr("cx", function (d) {
+                        return d.distance;
+                    })
+                    .attr("cy", function () {
+                        return systemHeight/2;
+                    })
+                    .attr("r", function (d) {
+                        return d.radius;
+                    })
+
+        }
+
+        initialSetup(planetData);
+        update(planetData);
+
+    })();
+</script>
+</body>
+</html>
