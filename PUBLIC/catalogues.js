@@ -5,7 +5,7 @@
 (function createChart() {
 	var mode = "chart";
 
-	var dataSolr = catalogueCounts;
+/*	var dataSolr = catalogueCounts;
 	var docs = dataSolr.lst.int;
 	var data = [];
 
@@ -23,6 +23,21 @@
 			year : {
 				start: start,
 				end: end
+			},
+			originalPosition : i
+		};
+		data.push(catalogue);
+	}*/
+
+	var dataPostgres = catalogueCountsAndDates;
+	var data = []
+	for( var i=0; i<dataPostgres.length;i++) {
+		var catalogue = {
+			name : dataPostgres[i][0],
+			count : dataPostgres[i][1],
+			year : {
+				start: dataPostgres[i][2],
+				end: dataPostgres[i][3]
 			},
 			originalPosition : i
 		};
