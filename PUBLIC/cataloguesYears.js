@@ -5,32 +5,9 @@
 (function createChart() {
 	var mode = "chart";
 
-/*	var dataSolr = catalogueCounts;
-	var docs = dataSolr.lst.int;
-	var data = [];
-
-	for( var i=0; i<docs.length;i++) {
-		var start = (Math.random() * 300) + 1500;
-		var end = (Math.random() * 300) + 1500;
-		if( start > end ) {
-			var sw = start;
-			start = end;
-			end = sw;
-		}
-		var catalogue = {
-			name : docs[i]["-name"],
-			count : docs[i]["#text"] * 1,
-			year : {
-				start: start,
-				end: end
-			},
-			originalPosition : i
-		};
-		data.push(catalogue);
-	}*/
-
 	var dataPostgres = catalogueCountsAndDates;
-	var data = []
+	/*
+	var data = [];
 	for( var i=0; i<dataPostgres.length;i++) {
 		var catalogue = {
 			name : dataPostgres[i][0],
@@ -43,6 +20,59 @@
 		};
 		data.push(catalogue);
 	}
+	*/
+
+	dataPostgres = catalogueYearsCount;
+
+	var dataTemp = {};
+
+	for( var i=0; i < dataPostgres.length; i++ ) {
+		var yearData = dataPostgres[i];
+		var catName = yearData["Catalogue"];
+
+		if( ! (catName in dataTemp) ) {
+			dataTemp[catName] = {
+				"start" : 2000,
+				"end" : 0
+			};
+		}
+		dataTemp[catName][yearData.year] = yearData.number;
+		if( yearData.year < dataTemp[catName]["start"]) {
+			dataTemp[catName]["start"] = yearData.year;
+		}
+		if( yearData.year > dataTemp[catName]["end"]) {
+			dataTemp[catName]["end"] = yearData.year;
+		}
+	}
+
+	var data = [];
+	var catalogues = Object.keys(dataTemp);
+	for( i=0; i < catalogues.length; i++ ) {
+		var catName = catalogues[i],
+			start = dataTemp[catName]["start"],
+			end = dataTemp[catName]["end"],
+			years = {}, y;
+
+		for( y=start; y<=end; y++ ) {
+			if( y in dataTemp[catName] ) {
+				years[y] = dataTemp[catName][y]
+			}
+			else {
+				years[y] = 0;
+			}
+		}
+
+		data.push( {
+			"name": catName,
+			"years": years,
+			"start": start,
+			"end": end
+		});
+
+	}
+
+	dataTemp = null;
+	console.log(data);
 
 	// Set some defaults
 	var svgWidth = 800,
