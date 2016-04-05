@@ -45,10 +45,13 @@
         }
 
         .tooltip {
+            position:absolute;
             background: goldenrod;
             background: rgba(209, 164, 35, 0.69);
-            padding: 10px;
+            padding: 5px;
             border-radius: 10px;
+            z-index:10;
+            visibility : hidden;
 
         }
         circle {
@@ -68,19 +71,18 @@
     <body>
         <h3 id="title"></h3>
 
-        <form class="mode">
+        <!--<form class="mode">
             <span>Chart type:</span>
             <label><input type="radio" name="mode" value="chart" checked="yes"> Chart</label>
             <label><input type="radio" name="mode" value="years"> Years</label>
-            <!-- <label><input type="radio" name="mode" value="network"> Network</label> -->
-        </form>
+        </form>-->
         <form  class="sort">
             <span>Order by:</span>
             <label><input type="radio" name="sort" value="countAsc" checked="yes"> Letter Count</label>
             <!--<label><input type="radio" name="sort" value="countDesc"> Count descending</label>-->
             <label><input type="radio" name="sort" value="nameAsc"> Catalogue Name</label>
             <!--<label><input type="radio" name="sort" value="nameDesc"> Name descending</label>-->
-            <label><input type="radio" name="sort" value="yearStartAsc"> Year start</label>
+            <!-- BROKE! <label><input type="radio" name="sort" value="yearStartAsc"> Year start</label> -->
             <!--<label><input type="radio" name="sort" value="yearStartDesc"> Year start descending</label>-->
             <label><input type="radio" name="sort" value="yearEndAsc"> Year end</label>
             <!--<label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>-->
