@@ -24,7 +24,8 @@
 
 	dataPostgres = catalogueYearsCount;
 
-	var dataTemp = {};
+	var dataTemp = {},
+		dummyYear = 1490;
 
 	for( var i=0; i < dataPostgres.length; i++ ) {
 		var yearData = dataPostgres[i];
@@ -36,11 +37,15 @@
 				"end" : 0
 			};
 		}
+
+		if( yearData.year == 0 ) {
+			yearData.year = dummyYear; // A crafty cheat for entries without years.
+		}
+
 		dataTemp[catName][yearData.year] = yearData.number;
+
 		if( yearData.year < dataTemp[catName]["start"]) {
-			if( yearData.year != 0 ) {
-				dataTemp[catName]["start"] = yearData.year;
-			}
+			dataTemp[catName]["start"] = yearData.year;
 		}
 		if( yearData.year > dataTemp[catName]["end"]) {
 			dataTemp[catName]["end"] = yearData.year;
@@ -73,7 +78,7 @@
 			} );
 			count += number;
 
-			if( number > maxYearNumber ) {
+			if( y !== dummyYear && number > maxYearNumber ) {
 				maxYearNumber = number;
 			}
 		}
@@ -123,7 +128,7 @@
 		minCount = d3.min(data, function(d) { return d.count; }),
 		startYear= d3.min(data, function(d) { return d.year.start; }),
 		endYear= d3.max(data, function(d) { return d.year.end; }),
-		chartStartYear = startYear - 20,
+		chartStartYear = startYear - 10,
 		chartEndYear = endYear + 20;
 		
 	var barHeight = chartHeight / data.length;
@@ -201,8 +206,9 @@
 			.attr("style", function(d) { return "fill:" + fillColour.brighter(100/Math.max(d.number,100)).toString(); } )
 
 			.on("mouseover", function(d) {
+				var year = (d.year === dummyYear) ? "Undated" : d.year;
 				overCircle = true;
-				tooltip.text( d.year + " | " + d.number + " letters" );
+				tooltip.text( year + " | " + d.number + " letters" );
 			})
 			.on("mouseout", function() {
 				overCircle = false;
@@ -281,9 +287,7 @@
 
 	var tooltip = d3.select("body")
 		.append("div")
-		.style("position", "absolute")
-		.style("z-index", "10")
-		.style("visibility", "hidden")
+		.classed("tooltip",1)
 		.text("");
 
 	var guidelines;
@@ -295,13 +299,23 @@
 
 			if( pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight ) {
 
+				var minX = xScale( 1500 );
+
 				if( !overCircle ) {
-					tooltip.text(Math.floor(xScale.invert(pos[0])));
+					if( pos[0] > minX ) {
+						tooltip.text(Math.floor(xScale.invert(pos[0])));
+						tooltip.style("visibility", "visible");
+					}
+					else {
+						tooltip.style("visibility", "hidden");
+					}
 				}
 
+				var limitX = Math.max( pos[0], minX );
+
 				chart.select("g.guidelines line.mouse")
-					.attr("x1", pos[0] )
-					.attr("x2", pos[0] )
+					.attr("x1", limitX )
+					.attr("x2", limitX )
 			}
 			else {
 				tooltip.text("");
@@ -311,7 +325,7 @@
 
 			}
 			
-			return tooltip.style("top",(d3.event.pageY-20)+"px").style("left",(d3.event.pageX+10)+"px");
+			return tooltip.style("top",(d3.event.pageY-40)+"px").style("left",(d3.event.pageX+10)+"px");
 		})
 		.on("mouseout", function() {
 			return tooltip.style("visibility", "hidden");
@@ -389,7 +403,7 @@
 
 			title = "Year coverage of letters in catalogues";
 
-			var xDomainMin = d3.min(data, function(d) {
+			/*var xDomainMin = d3.min(data, function(d) {
 					if( excluded(d) ) {
 						return 10000;
 					}
@@ -402,7 +416,8 @@
 					return getDataYearEnd(d);
 				});
 
-			xScale.domain([xDomainMin-20, xDomainMax+20 ]);
+			xScale.domain([xDomainMin-10, xDomainMax+20 ]);*/
+			xScale.domain([chartStartYear, chartEndYear ]);
 
 			// Use a log scale to show count as height of event box
 			var barHeightScale = d3.scale.log()
@@ -436,6 +451,9 @@
 				//.attr("cx", function (d) { return xScale(d.year); } )
 				//.attr("cy",barHeight/2)
 				.attr("r",function (d) {
+					if( d.year == dummyYear ) {
+						return Math.min( sizeScale(d.number), 20 );
+					}
 					return sizeScale(d.number);
 				} )
 
