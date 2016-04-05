@@ -236,6 +236,8 @@ var catalogueCountsAndDates = [
 //where cofk_lookup_catalogue.publish_status=1
 //group by catalogue_name, date_of_work_std_year
 //ORDER BY catalogue_name;
+
+// http://csvtojson.com/
 var catalogueYearsCount = [
 	{
 		"Catalogue": "Andreae, Johann Valentin",
