@@ -38,7 +38,9 @@
 		}
 		dataTemp[catName][yearData.year] = yearData.number;
 		if( yearData.year < dataTemp[catName]["start"]) {
-			dataTemp[catName]["start"] = yearData.year;
+			if( yearData.year != 0 ) {
+				dataTemp[catName]["start"] = yearData.year;
+			}
 		}
 		if( yearData.year > dataTemp[catName]["end"]) {
 			dataTemp[catName]["end"] = yearData.year;
@@ -64,6 +66,7 @@
 			else {
 				number = 0;
 			}
+
 			years.push( {
 				"year" : y,
 				"number" : number
@@ -91,9 +94,14 @@
 	dataTemp = null;
 	console.log(data);
 
+	var chart = d3.select(".chart");
+
 	// Set some defaults
 	var svgWidth = 1200,
 		svgHeight = 2000;
+
+	//var svgWidth = screen.availWidth,
+	//	svgHeight = screen.availHeight - 200; //chart.y;
 
 	var chartX = 250,
 		chartY = 10,
@@ -106,8 +114,8 @@
 
 
 	// Select svg
-	var chart = d3.select(".chart")
-		.attr("width", svgWidth)
+
+	chart.attr("width", svgWidth)
 		.attr("height", svgHeight);
 
 	// Get max/mon counts
