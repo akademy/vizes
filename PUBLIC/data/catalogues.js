@@ -197,7 +197,7 @@ var catalogueCountsAndDates = [
 	["Barlaeus, Caspar",505,1615,1647],
 	["Baxter, Richard",8,1657,1659],
 	["Beeckman, Isaac",28,1612,1635],
-	["Bodleian card catalogue",54620,1508,1900],
+	["Bodleian card catalogue",54620,1508,1829] , // edited from 1900 to 1829
 	["Brahe, Tycho",500,1568,1601],
 	["Comenius, Jan Amos",624,1622,1670],
 	["Descartes, René",727,1619,1650],
@@ -1172,11 +1172,11 @@ var catalogueYearsCount = [
 		"number": 403,
 		"year": 1711
 	},
-	{
+	/*{ // This no longer appears in the main database
 		"Catalogue": "Bodleian card catalogue",
 		"number": 1,
 		"year": 1900
-	},
+	},*/
 	{
 		"Catalogue": "Bodleian card catalogue",
 		"number": 15,
