@@ -233,7 +233,7 @@ var catalogueCountsAndDates = [
 
 //select catalogue_name, count(original_catalogue) as count, date_of_work_std_year as min from cofk_union_work
 //LEFT JOIN cofk_lookup_catalogue ON cofk_union_work.original_catalogue = cofk_lookup_catalogue.catalogue_code
-//where cofk_lookup_catalogue.publish_status=1
+//where cofk_lookup_catalogue.publish_status=1 and cofk_union_work.work_to_be_deleted <> 1
 //group by catalogue_name, date_of_work_std_year
 //ORDER BY catalogue_name;
 
@@ -261,7 +261,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 69,
+		"number": 68,
 		"year": 1635
 	},
 	{
@@ -291,12 +291,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 149,
+		"number": 148,
 		"year": 1641
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 190,
+		"number": 188,
 		"year": 1642
 	},
 	{
@@ -306,27 +306,27 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 349,
+		"number": 347,
 		"year": 1644
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 274,
+		"number": 273,
 		"year": 1645
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 269,
+		"number": 266,
 		"year": 1646
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 241,
+		"number": 240,
 		"year": 1647
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 267,
+		"number": 266,
 		"year": 1648
 	},
 	{
@@ -341,12 +341,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 219,
+		"number": 216,
 		"year": 1651
 	},
 	{
 		"Catalogue": "Andreae, Johann Valentin",
-		"number": 260,
+		"number": 256,
 		"year": 1652
 	},
 	{
@@ -1241,7 +1241,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 23,
+		"number": 22,
 		"year": 1598
 	},
 	{
@@ -1326,7 +1326,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 38,
+		"number": 37,
 		"year": 1615
 	},
 	{
@@ -1366,17 +1366,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 55,
+		"number": 54,
 		"year": 1623
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 79,
+		"number": 78,
 		"year": 1624
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 71,
+		"number": 70,
 		"year": 1625
 	},
 	{
@@ -1401,12 +1401,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 151,
+		"number": 150,
 		"year": 1630
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 137,
+		"number": 133,
 		"year": 1631
 	},
 	{
@@ -1416,7 +1416,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 140,
+		"number": 139,
 		"year": 1633
 	},
 	{
@@ -1426,7 +1426,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 127,
+		"number": 125,
 		"year": 1635
 	},
 	{
@@ -1436,7 +1436,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 119,
+		"number": 118,
 		"year": 1637
 	},
 	{
@@ -1451,7 +1451,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 150,
+		"number": 148,
 		"year": 1640
 	},
 	{
@@ -1461,7 +1461,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 232,
+		"number": 228,
 		"year": 1642
 	},
 	{
@@ -1481,7 +1481,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 316,
+		"number": 315,
 		"year": 1646
 	},
 	{
@@ -1501,27 +1501,27 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 77,
+		"number": 76,
 		"year": 1650
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 149,
+		"number": 148,
 		"year": 1651
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 118,
+		"number": 114,
 		"year": 1652
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 98,
+		"number": 96,
 		"year": 1653
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 60,
+		"number": 56,
 		"year": 1654
 	},
 	{
@@ -1531,27 +1531,27 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 54,
+		"number": 50,
 		"year": 1656
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 60,
+		"number": 58,
 		"year": 1657
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 42,
+		"number": 41,
 		"year": 1658
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 97,
+		"number": 96,
 		"year": 1659
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 52,
+		"number": 49,
 		"year": 1660
 	},
 	{
@@ -1561,7 +1561,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 100,
+		"number": 99,
 		"year": 1662
 	},
 	{
@@ -1586,17 +1586,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 183,
+		"number": 181,
 		"year": 1667
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 190,
+		"number": 187,
 		"year": 1668
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 177,
+		"number": 176,
 		"year": 1669
 	},
 	{
@@ -1651,32 +1651,32 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 275,
+		"number": 274,
 		"year": 1680
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 274,
+		"number": 271,
 		"year": 1681
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 259,
+		"number": 254,
 		"year": 1682
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 278,
+		"number": 269,
 		"year": 1683
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 320,
+		"number": 316,
 		"year": 1684
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 359,
+		"number": 356,
 		"year": 1685
 	},
 	{
@@ -1686,22 +1686,22 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 281,
+		"number": 280,
 		"year": 1687
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 428,
+		"number": 424,
 		"year": 1688
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 401,
+		"number": 400,
 		"year": 1689
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 380,
+		"number": 379,
 		"year": 1690
 	},
 	{
@@ -1721,22 +1721,22 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 570,
+		"number": 569,
 		"year": 1694
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 563,
+		"number": 562,
 		"year": 1695
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 427,
+		"number": 426,
 		"year": 1696
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 450,
+		"number": 449,
 		"year": 1697
 	},
 	{
@@ -1746,12 +1746,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 412,
+		"number": 411,
 		"year": 1699
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 351,
+		"number": 347,
 		"year": 1700
 	},
 	{
@@ -1766,7 +1766,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 372,
+		"number": 371,
 		"year": 1703
 	},
 	{
@@ -1781,7 +1781,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 282,
+		"number": 280,
 		"year": 1706
 	},
 	{
@@ -1791,7 +1791,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 478,
+		"number": 476,
 		"year": 1708
 	},
 	{
@@ -1801,7 +1801,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 294,
+		"number": 293,
 		"year": 1710
 	},
 	{
@@ -1821,7 +1821,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 344,
+		"number": 343,
 		"year": 1714
 	},
 	{
@@ -1831,7 +1831,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 487,
+		"number": 486,
 		"year": 1716
 	},
 	{
@@ -1841,17 +1841,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 466,
+		"number": 463,
 		"year": 1718
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 469,
+		"number": 468,
 		"year": 1719
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 497,
+		"number": 495,
 		"year": 1720
 	},
 	{
@@ -1916,7 +1916,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 457,
+		"number": 456,
 		"year": 1733
 	},
 	{
@@ -1941,12 +1941,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 353,
+		"number": 352,
 		"year": 1738
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 344,
+		"number": 343,
 		"year": 1739
 	},
 	{
@@ -1956,7 +1956,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 254,
+		"number": 252,
 		"year": 1741
 	},
 	{
@@ -1966,7 +1966,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 236,
+		"number": 235,
 		"year": 1743
 	},
 	{
@@ -1976,7 +1976,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 164,
+		"number": 163,
 		"year": 1745
 	},
 	{
@@ -1996,12 +1996,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 153,
+		"number": 152,
 		"year": 1749
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 154,
+		"number": 153,
 		"year": 1750
 	},
 	{
@@ -2011,7 +2011,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 111,
+		"number": 110,
 		"year": 1752
 	},
 	{
@@ -2161,12 +2161,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 98,
+		"number": 97,
 		"year": 1782
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 88,
+		"number": 87,
 		"year": 1783
 	},
 	{
@@ -2176,7 +2176,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 316,
+		"number": 310,
 		"year": 1785
 	},
 	{
@@ -2186,7 +2186,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 174,
+		"number": 173,
 		"year": 1787
 	},
 	{
@@ -2401,12 +2401,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Bodleian card catalogue",
-		"number": 1,
-		"year": 1900
-	},
-	{
-		"Catalogue": "Bodleian card catalogue",
-		"number": 12804,
+		"number": 12765,
 		"year": ""
 	},
 	{
@@ -2671,12 +2666,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Brahe, Tycho",
-		"number": 24,
+		"number": 23,
 		"year": 1597
 	},
 	{
 		"Catalogue": "Brahe, Tycho",
-		"number": 60,
+		"number": 59,
 		"year": 1598
 	},
 	{
@@ -2726,7 +2721,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 9,
+		"number": 8,
 		"year": 1632
 	},
 	{
@@ -2761,7 +2756,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 12,
+		"number": 11,
 		"year": 1639
 	},
 	{
@@ -2771,27 +2766,27 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 17,
+		"number": 14,
 		"year": 1641
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 26,
+		"number": 25,
 		"year": 1642
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 23,
+		"number": 18,
 		"year": 1643
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 19,
+		"number": 17,
 		"year": 1644
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 43,
+		"number": 40,
 		"year": 1645
 	},
 	{
@@ -2806,12 +2801,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 16,
+		"number": 8,
 		"year": 1648
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 16,
+		"number": 11,
 		"year": 1649
 	},
 	{
@@ -2826,7 +2821,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 5,
+		"number": 4,
 		"year": 1652
 	},
 	{
@@ -2846,17 +2841,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 19,
+		"number": 18,
 		"year": 1656
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 52,
+		"number": 45,
 		"year": 1657
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 40,
+		"number": 34,
 		"year": 1658
 	},
 	{
@@ -2866,22 +2861,22 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 12,
+		"number": 10,
 		"year": 1660
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 24,
+		"number": 21,
 		"year": 1661
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 14,
+		"number": 12,
 		"year": 1662
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 17,
+		"number": 16,
 		"year": 1663
 	},
 	{
@@ -2896,7 +2891,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 13,
+		"number": 12,
 		"year": 1666
 	},
 	{
@@ -2906,12 +2901,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 16,
+		"number": 15,
 		"year": 1668
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 13,
+		"number": 11,
 		"year": 1669
 	},
 	{
@@ -2921,7 +2916,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Comenius, Jan Amos",
-		"number": 15,
+		"number": 13,
 		"year": ""
 	},
 	{
@@ -3326,7 +3321,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Fermat, Pierre de",
-		"number": 18,
+		"number": 15,
 		"year": 1636
 	},
 	{
@@ -3433,11 +3428,6 @@ var catalogueYearsCount = [
 		"Catalogue": "Fermat, Pierre de",
 		"number": 2,
 		"year": 1664
-	},
-	{
-		"Catalogue": "Fermat, Pierre de",
-		"number": 1,
-		"year": ""
 	},
 	{
 		"Catalogue": "Franckenberg, Abraham von",
@@ -4821,12 +4811,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 14,
+		"number": 13,
 		"year": 1630
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 24,
+		"number": 23,
 		"year": 1631
 	},
 	{
@@ -4836,7 +4826,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 83,
+		"number": 82,
 		"year": 1633
 	},
 	{
@@ -4846,27 +4836,27 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 100,
+		"number": 98,
 		"year": 1635
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 112,
+		"number": 109,
 		"year": 1636
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 117,
+		"number": 109,
 		"year": 1637
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 134,
+		"number": 125,
 		"year": 1638
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 135,
+		"number": 131,
 		"year": 1639
 	},
 	{
@@ -4881,52 +4871,52 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 131,
+		"number": 130,
 		"year": 1642
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 86,
+		"number": 84,
 		"year": 1643
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 124,
+		"number": 123,
 		"year": 1644
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 136,
+		"number": 134,
 		"year": 1645
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 110,
+		"number": 107,
 		"year": 1646
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 150,
+		"number": 146,
 		"year": 1647
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 183,
+		"number": 182,
 		"year": 1648
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 108,
+		"number": 106,
 		"year": 1649
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 87,
+		"number": 86,
 		"year": 1650
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 110,
+		"number": 107,
 		"year": 1651
 	},
 	{
@@ -4936,37 +4926,37 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 110,
+		"number": 107,
 		"year": 1653
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 207,
+		"number": 196,
 		"year": 1654
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 253,
+		"number": 244,
 		"year": 1655
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 182,
+		"number": 178,
 		"year": 1656
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 214,
+		"number": 210,
 		"year": 1657
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 297,
+		"number": 294,
 		"year": 1658
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 273,
+		"number": 268,
 		"year": 1659
 	},
 	{
@@ -4976,17 +4966,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 182,
+		"number": 177,
 		"year": 1661
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 15,
+		"number": 13,
 		"year": 1662
 	},
 	{
 		"Catalogue": "Hartlib, Samuel",
-		"number": 494,
+		"number": 474,
 		"year": ""
 	},
 	{
@@ -5761,7 +5751,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 15,
+		"number": 14,
 		"year": 1633
 	},
 	{
@@ -5791,7 +5781,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 21,
+		"number": 20,
 		"year": 1639
 	},
 	{
@@ -5816,12 +5806,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 28,
+		"number": 27,
 		"year": 1644
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 32,
+		"number": 31,
 		"year": 1645
 	},
 	{
@@ -5836,7 +5826,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 66,
+		"number": 64,
 		"year": 1648
 	},
 	{
@@ -5846,27 +5836,27 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 89,
+		"number": 88,
 		"year": 1650
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 87,
+		"number": 84,
 		"year": 1651
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 75,
+		"number": 73,
 		"year": 1652
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 88,
+		"number": 87,
 		"year": 1653
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 66,
+		"number": 64,
 		"year": 1654
 	},
 	{
@@ -5896,7 +5886,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 62,
+		"number": 61,
 		"year": 1660
 	},
 	{
@@ -5906,12 +5896,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 47,
+		"number": 44,
 		"year": 1662
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 59,
+		"number": 52,
 		"year": 1663
 	},
 	{
@@ -5921,17 +5911,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 127,
+		"number": 125,
 		"year": 1665
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 130,
+		"number": 129,
 		"year": 1666
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 62,
+		"number": 60,
 		"year": 1667
 	},
 	{
@@ -5961,12 +5951,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 51,
+		"number": 50,
 		"year": 1673
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 44,
+		"number": 40,
 		"year": 1674
 	},
 	{
@@ -5991,7 +5981,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 17,
+		"number": 16,
 		"year": 1679
 	},
 	{
@@ -6001,12 +5991,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Kircher, Athanasius",
-		"number": 1,
-		"year": 1681
-	},
-	{
-		"Catalogue": "Kircher, Athanasius",
-		"number": 242,
+		"number": 239,
 		"year": ""
 	},
 	{
@@ -6381,7 +6366,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 20,
+		"number": 19,
 		"year": 1689
 	},
 	{
@@ -6411,7 +6396,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 151,
+		"number": 150,
 		"year": 1695
 	},
 	{
@@ -6421,22 +6406,22 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 163,
+		"number": 162,
 		"year": 1697
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 152,
+		"number": 150,
 		"year": 1698
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 70,
+		"number": 65,
 		"year": 1699
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 97,
+		"number": 95,
 		"year": 1700
 	},
 	{
@@ -6451,17 +6436,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 204,
+		"number": 202,
 		"year": 1703
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 136,
+		"number": 134,
 		"year": 1704
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 58,
+		"number": 57,
 		"year": 1705
 	},
 	{
@@ -6471,7 +6456,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 66,
+		"number": 65,
 		"year": 1707
 	},
 	{
@@ -6486,7 +6471,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lhwyd, Edward",
-		"number": 32,
+		"number": 14,
 		"year": ""
 	},
 	{
@@ -6676,7 +6661,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lister, Martin",
-		"number": 65,
+		"number": 64,
 		"year": 1698
 	},
 	{
@@ -6686,7 +6671,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Lister, Martin",
-		"number": 25,
+		"number": 24,
 		"year": 1700
 	},
 	{
@@ -6811,7 +6796,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Magini, Giovanni Antonio",
-		"number": 4,
+		"number": 2,
 		"year": 1603
 	},
 	{
@@ -7137,37 +7122,12 @@ var catalogueYearsCount = [
 	{
 		"Catalogue": "No catalogue specified",
 		"number": 1,
-		"year": 1615
-	},
-	{
-		"Catalogue": "No catalogue specified",
-		"number": 1,
-		"year": 1616
-	},
-	{
-		"Catalogue": "No catalogue specified",
-		"number": 1,
-		"year": 1660
-	},
-	{
-		"Catalogue": "No catalogue specified",
-		"number": 1,
-		"year": 1666
-	},
-	{
-		"Catalogue": "No catalogue specified",
-		"number": 1,
 		"year": 1680
 	},
 	{
 		"Catalogue": "No catalogue specified",
 		"number": 2,
 		"year": 1688
-	},
-	{
-		"Catalogue": "No catalogue specified",
-		"number": 5,
-		"year": ""
 	},
 	{
 		"Catalogue": "Oldenburg, Henry",
@@ -7686,12 +7646,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Peiresc, Nicolas-Claude Fabri de",
-		"number": 5,
+		"number": 3,
 		"year": 1608
 	},
 	{
 		"Catalogue": "Peiresc, Nicolas-Claude Fabri de",
-		"number": 8,
+		"number": 7,
 		"year": 1609
 	},
 	{
@@ -7771,7 +7731,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Peiresc, Nicolas-Claude Fabri de",
-		"number": 110,
+		"number": 109,
 		"year": 1626
 	},
 	{
@@ -7816,7 +7776,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Peiresc, Nicolas-Claude Fabri de",
-		"number": 224,
+		"number": 223,
 		"year": 1635
 	},
 	{
@@ -7836,7 +7796,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Peiresc, Nicolas-Claude Fabri de",
-		"number": 9,
+		"number": 8,
 		"year": ""
 	},
 	{
@@ -8541,17 +8501,17 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Sachs von Löwenheim, Philipp Jakob",
-		"number": 5,
+		"number": 4,
 		"year": 1667
 	},
 	{
 		"Catalogue": "Sachs von Löwenheim, Philipp Jakob",
-		"number": 8,
+		"number": 6,
 		"year": 1668
 	},
 	{
 		"Catalogue": "Sachs von Löwenheim, Philipp Jakob",
-		"number": 7,
+		"number": 6,
 		"year": 1669
 	},
 	{
@@ -8561,12 +8521,12 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Sachs von Löwenheim, Philipp Jakob",
-		"number": 31,
+		"number": 30,
 		"year": 1671
 	},
 	{
 		"Catalogue": "Sachs von Löwenheim, Philipp Jakob",
-		"number": 2,
+		"number": 1,
 		"year": 1672
 	},
 	{
@@ -8861,7 +8821,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Schott, Caspar",
-		"number": 39,
+		"number": 38,
 		"year": 1665
 	},
 	{
@@ -9622,41 +9582,36 @@ var catalogueYearsCount = [
 	{
 		"Catalogue": "Vossius, Isaac",
 		"number": 1,
-		"year": 1633
-	},
-	{
-		"Catalogue": "Vossius, Isaac",
-		"number": 2,
 		"year": 1636
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 4,
+		"number": 3,
 		"year": 1637
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 29,
+		"number": 28,
 		"year": 1638
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 26,
+		"number": 24,
 		"year": 1639
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 23,
+		"number": 22,
 		"year": 1640
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 38,
+		"number": 34,
 		"year": 1641
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 46,
+		"number": 44,
 		"year": 1642
 	},
 	{
@@ -9671,47 +9626,47 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 56,
+		"number": 51,
 		"year": 1645
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 53,
+		"number": 50,
 		"year": 1646
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 66,
+		"number": 62,
 		"year": 1647
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 104,
+		"number": 101,
 		"year": 1648
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 56,
+		"number": 54,
 		"year": 1649
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 70,
+		"number": 66,
 		"year": 1650
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 90,
+		"number": 85,
 		"year": 1651
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 84,
+		"number": 79,
 		"year": 1652
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 59,
+		"number": 56,
 		"year": 1653
 	},
 	{
@@ -9726,7 +9681,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 16,
+		"number": 14,
 		"year": 1656
 	},
 	{
@@ -9741,22 +9696,22 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 34,
+		"number": 33,
 		"year": 1659
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 25,
+		"number": 22,
 		"year": 1660
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 23,
+		"number": 22,
 		"year": 1661
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 19,
+		"number": 18,
 		"year": 1662
 	},
 	{
@@ -9771,22 +9726,22 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 29,
+		"number": 28,
 		"year": 1665
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 26,
+		"number": 25,
 		"year": 1666
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 17,
+		"number": 15,
 		"year": 1667
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 29,
+		"number": 28,
 		"year": 1668
 	},
 	{
@@ -9816,7 +9771,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 10,
+		"number": 9,
 		"year": 1674
 	},
 	{
@@ -9831,7 +9786,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 12,
+		"number": 11,
 		"year": 1677
 	},
 	{
@@ -9841,7 +9796,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 25,
+		"number": 23,
 		"year": 1679
 	},
 	{
@@ -9856,37 +9811,37 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 10,
+		"number": 9,
 		"year": 1682
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 16,
+		"number": 15,
 		"year": 1683
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 14,
+		"number": 13,
 		"year": 1684
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 17,
+		"number": 13,
 		"year": 1685
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 12,
+		"number": 11,
 		"year": 1686
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 19,
+		"number": 18,
 		"year": 1687
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 19,
+		"number": 18,
 		"year": 1688
 	},
 	{
@@ -9896,7 +9851,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Vossius, Isaac",
-		"number": 414,
+		"number": 350,
 		"year": ""
 	},
 	{
@@ -10116,7 +10071,7 @@ var catalogueYearsCount = [
 	},
 	{
 		"Catalogue": "Wallis, John",
-		"number": 58,
+		"number": 57,
 		"year": 1688
 	},
 	{
