@@ -3,36 +3,23 @@
  */
 
 (function createChart() {
-	var mode = "years";
 
-	var dataPostgres = catalogueCountsAndDates;
-	/*
-	var data = [];
-	for( var i=0; i<dataPostgres.length;i++) {
-		var catalogue = {
-			name : dataPostgres[i][0],
-			count : dataPostgres[i][1],
-			year : {
-				start: dataPostgres[i][2],
-				end: dataPostgres[i][3]
-			},
-			originalPosition : i
-		};
-		data.push(catalogue);
-	}
-	*/
-
-	dataPostgres = catalogueYearsCount;
-
+	var dataPostgres = catalogueYearsCount;
 	var dataTemp = {},
 		dummyYear = 1490;
 
-	for( var i=0; i < dataPostgres.length; i++ ) {
-		var yearData = dataPostgres[i];
-		var catName = yearData["Catalogue"];
+	var data = [], maxYearNumber = 0, catalogues;
 
-		if( ! (catName in dataTemp) ) {
-			dataTemp[catName] = {
+	//
+	/* Convert data into a usable format */
+	//
+
+	for( var i=0; i < dataPostgres.length; i++ ) {
+		var yearData = dataPostgres[i],
+			catalogueName = yearData["Catalogue"];
+
+		if( ! (catalogueName in dataTemp) ) {
+			dataTemp[catalogueName] = {
 				"start" : 2000,
 				"end" : 0
 			};
@@ -42,19 +29,17 @@
 			yearData.year = dummyYear; // A crafty cheat for entries without years.
 		}
 
-		dataTemp[catName][yearData.year] = yearData.number;
+		dataTemp[catalogueName][yearData.year] = yearData.number;
 
-		if( yearData.year < dataTemp[catName]["start"]) {
-			dataTemp[catName]["start"] = yearData.year;
+		if( yearData.year < dataTemp[catalogueName]["start"]) {
+			dataTemp[catalogueName]["start"] = yearData.year;
 		}
-		if( yearData.year > dataTemp[catName]["end"]) {
-			dataTemp[catName]["end"] = yearData.year;
+		if( yearData.year > dataTemp[catalogueName]["end"]) {
+			dataTemp[catalogueName]["end"] = yearData.year;
 		}
 	}
 
-	var data = [];
-	var catalogues = Object.keys(dataTemp);
-	var maxYearNumber = 0;
+	catalogues = Object.keys(dataTemp);
 	for( i=0; i < catalogues.length; i++ ) {
 		var catName = catalogues[i],
 			start = dataTemp[catName]["start"],
@@ -92,21 +77,21 @@
 				"end": end
 			}
 		});
-
-
 	}
 
 	dataTemp = null;
 	console.log(data);
 
+
+	//
+	/* Create D3 Chart */
+	//
+
 	var chart = d3.select(".chart");
 
 	// Set some defaults
-	var svgWidth = 1200,
-		svgHeight = 2000;
-
-	//var svgWidth = screen.availWidth,
-	//	svgHeight = screen.availHeight - 200; //chart.y;
+	var svgWidth = 1200,// = screen.availWidth
+		svgHeight = 2000;// = screen.availHeight - 200
 
 	var chartX = 250,
 		chartY = 20,
@@ -114,53 +99,40 @@
 		chartWidth = svgWidth - chartX - 50;
 
 	var defaultStartYear = 1500,
-		defaultEndYear = 1850;
+		defaultEndYear = 1850,
 
-
-
-	// Select svg
+		chartStartYear = defaultStartYear - 10,
+		chartEndYear = defaultEndYear + 20;
 
 	chart.attr("width", svgWidth)
 		.attr("height", svgHeight);
 
 	// Get max/mon counts
-	var maxCount = d3.max(data, function(d) { return d.count; }),
-		minCount = d3.min(data, function(d) { return d.count; }),
-		startYear= d3.min(data, function(d) { return d.year.start; }),
-		endYear= d3.max(data, function(d) { return d.year.end; }),
-		chartStartYear = startYear - 10,
-		chartEndYear = endYear + 20;
+		//startYear= d3.min(data, function(d) { return d.year.start; }),
+		//endYear= d3.max(data, function(d) { return d.year.end; }),
+		//chartStartYear = startYear - 10,
+		//chartEndYear = endYear + 20;
 		
 	var barHeight = chartHeight / data.length;
 
 	// generate xscale range
 	var xScale = d3.scale.linear()
-		.range([chartX,chartWidth+chartX]);
+		.range([chartX,chartWidth+chartX])
+		.domain([chartStartYear, chartEndYear ]);
 
 	var sizeScale = d3.scale.log()
-		.range([1,10,barHeight/2])
+		.range([1,10,barHeight/2]) // circle radii
 		.domain([1,100,maxYearNumber]);
 
-	var gData, xAxisBottom;
-
-
 	var idFunction = function(d) { return d.name + d.originalPosition ; };
-	var excluded = function(d) { return exclude.indexOf( d.name ) !== -1; };
-
-	var getDataCount = function(d) { return excluded(d) ? 0 : d.count; };
-	var getDataYearStart = function(d) { return excluded(d) ? 10000 : d.year.start; };
-	var getDataYearEnd = function(d) { return excluded(d) ? 0 : d.year.end; };
-
 
 	// Set the order to start with
 	orderBy("nameAsc");
-	
-	xScale.domain([0, maxCount]);
 
 	chart.append( "g" ).attr("class","guidelines");
 	
 	// Attach data (and create) g areas, which we transform into position
-	gData = chart.selectAll("g.data")
+	var gData = chart.selectAll("g.data")
 		.data(data, idFunction )
 		.enter()
 			.append("g")
@@ -170,29 +142,12 @@
 				})
 	;
 
-	// Attach rectangles to g.bar and a href tags - but initially width is zero so bars "generate" later.
-	/*gData
-		.append("rect")
-			.attr("x", xScale(0) )
-			.attr("style", function(d,i) { return "fill:" + fillColour.brighter((data.length-i)/15).toString(); } )
-			.attr("width", 0 )
-			.attr("height", barHeight - 1)
-			//.append("a")
-			//.attr("xlink:href","http://www.example.com")
-			.on("mouseover", function(d,i) {return d3.select("div.tooltip:nth-child("+(i+1)+")").style("visibility", "visible");})
-			.on("mousemove", function(d,i){return d3.select("div.tooltip:nth-child("+(i+1)+")").style("top",
-				(d3.event.pageY-20)+"px").style("left",(d3.event.pageX+20)+"px");})
-			.on("mouseout", function(d,i){return d3.select("div.tooltip:nth-child("+(i+1)+")").style("visibility", "hidden");})
-			;
-	*/
-	var overCircle = false;
-
 	var fillColour=d3.rgb("#2E527E"),
 		colorScale = d3.scale.log()
 			.range([1.9,0.1])
 			.domain([1,maxYearNumber] );
 
-	xScale.domain([chartStartYear, chartEndYear ]);
+	var overCircle = false;
 	gData.append("g").selectAll("circle")
 		.data(function (d) {
 			return d.years.filter( function(o) { return o.number != 0; } );
@@ -225,80 +180,43 @@
 	var exclude = [];
 	gData.append("text")
 		.text(function(d) {
-			return d.name + " ☑";
+			return d.name;
 		})
 		.attr("y", barHeight/2)
 		.attr("x", function() {
 			return chartX - this.getBBox().width - 10;//return chartX - 250;
 		})
 		.on("click",function(d) {
-			var d3This = d3.select(this)
-			var i = exclude.indexOf(d.name);
-			if( i === -1 ) {
-				exclude.push(d.name);
-				d3This.text(d.name + " ☒");
-			}
-			else {
-				exclude.splice(i,1);
-				d3This.text(d.name + " ☑");
-			}
+			// window.location = "http://emlo.bodleian.ox.ac.uk/blog/";
+		});
 
-			d3This.classed("excluded",i === -1);
-			update();
-		})
-
-	/*gData.select("text")
-		.attr("x", function() {
-			return chartX - this.getBBox().width - 10;
-		})*/
-;
-
-	//////////////
-
-	// Create horizontal axis...
-	xAxisBottom = d3.svg.axis()
+	//
+	/* Create two horizontal axes... */
+	//
+	var xAxisBottom = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom")
-		.tickFormat( d3.format("g") );
+		.tickFormat( d3.format("g") ),
 
 	xAxisTop = d3.svg.axis()
 		.scale(xScale)
 		.orient("top")
 		.tickFormat( d3.format("g") );
 
-	// ...Draw the x-axis
 	chart.append("g")
-		.attr("class", "x axis")
+		.attr("class", "x axis bottom")
 		.attr("transform", "translate(0,"+ (chartHeight + chartY) + ")")
 		.call(xAxisBottom);
 
 	chart.append("g")
-		.attr("class", "x axis")
+		.attr("class", "x axis top")
 		.attr("transform", "translate(0," + chartY + ")")
 		.call(xAxisTop);
 
-	//////////////////
 
-	// Add a hover over text
-	/*d3.select("body")
-			.append("div")
-			.selectAll("div.tooltip")
-			.data(data, idFunction )
-				.enter()
-				.append("div")
-					.attr("class","tooltip")
-					.style("position", "absolute")
-					.style("z-index", "10")
-					.style("visibility", "hidden")
-					.html(function (d) {
-						return "<strong>" + d.name + "</strong><br/>" +
-							d.count + " letters.<br/>" +
-							"From " + d.year.start + " to " + d.year.end;
-					})
-		;
-	*/
-
-
+	//
+	/* Tooltip setup */
+	//
 	var tooltip = d3.select("body")
 		.append("div")
 		.classed("tooltip",1)
@@ -344,6 +262,7 @@
 		.on("mouseout", function() {
 			return tooltip.style("visibility", "hidden");
 		});
+
 
 	function generateSort( memberFunction, ascending ) {
 		/* Generate a sort function with particular features */
@@ -413,9 +332,11 @@
 		
 		var title = "";
 
-		if ( mode === "years") {
-
 			title = "Year coverage of letters in catalogues";
+
+
+			var maxCount = d3.max(data, function(d) { return d.count; }),
+				minCount = d3.min(data, function(d) { return d.count; });
 
 			/*var xDomainMin = d3.min(data, function(d) {
 					if( excluded(d) ) {
@@ -501,8 +422,8 @@
 
 
 			xAxisBottom.tickFormat( d3.format(",g") );
-		}
-		else if ( mode === "chart") {
+
+		/*else if ( mode === "chart") {
 
 			title = "Number of letters in catalogue.";
 
@@ -528,7 +449,7 @@
 				.exit().remove();
 
 			xAxisBottom.tickFormat( d3.format("g") );
-		}
+		}*/
 
 		d3.select("#title").text(title);
 
@@ -540,6 +461,10 @@
 		update("chart");
 	}, 100 );
 
+	setTimeout( function() {
+
+		update("chart");
+	}, 200 );
 
 	// detect changes in radio buttons
 	d3.selectAll(".mode input").on("change", function() {
@@ -549,5 +474,9 @@
 	d3.selectAll(".sort input").on("change", function() {
 		order( this.value );
 	});
+
+	d3.select("#btnYear1750").on("click", function() {
+
+	})
 
 })();
