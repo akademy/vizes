@@ -109,7 +109,7 @@
 	//	svgHeight = screen.availHeight - 200; //chart.y;
 
 	var chartX = 250,
-		chartY = 10,
+		chartY = 20,
 		chartHeight = svgHeight - chartY - 50,
 		chartWidth = svgWidth - chartX - 50;
 
@@ -132,8 +132,6 @@
 		chartEndYear = endYear + 20;
 		
 	var barHeight = chartHeight / data.length;
-	
-	var fillColour=d3.rgb("#2E527E");
 
 	// generate xscale range
 	var xScale = d3.scale.linear()
@@ -143,7 +141,7 @@
 		.range([1,10,barHeight/2])
 		.domain([1,100,maxYearNumber]);
 
-	var gData, xAxis;
+	var gData, xAxisBottom;
 
 
 	var idFunction = function(d) { return d.name + d.originalPosition ; };
@@ -189,6 +187,11 @@
 	*/
 	var overCircle = false;
 
+	var fillColour=d3.rgb("#2E527E"),
+		colorScale = d3.scale.log()
+			.range([1.9,0.1])
+			.domain([1,maxYearNumber] );
+
 	xScale.domain([chartStartYear, chartEndYear ]);
 	gData.append("g").selectAll("circle")
 		.data(function (d) {
@@ -203,7 +206,7 @@
 			.attr("r",function (d) {
 				return 0;//sizeScale(d.number);
 			} )
-			.attr("style", function(d) { return "fill:" + fillColour.brighter(100/Math.max(d.number,100)).toString(); } )
+			.attr("style", function(d) { return "fill:" + fillColour.brighter(colorScale(d.number)).toString(); } )
 
 			.on("mouseover", function(d) {
 				var year = (d.year === dummyYear) ? "Undated" : d.year;
@@ -253,15 +256,26 @@
 	//////////////
 
 	// Create horizontal axis...
-	xAxis = d3.svg.axis()
+	xAxisBottom = d3.svg.axis()
 		.scale(xScale)
-		.orient("bottom");
+		.orient("bottom")
+		.tickFormat( d3.format("g") );
+
+	xAxisTop = d3.svg.axis()
+		.scale(xScale)
+		.orient("top")
+		.tickFormat( d3.format("g") );
 
 	// ...Draw the x-axis
 	chart.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0,"+ (chartHeight + chartY) + ")")
-		.call(xAxis);
+		.call(xAxisBottom);
+
+	chart.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + chartY + ")")
+		.call(xAxisTop);
 
 	//////////////////
 
@@ -463,7 +477,7 @@
 			chart.select(".x.axis")
 				.transition()
 				.duration(500)
-				.call(xAxis);
+				.call(xAxisBottom);
 
 			var xAxisTicks = xScale.ticks();
 
@@ -486,8 +500,7 @@
 				.attr("y2", chartY + chartHeight );
 
 
-
-			xAxis.tickFormat( d3.format(",g") );
+			xAxisBottom.tickFormat( d3.format(",g") );
 		}
 		else if ( mode === "chart") {
 
@@ -508,13 +521,13 @@
 			chart.select(".x.axis")
 				.transition()
 				.duration(500)
-				.call(xAxis);
+				.call(xAxisBottom);
 
 			chart.select("g.guidelines").selectAll( "line.guideline" )
 				.data( [] )
 				.exit().remove();
 
-			xAxis.tickFormat( d3.format("g") );
+			xAxisBottom.tickFormat( d3.format("g") );
 		}
 
 		d3.select("#title").text(title);
