@@ -8,10 +8,10 @@
 	var dataTemp = {},
 		dummyYear = 1490;
 
-	var data = [], maxYearNumber = 0, catalogues;
+	var dataAll = [], dataFiltered = [], maxYearNumber = 0, catalogues;
 
 	//
-	/* Convert data into a usable format */
+	/* Convert dataAll into a usable format */
 	//
 
 	for( var i=0; i < dataPostgres.length; i++ ) {
@@ -40,7 +40,7 @@
 	}
 
 	catalogues = Object.keys(dataTemp);
-	for( i=0; i < catalogues.length; i++ ) {
+	for( i=0; i < /*catalogues.length*/10; i++ ) {
 		var catName = catalogues[i],
 			start = dataTemp[catName]["start"],
 			end = dataTemp[catName]["end"],
@@ -53,25 +53,25 @@
 			if( y in dataTemp[catName] ) {
 				number = dataTemp[catName][y]
 			}
-			else {
-				number = 0;
+
+			if( number != 0 ) {
+				years.push( {
+					"year" : y,
+					"number" : number
+				} );
+				count += number;
+
+				if( y !== dummyYear && number > maxYearNumber ) {
+					maxYearNumber = number;
+				}
 			}
 
-			years.push( {
-				"year" : y,
-				"number" : number
-			} );
-			count += number;
-
-			if( y !== dummyYear && number > maxYearNumber ) {
-				maxYearNumber = number;
-			}
 		}
 
-		data.push( {
-			"name": catName,
-			"count" : count,
-			"years": years,
+		dataAll.push( {
+			name : catName,
+			count : count,
+			years: years,
 			year : {
 				"start": start,
 				"end": end
@@ -80,7 +80,6 @@
 	}
 
 	dataTemp = null;
-	console.log(data);
 
 
 	//
@@ -92,6 +91,8 @@
 	// Set some defaults
 	var svgWidth = 1200,// = screen.availWidth
 		svgHeight = 2000;// = screen.availHeight - 200
+
+	svgHeight = 500;
 
 	var chartX = 250,
 		chartY = 20,
@@ -108,12 +109,17 @@
 		.attr("height", svgHeight);
 
 	// Get max/mon counts
-		//startYear= d3.min(data, function(d) { return d.year.start; }),
-		//endYear= d3.max(data, function(d) { return d.year.end; }),
+		//startYear= d3.min(dataAll, function(d) { return d.year.start; }),
+		//endYear= d3.max(dataAll, function(d) { return d.year.end; }),
 		//chartStartYear = startYear - 10,
 		//chartEndYear = endYear + 20;
-		
-	var barHeight = chartHeight / data.length;
+
+	filterData( function() {
+		// TODO: Some filtering mechanism, probably picked up from url.
+		return true;
+	});
+
+	var barHeight = chartHeight / dataFiltered.length;
 
 	// generate xscale range
 	var xScale = d3.scale.linear()
@@ -127,13 +133,13 @@
 	var idFunction = function(d) { return d.name + d.originalPosition ; };
 
 	// Set the order to start with
-	orderBy("nameAsc");
+	orderBy("nameAsc", dataFiltered);
 
 	chart.append( "g" ).attr("class","guidelines");
 	
-	// Attach data (and create) g areas, which we transform into position
+	// Attach dataFiltered (and create) g areas, which we transform into position
 	var gData = chart.selectAll("g.data")
-		.data(data, idFunction )
+		.data(dataFiltered, idFunction )
 		.enter()
 			.append("g")
 				.attr("class","data")
@@ -150,7 +156,7 @@
 	var overCircle = false;
 	gData.append("g").selectAll("circle")
 		.data(function (d) {
-			return d.years.filter( function(o) { return o.number != 0; } );
+			return d.years;
 		},function(d) {
 			return d.year;
 		})
@@ -275,7 +281,7 @@
 		};
 	}
 	
-	function orderBy( by ) {
+	function orderBy( by, data ) {
 		/* Change the order of "data". */
 		if( by === "nameAsc" ) {
 			data.sort( generateSort( function(o) {return o.name;}, true ) );
@@ -303,13 +309,13 @@
 		}
 	}
 	
-	function order( value ) {
+	function order( value, data ) {
 		/* reorder bars on chart */
-		orderBy( value );
+		orderBy( value, data );
 		
 		chart.selectAll("g.data")
 			.data(data, idFunction )
-			// Update bars...
+			// Update existing bars...
 			.transition()
 			.delay( 0 )
 			.duration(1000)
@@ -327,156 +333,182 @@
 			//.remove();
 	}
 	
-	function update() {
+	function update( data ) {
 		/* Update to the correct chart, years or counts */
 		
-		var title = "";
+		var title = "Year coverage of letters in catalogues";
+		var d3DataGroup;
 
-			title = "Year coverage of letters in catalogues";
+		/* update catalogue group */
+		d3DataGroup = gData
+			.data(data, idFunction );
+
+		d3DataGroup
+			.transition()
+			.duration(1000)
+			.attr("transform", function(d, i) {
+				return "translate(0," + ((i * barHeight) + chartY) + ")";
+			});
+
+		d3DataGroup.exit()
+			.transition()
+			.duration(1000)
+			.attr("transform", function(d, i) {
+				return "translate(0," + (chartHeight+barHeight*3) +")";
+			})
+
+		d3DataGroup
+			.enter()
+			.append("g")
+			.attr("class","data")
+			.attr("transform", function(d, i) {
+				return "translate(0," + ((i * barHeight) + chartY) + ")";
+			});
 
 
-			var maxCount = d3.max(data, function(d) { return d.count; }),
-				minCount = d3.min(data, function(d) { return d.count; });
-
-			/*var xDomainMin = d3.min(data, function(d) {
-					if( excluded(d) ) {
-						return 10000;
-					}
-					return getDataYearStart(d);
-				}),
-				xDomainMax = d3.max(data, function(d) {
-					if( excluded(d) ) {
-						return 0;
-					}
-					return getDataYearEnd(d);
+		/* update circles in group */
+		d3DataGroup = gData.selectAll("g.circle")
+			.data(function (d) {
+				return d.years.filter( function() {
+					return d.year < chartStartYear || d.year > chartEndYear;
 				});
+			},function(d) {
+				return d.year;
+			});
 
-			xScale.domain([xDomainMin-10, xDomainMax+20 ]);*/
-			xScale.domain([chartStartYear, chartEndYear ]);
+		d3DataGroup
+			.attr("r",function (d) {
+				return sizeScale(d.number);
+			} );
 
-			// Use a log scale to show count as height of event box
-			var barHeightScale = d3.scale.log()
-				.range([5,barHeight-5])
-				.domain([minCount,maxCount]);
-
-			// Update rect position to show years
-			gData.select("rect")
-				.transition()
-				.duration(500)
-				.attr("x", function(d) {
-					return xScale(d.year.start);
-				})
-				.attr("width", function(d) {
-					if( excluded(d)) {
-						return xScale(0);
-					}
-					return xScale(d.year.end - d.year.start) - xScale(0);
-				})
-				.attr("y", function(d) {
-					return 5;//(barHeight - barHeightScale(d.count))/2;
-				} )
-				.attr("height", function(d) {
-					return barHeight - 5; //barHeightScale(d.count);
-				});
-
-			gData.select("g").selectAll("circle")
-				.transition()
-				.delay(function(d) { return (d.year - chartStartYear) * 3;})
-				.duration(1000)
-				//.attr("cx", function (d) { return xScale(d.year); } )
-				//.attr("cy",barHeight/2)
-				.attr("r",function (d) {
-					if( d.year == dummyYear ) {
-						return Math.min( sizeScale(d.number), 20 );
-					}
-					return sizeScale(d.number);
-				} )
-
-			;
-
-			// Redraw x-axis with years
-			chart.select(".x.axis")
-				.transition()
-				.duration(500)
-				.call(xAxisBottom);
-
-			var xAxisTicks = xScale.ticks();
-
-			// Create some guidelines so we can see where years come in.
-			guidelines = chart.select("g.guidelines").selectAll( "line.guideline" )
-				.data( xAxisTicks );
-
-			guidelines.enter().append( "line" )
-				.classed("guideline", 1 )
-				.attr("x1", function(d) { return xScale(d); } )
-				.attr("x2", function(d) { return xScale(d); } )
-				.attr("y1", chartY )
-				.attr("y2", chartY + chartHeight );
-
-			chart.select("g.guidelines").append("line")
-				.classed("mouse",1)
-				.attr("x1", -1 )
-				.attr("x2", -1 )
-				.attr("y1", chartY )
-				.attr("y2", chartY + chartHeight );
+		d3DataGroup
+			.exit()
+			.transition()
+			.duration(100)
+			.attr("r", 0 );
 
 
-			xAxisBottom.tickFormat( d3.format(",g") );
+		var maxCount = d3.max(data, function(d) { return d.count; }),
+			minCount = d3.min(data, function(d) { return d.count; });
 
-		/*else if ( mode === "chart") {
 
-			title = "Number of letters in catalogue.";
+		//xScale.domain([xDomainMin-10, xDomainMax+20 ]);
+		xScale.domain([chartStartYear, chartEndYear ]);
 
-			xScale.domain([0, d3.max(data, getDataCount )]);
+		// Use a log scale to show count as height of event box
+		var barHeightScale = d3.scale.log()
+			.range([5,barHeight-5])
+			.domain([minCount,maxCount]);
 
-			gData.select("rect")
-				.transition()
-				.duration(500)
-				.attr("x", xScale(0) )
-				.attr("width", function(d) {
-					return xScale(getDataCount(d)) - xScale(0);
-				})
-				.attr("y", 0)
-				.attr("height", barHeight - 1);
+		// Update rect position to show years
+		gData.select("rect")
+			.transition()
+			.duration(500)
+			.attr("x", function(d) {
+				return xScale(d.year.start);
+			})
+			.attr("width", function(d) {
+				if( excluded(d)) {
+					return xScale(0);
+				}
+				return xScale(d.year.end - d.year.start) - xScale(0);
+			})
+			.attr("y", function(d) {
+				return 5;//(barHeight - barHeightScale(d.count))/2;
+			} )
+			.attr("height", function(d) {
+				return barHeight - 5; //barHeightScale(d.count);
+			});
 
-			chart.select(".x.axis")
-				.transition()
-				.duration(500)
-				.call(xAxisBottom);
+		gData.select("g").selectAll("circle")
+			.transition()
+			.delay(function(d) { return (d.year - chartStartYear) * 3;})
+			.duration(1000)
+			//.attr("cx", function (d) { return xScale(d.year); } )
+			//.attr("cy",barHeight/2)
+			.attr("r",function (d) {
+				if( d.year == dummyYear ) {
+					return Math.min( sizeScale(d.number), 20 );
+				}
+				return sizeScale(d.number);
+			} )
 
-			chart.select("g.guidelines").selectAll( "line.guideline" )
-				.data( [] )
-				.exit().remove();
+		;
 
-			xAxisBottom.tickFormat( d3.format("g") );
-		}*/
+		// Redraw x-axis with years
+		chart.select(".x.axis")
+			.transition()
+			.duration(500)
+			.call(xAxisBottom);
+
+		var xAxisTicks = xScale.ticks();
+
+		// Create some guidelines so we can see where years come in.
+		guidelines = chart.select("g.guidelines").selectAll( "line.guideline" )
+			.data( xAxisTicks );
+
+		guidelines.enter().append( "line" )
+			.classed("guideline", 1 )
+			.attr("x1", function(d) { return xScale(d); } )
+			.attr("x2", function(d) { return xScale(d); } )
+			.attr("y1", chartY )
+			.attr("y2", chartY + chartHeight );
+
+		chart.select("g.guidelines").append("line")
+			.classed("mouse",1)
+			.attr("x1", -1 )
+			.attr("x2", -1 )
+			.attr("y1", chartY )
+			.attr("y2", chartY + chartHeight );
+
+
+		xAxisBottom.tickFormat( d3.format(",g") );
 
 		d3.select("#title").text(title);
 
 	}
 
+	function filterData( filterer ) {
+		dataFiltered = dataAll.filter( filterer );
+	}
 
-	// Update the chart on load, this makes the first bars "appear".
+	function filterDataYears( start, end ) {
+		filterData( function(d) {
+			for( var y=0;y<d.years.length;y+=1 ) {
+				if( d.years[y].year != dummyYear && d.years[y].year > start && d.years[y].year < end ) {
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
+	// Update the chart on load, this makes the first circles "appear".
 	setTimeout( function() {
-		update("chart");
-	}, 100 );
+		update( dataFiltered );
+	}, 10 );
 
 	setTimeout( function() {
+		filterDataYears(1680, 1750);
+		update( dataFiltered );
 
-		update("chart");
-	}, 200 );
+	}, 1500 );
 
-	// detect changes in radio buttons
-	d3.selectAll(".mode input").on("change", function() {
-		mode = this.value;
-		update();
-	});
+	setTimeout( function() {
+		filterData( function() {
+			return true;
+		});
+
+		update( dataFiltered );
+
+	}, 3000 );
+
 	d3.selectAll(".sort input").on("change", function() {
-		order( this.value );
+		order( this.value, dataFiltered );
 	});
 
 	d3.select("#btnYear1750").on("click", function() {
-
+		//filterDataYears(1750, 1799);
 	})
 
 })();
