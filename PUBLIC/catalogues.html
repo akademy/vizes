@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title></title>
     <style>
+        svg {
+            margin-top: 30px;
+        }
         .data rect {
             fill: #2E527E;
         }
@@ -14,7 +17,6 @@
         .data:hover text {
             fill: #2E527E !important;
             text-decoration: underline;
-            font-weight: bold;
         }
 
         .data text {
@@ -27,6 +29,7 @@
         .chart text {
             fill: black;
             font: 10px sans-serif;
+            font-size: 14px;
             text-anchor: right;
         }
 
@@ -61,6 +64,11 @@
             stroke-width: 10;
             /*shape-rendering: crispEdges;*/
         }
+        circle.outside {
+            fill: white;
+            stroke: black;
+            stroke-width: 1;
+        }
         .data circle:hover {
             fill: #EFC319 !important;
             stroke: #EFC319;
@@ -70,7 +78,7 @@
 </head>
 
     <body>
-        <h3 id="title"></h3>
+        <h3 id="title">The number of letters per year per catalogue</h3>
 
         <!--<form class="mode">
             <span>Chart type:</span>
@@ -78,7 +86,16 @@
             <label><input type="radio" name="mode" value="years"> Years</label>
         </form>-->
         <form class="sort">
-            <button id="btnYear1750">1750 - 1799</button><br/>
+            <button type="button" id="btnYearAll">All</button>
+            <button type="button" id="btnYear1500">1500 - 1549</button>
+            <button type="button" id="btnYear1550">1550 - 1599</button>
+            <button type="button" id="btnYear1600">1600 - 1649</button>
+            <button type="button" id="btnYear1650">1650 - 1699</button>
+            <button type="button" id="btnYear1700">1700 - 1749</button>
+            <button type="button" id="btnYear1750">1750 - 1799</button>
+            <button type="button" id="btnYear1800">1800 - 1850</button>
+            <br/>
+
             <span>Order by:</span>
             <label><input type="radio" name="sort" value="countAsc" checked="yes"> Letter Count</label>
             <!--<label><input type="radio" name="sort" value="countDesc"> Count descending</label>-->

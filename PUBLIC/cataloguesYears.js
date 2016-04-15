@@ -8,7 +8,7 @@
 	var dataTemp = {},
 		dummyYear = 1490;
 
-	var dataAll = [], dataFiltered = [], maxYearNumber = 0, catalogues;
+	var dataAll = [], dataFiltered = [], catalogues;
 
 	//
 	/* Convert dataAll into a usable format */
@@ -40,7 +40,8 @@
 	}
 
 	catalogues = Object.keys(dataTemp);
-	for( i=0; i < /*catalogues.length*/10; i++ ) {
+	var limit = catalogues.length;//10;//
+	for( i=0; i < limit; i++ ) {
 		var catName = catalogues[i],
 			start = dataTemp[catName]["start"],
 			end = dataTemp[catName]["end"],
@@ -60,12 +61,7 @@
 					"number" : number
 				} );
 				count += number;
-
-				if( y !== dummyYear && number > maxYearNumber ) {
-					maxYearNumber = number;
-				}
 			}
-
 		}
 
 		dataAll.push( {
@@ -78,6 +74,8 @@
 			}
 		});
 	}
+
+	var maxYearNumber = getMaxYearNumber(dataAll);
 
 	dataTemp = null;
 
@@ -92,7 +90,7 @@
 	var svgWidth = 1200,// = screen.availWidth
 		svgHeight = 2000;// = screen.availHeight - 200
 
-	svgHeight = 500;
+	svgHeight = dataAll.length * 50;
 
 	var chartX = 250,
 		chartY = 20,
@@ -135,8 +133,15 @@
 	// Set the order to start with
 	orderBy("nameAsc", dataFiltered);
 
-	chart.append( "g" ).attr("class","guidelines");
-	
+	chart.append( "g" )
+		.attr("class","guidelines")
+			.append("line")
+				.classed("mouse",1)
+				.attr("x1", -1 )
+				.attr("x2", -1 )
+				.attr("y1", chartY )
+				.attr("y2", chartY + chartHeight );
+
 	// Attach dataFiltered (and create) g areas, which we transform into position
 	var gData = chart.selectAll("g.data")
 		.data(dataFiltered, idFunction )
@@ -150,8 +155,8 @@
 
 	var fillColour=d3.rgb("#2E527E"),
 		colorScale = d3.scale.log()
-			.range([1.9,0.1])
-			.domain([1,maxYearNumber] );
+		.range([1.9,0.1])
+		.domain([1,maxYearNumber] ); // keep radii same for entire set, but change colour based subset
 
 	var overCircle = false;
 	gData.append("g").selectAll("circle")
@@ -183,7 +188,6 @@
 	;
 
 	// Attach name of catalogue
-	var exclude = [];
 	gData.append("text")
 		.text(function(d) {
 			return d.name;
@@ -335,9 +339,11 @@
 	
 	function update( data ) {
 		/* Update to the correct chart, years or counts */
-		
-		var title = "Year coverage of letters in catalogues";
+
 		var d3DataGroup;
+		var yearBuffer = (chartEndYear - chartStartYear) * 0.05;
+		var circleDuration = 1000,
+			axisDuration = 500;
 
 		/* update catalogue group */
 		d3DataGroup = gData
@@ -345,17 +351,18 @@
 
 		d3DataGroup
 			.transition()
-			.duration(1000)
+			.duration(circleDuration)
 			.attr("transform", function(d, i) {
 				return "translate(0," + ((i * barHeight) + chartY) + ")";
 			});
 
-		d3DataGroup.exit()
+		d3DataGroup
+			.exit()
 			.transition()
-			.duration(1000)
+			.duration(circleDuration)
 			.attr("transform", function(d, i) {
 				return "translate(0," + (chartHeight+barHeight*3) +")";
-			})
+			});
 
 		d3DataGroup
 			.enter()
@@ -365,66 +372,36 @@
 				return "translate(0," + ((i * barHeight) + chartY) + ")";
 			});
 
-
-		/* update circles in group */
-		d3DataGroup = gData.selectAll("g.circle")
-			.data(function (d) {
-				return d.years.filter( function() {
-					return d.year < chartStartYear || d.year > chartEndYear;
-				});
-			},function(d) {
-				return d.year;
-			});
-
-		d3DataGroup
-			.attr("r",function (d) {
-				return sizeScale(d.number);
-			} );
-
-		d3DataGroup
-			.exit()
-			.transition()
-			.duration(100)
-			.attr("r", 0 );
-
-
 		var maxCount = d3.max(data, function(d) { return d.count; }),
-			minCount = d3.min(data, function(d) { return d.count; });
+			minCount = 0;//d3.min(data, function(d) { return d.count; });
 
-
-		//xScale.domain([xDomainMin-10, xDomainMax+20 ]);
-		xScale.domain([chartStartYear, chartEndYear ]);
+		xScale.domain([chartStartYear - yearBuffer, chartEndYear+ yearBuffer ]);
 
 		// Use a log scale to show count as height of event box
 		var barHeightScale = d3.scale.log()
 			.range([5,barHeight-5])
 			.domain([minCount,maxCount]);
 
-		// Update rect position to show years
-		gData.select("rect")
-			.transition()
-			.duration(500)
-			.attr("x", function(d) {
-				return xScale(d.year.start);
-			})
-			.attr("width", function(d) {
-				if( excluded(d)) {
-					return xScale(0);
-				}
-				return xScale(d.year.end - d.year.start) - xScale(0);
-			})
-			.attr("y", function(d) {
-				return 5;//(barHeight - barHeightScale(d.count))/2;
-			} )
-			.attr("height", function(d) {
-				return barHeight - 5; //barHeightScale(d.count);
+
+		d3DataGroup = gData.select("g").selectAll("circle")
+			.data(function (d) {
+				return d.years.filter( function(d) {
+					return true;// d.year > chartStartYear - yearBuffer && d.year < chartEndYear + yearBuffer;
+				});
+			},function(d) {
+				return d.year;
 			});
 
-		gData.select("g").selectAll("circle")
+		var maxNumber = getMaxYearNumber(data);
+
+		colorScale
+			.domain([1,maxNumber] ); // keep radii same for entire set, but change colour based on subset
+
+		d3DataGroup
 			.transition()
-			.delay(function(d) { return (d.year - chartStartYear) * 3;})
-			.duration(1000)
-			//.attr("cx", function (d) { return xScale(d.year); } )
+			//.delay(function(d) { return (d.year - chartStartYear) * 3;})
+			.duration(circleDuration)
+			.attr("cx", function (d) { return xScale(d.year); } )
 			//.attr("cy",barHeight/2)
 			.attr("r",function (d) {
 				if( d.year == dummyYear ) {
@@ -432,14 +409,56 @@
 				}
 				return sizeScale(d.number);
 			} )
+			.attr("fill-opacity", function(d) {
+				var op;
+				if( d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer ) {
+					// totally outside of range
+					op = 0;
+				}
+				else if( d.year > chartStartYear && d.year < chartEndYear ) {
+					// totally inside range
+					op = 1;
+				}
+				else {
+					// Inside buffer region.
+					if( d.year < chartStartYear ) {
+						op = (chartStartYear - d.year) / yearBuffer;
+					}
+					else {
+						op = (d.year - chartEndYear ) / yearBuffer;
+					}
 
-		;
+					op = 1 - op;
+				}
+				return op.toString();
+			})
+			.attr("fill", function(d) {
+				var scale = colorScale(d.number),
+					colour = fillColour.brighter(scale).toString();
+				return colour;
+			} );
+
+		d3DataGroup
+			.exit();
+			//.transition()
+			//.delay(function(d) { return (d.year - chartStartYear) * 3;})
+			//.duration(1000)
+			//.attr("r",0 );
+
+
+		var dataChartHeight = (barHeight*data.length);
 
 		// Redraw x-axis with years
-		chart.select(".x.axis")
+		chart.select(".x.axis.bottom")
 			.transition()
-			.duration(500)
-			.call(xAxisBottom);
+			.duration(circleDuration) // use circle duration, otherwise it "overtakes" the circle transisition
+			.call(xAxisBottom)
+			.attr("transform", "translate(0,"+ (dataChartHeight+15) + ")");
+
+		chart.select(".x.axis.top")
+			.transition()
+			.duration(axisDuration)
+			.call(xAxisTop);
 
 		var xAxisTicks = xScale.ticks();
 
@@ -447,24 +466,31 @@
 		guidelines = chart.select("g.guidelines").selectAll( "line.guideline" )
 			.data( xAxisTicks );
 
-		guidelines.enter().append( "line" )
+		guidelines
+			.transition()
+			.duration( circleDuration )
+			.attr("x1", function(d) { return xScale(d); } )
+			.attr("x2", function(d) { return xScale(d); } )
+			.attr("y1", chartY )
+			.attr("y2", chartY + dataChartHeight );
+
+		guidelines
+			.enter()
+			.append( "line" )
 			.classed("guideline", 1 )
 			.attr("x1", function(d) { return xScale(d); } )
 			.attr("x2", function(d) { return xScale(d); } )
 			.attr("y1", chartY )
-			.attr("y2", chartY + chartHeight );
+			.attr("y2", chartY + dataChartHeight );
 
-		chart.select("g.guidelines").append("line")
-			.classed("mouse",1)
-			.attr("x1", -1 )
-			.attr("x2", -1 )
-			.attr("y1", chartY )
-			.attr("y2", chartY + chartHeight );
+		guidelines
+			.exit()
+			.remove();
 
-
-		xAxisBottom.tickFormat( d3.format(",g") );
-
-		d3.select("#title").text(title);
+		chart.select("g.guidelines line.mouse")
+			.transition()
+			.duration( circleDuration )
+			.attr("y2", chartY + dataChartHeight );
 
 	}
 
@@ -483,23 +509,42 @@
 		});
 	}
 
+	function chartYears( start, end ) {
+		chartStartYear = start;
+		chartEndYear = end;
+
+		filterDataYears( chartStartYear, chartEndYear );
+	}
+
+	function getMaxYearNumber( data ) {
+		var max = 0;
+
+		for( var i=0;i<data.length;i++) {
+			var years = data[i].years;
+			for( var j = 0; j<years.length; j++ ) {
+				if(  years[j].year !== dummyYear && years[j].number > max  ) {
+					max = years[j].number;
+				}
+			}
+		}
+
+		return max;
+	}
+
 	// Update the chart on load, this makes the first circles "appear".
 	setTimeout( function() {
 		update( dataFiltered );
 	}, 10 );
 
 	setTimeout( function() {
-		filterDataYears(1680, 1750);
-		update( dataFiltered );
+		//chartYears( 1680, 1750 );
+		//update( dataFiltered );
 
 	}, 1500 );
 
 	setTimeout( function() {
-		filterData( function() {
-			return true;
-		});
-
-		update( dataFiltered );
+		//chartYears( 1500, 1850 );
+		//update( dataFiltered );
 
 	}, 3000 );
 
@@ -507,8 +552,39 @@
 		order( this.value, dataFiltered );
 	});
 
+
+	d3.select("#btnYearAll").on("click", function() {
+		chartYears( defaultStartYear, defaultEndYear );
+		update( dataFiltered );
+	});
+
+	d3.select("#btnYear1500").on("click", function() {
+		chartYears( 1500, 1549 );
+		update( dataFiltered );
+	});
+	d3.select("#btnYear1550").on("click", function() {
+		chartYears( 1550, 1599 );
+		update( dataFiltered );
+	});
+	d3.select("#btnYear1600").on("click", function() {
+		chartYears( 1600, 1649 );
+		update( dataFiltered );
+	});
+	d3.select("#btnYear1650").on("click", function() {
+		chartYears( 1650, 1699 );
+		update( dataFiltered );
+	});
+	d3.select("#btnYear1700").on("click", function() {
+		chartYears( 1700, 1749 );
+		update( dataFiltered );
+	});
 	d3.select("#btnYear1750").on("click", function() {
-		//filterDataYears(1750, 1799);
-	})
+		chartYears( 1750, 1799 );
+		update( dataFiltered );
+	});
+	d3.select("#btnYear1800").on("click", function() {
+		chartYears( 1800, 1850 );
+		update( dataFiltered );
+	});
 
 })();
