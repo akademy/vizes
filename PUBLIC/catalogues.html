@@ -44,6 +44,12 @@
             shape-rendering: crispEdges;
         }
 
+        .tick:first-child text,
+        .tick:last-child text,  /* doesnt work? */
+        .tick:nth-last-child(2) text {
+            font-weight: bold;
+        }
+
         line.mouse {
             stroke: #333;
         }
@@ -74,6 +80,7 @@
             stroke: #EFC319;
             stroke-width:10;
         }
+
     </style>
 </head>
 
@@ -107,7 +114,7 @@
             <!--<label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>-->
         </form>
 
-        <svg class="chart"></svg>
+        <div class="chart" style="width:100%"></div>
 
         <script src="lib/d3.min.js"></script>
         <script src="data/catalogues.js"></script>

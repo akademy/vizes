@@ -84,13 +84,20 @@
 	/* Create D3 Chart */
 	//
 
-	var chart = d3.select(".chart");
+	var chartDiv = d3.select(".chart"),
+		chart = chartDiv.append("svg"); // create our svg
 
 	// Set some defaults
 	var svgWidth = 1200,// = screen.availWidth
 		svgHeight = 2000;// = screen.availHeight - 200
 
 	svgHeight = dataAll.length * 50;
+
+	chart.attr("width", "100%" )  //svgWidth)
+		.attr("height", svgHeight);
+
+	svgWidth = chartDiv[0][0].clientWidth;
+	console.log(svgWidth,chartDiv);
 
 	var chartX = 250,
 		chartY = 20,
@@ -103,8 +110,7 @@
 		chartStartYear = defaultStartYear - 10,
 		chartEndYear = defaultEndYear + 20;
 
-	chart.attr("width", svgWidth)
-		.attr("height", svgHeight);
+
 
 	// Get max/mon counts
 		//startYear= d3.min(dataAll, function(d) { return d.year.start; }),
@@ -342,8 +348,8 @@
 
 		var d3DataGroup;
 		var yearBuffer = (chartEndYear - chartStartYear) * 0.05;
-		var circleDuration = 1000,
-			axisDuration = 500;
+		var circleDuration = 2000,
+			axisDuration = 100;
 
 		/* update catalogue group */
 		d3DataGroup = gData
