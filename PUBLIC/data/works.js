@@ -2,91 +2,6 @@ var worksByDecades;
 var worksByYears;
 
 worksByYears = {
-	"response": {
-		"lst": [
-			{
-				"-name": "responseHeader",
-				"int": [
-					{
-						"-name": "status",
-						"#text": "0"
-					},
-					{
-						"-name": "QTime",
-						"#text": "230"
-					}
-				],
-				"lst": {
-					"-name": "params",
-					"str": [
-						{
-							"-name": "facet.date.start",
-							"#text": "1500-01-01T00:00:00Z"
-						},
-						{
-							"-name": "facet",
-							"#text": "true"
-						},
-						{
-							"-name": "indent",
-							"#text": "on"
-						},
-						{
-							"-name": "facet.date",
-							"#text": "started_date_gregorian_sort"
-						},
-						{
-							"-name": "facet.date.other",
-							"#text": "all"
-						},
-						{
-							"-name": "wt",
-							"#text": "standard"
-						},
-						{
-							"-name": "rows",
-							"#text": "0"
-						},
-						{
-							"-name": "version",
-							"#text": "2.2"
-						},
-						{
-							"-name": "fl",
-							"#text": "*,score"
-						},
-						{
-							"-name": "start",
-							"#text": "0"
-						},
-						{
-							"-name": "q",
-							"#text": "cito\\:Catalog:*"
-						},
-						{
-							"-name": "facet.date.gap",
-							"#text": "+1YEARS"
-						},
-						{
-							"-name": "qt",
-							"#text": "standard"
-						},
-						{
-							"-name": "facet.date.end",
-							"#text": "1899-12-31T23:59:59Z"
-						},
-						{ "-name": "fq" }
-					]
-				}
-			},
-			{
-				"-name": "facet_counts",
-				"lst": [
-					{ "-name": "facet_queries" },
-					{ "-name": "facet_fields" },
-					{
-						"-name": "facet_dates",
-						"lst": {
 							"-name": "started_date_gregorian_sort",
 							"int": [
 								{
@@ -1710,106 +1625,10 @@ worksByYears = {
 								"-name": "end",
 								"#text": "1900-01-01T00:00:00Z"
 							}
-						}
-					}
-				]
-			}
-		],
-		"result": {
-			"-name": "response",
-			"-numFound": "101901",
-			"-start": "0",
-			"-maxScore": "1.0"
-		}
-	}
-}
+						};
 
 worksByDecades = {
-	"response": {
-	"lst": [
-		{
-			"-name": "responseHeader",
-			"int": [
-				{
-					"-name": "status",
-					"#text": "0"
-				},
-				{
-					"-name": "QTime",
-					"#text": "536"
-				}
-			],
-			"lst": {
-				"-name": "params",
-				"str": [
-					{
-						"-name": "facet.date.start",
-						"#text": "1500-01-01T00:00:00Z"
-					},
-					{
-						"-name": "facet",
-						"#text": "true"
-					},
-					{
-						"-name": "indent",
-						"#text": "on"
-					},
-					{
-						"-name": "facet.date",
-						"#text": "started_date_gregorian_sort"
-					},
-					{
-						"-name": "facet.date.other",
-						"#text": "all"
-					},
-					{
-						"-name": "wt",
-						"#text": "standard"
-					},
-					{
-						"-name": "rows",
-						"#text": "0"
-					},
-					{
-						"-name": "version",
-						"#text": "2.2"
-					},
-					{
-						"-name": "fl",
-						"#text": "*,score"
-					},
-					{
-						"-name": "start",
-						"#text": "0"
-					},
-					{
-						"-name": "q",
-						"#text": "cito\\:Catalog:*"
-					},
-					{
-						"-name": "facet.date.gap",
-						"#text": "+10YEARS"
-					},
-					{
-						"-name": "qt",
-						"#text": "standard"
-					},
-					{
-						"-name": "facet.date.end",
-						"#text": "1899-12-31T23:59:59Z"
-					},
-					{ "-name": "fq" }
-				]
-			}
-		},
-		{
-			"-name": "facet_counts",
-			"lst": [
-				{ "-name": "facet_queries" },
-				{ "-name": "facet_fields" },
-				{
-					"-name": "facet_dates",
-					"lst": {
+
 						"-name": "started_date_gregorian_sort",
 						"int": [
 							{
@@ -1993,16 +1812,4 @@ worksByDecades = {
 							"-name": "end",
 							"#text": "1900-01-01T00:00:00Z"
 						}
-					}
-				}
-			]
-		}
-	],
-		"result": {
-		"-name": "response",
-			"-numFound": "101901",
-			"-start": "0",
-			"-maxScore": "1.0"
-	}
-}
-}
+};
