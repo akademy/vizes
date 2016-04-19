@@ -57,7 +57,7 @@
 
 		var d = {
 			id : dataTemp[catName]["id"],
-			name : catName,
+			name : catName
 		};
 
 		for( y=start; y<=end; y++ ) {
@@ -429,7 +429,7 @@
 			.transition()
 			.ease(ease)
 			.duration(circleDuration)
-			.attr("transform", function(d, i) {
+			.attr("transform", function() {
 				return "translate(0," + (chartHeight+barHeight*3) +")";
 			});
 
@@ -441,24 +441,14 @@
 				return "translate(0," + ((i * barHeight) + chartY) + ")";
 			});
 
-		var maxCount = d3.max(data, function(d) { return d.count; }),
-			minCount = 0;//d3.min(data, function(d) { return d.count; });
-
 		xScale.domain([chartStartYear - yearBuffer, chartEndYear+ yearBuffer ]);
-
-		// Use a log scale to show count as height of event box
-		var barHeightScale = d3.scale.log()
-			.range([5,barHeight-5])
-			.domain([minCount,maxCount]);
 
 		gData.select("g").selectAll("circle")
 			.attr("fill-opacity", "1" );
 
 		d3DataGroup = gData.select("g").selectAll("circle")
 			.data(function (d) {
-				return d.years.filter( function(d) {
-					return true;// d.year > chartStartYear - yearBuffer && d.year < chartEndYear + yearBuffer;
-				});
+				return d.years
 			},function(d) {
 				return d.year;
 			});
