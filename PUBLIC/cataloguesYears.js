@@ -21,14 +21,16 @@
 		if( ! (catalogueName in dataTemp) ) {
 			dataTemp[catalogueName] = {
 				"start" : 2000,
-				"end" : 0
+				"end" : 0,
+				"id" : yearData["CatalogueId"]
 			};
 		}
 
 		if( yearData.year == 0 ) {
-			yearData.year = dummyYear; // A crafty cheat for entries without years.
+			yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bit me...)
 		}
 
+		// Create an entry for each year
 		dataTemp[catalogueName][yearData.year] = yearData.number;
 
 		if( yearData.year < dataTemp[catalogueName]["start"]) {
@@ -37,7 +39,12 @@
 		if( yearData.year > dataTemp[catalogueName]["end"]) {
 			dataTemp[catalogueName]["end"] = yearData.year;
 		}
+
 	}
+
+	console.log(dataTemp);
+
+
 
 	catalogues = Object.keys(dataTemp);
 	var limit = catalogues.length;//10;//
@@ -49,6 +56,7 @@
 			years = [], y;
 
 		var d = {
+			id : dataTemp[catName]["id"],
 			name : catName,
 		};
 
@@ -215,22 +223,39 @@
 			//	.text( function(d) { return d.year + " | " + d.number + " letters"; } )
 	;
 
+	/*
+	 var name = d.name;
+	 if( name.length > 25 ) {
+	 name = name.substr(0,22) + "...";
+	 }
+
+	 var blog = getBlogData( d.id );
+	 if( blog ) {
+	 return '<a xlink:href="' + blog.href + '">' + name + '</a>';
+	 }
+	 */
+
 	// Attach name of catalogue
 	gData.append("text")
-		.text(function(d) {
-			if( d.name.length > 25 ) {
-				return d.name.substr(0,22) + "...";
+		.html(function(d) {
+			var name = d.name;
+			if( name.length > 25 ) {
+				name = name.substr(0,22) + "...";
 			}
-			return d.name;
+
+			var blog = getBlogData( d.id );
+			if( blog ) {
+				return '<a xlink:href="' + blog.href + '">' + name + '</a>';
+			}
 		})
 		.attr("y", barHeight/2)
 		.attr("x", function() {
 			return chartX - this.getBBox().width;//return chartX - 250;
 		})
-		.on("click",function(d) {
+		//.on("click",function(d) {
 			// TODO: Add catalogue link.
-			window.location = "http://emlo.bodleian.ox.ac.uk/blog/?catalogue=" + d.name.replace(",","").replace(" ","-");
-		})
+			//window.location = "http://emlo.bodleian.ox.ac.uk/blog/?catalogue=" + d.name.replace(",","").replace(" ","-");
+		//})
 		//.on("mouseover", function(d) {
 		//	tooltip.style("visibility", "visible");
 		//	tooltip.html( "<b>" + d.name + "</b><br/>"

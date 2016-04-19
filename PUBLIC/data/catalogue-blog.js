@@ -527,3 +527,12 @@ var catIds = [
 		"name": "Wallis, John"
 	}
 ];
+
+function getBlogData( id ) {
+	for( var i=0;i<catalogueBlogData.length;i++) {
+		if( catalogueBlogData[i].catid === id ) {
+			return catalogueBlogData[i];
+		}
+	}
+	return null;
+}
