@@ -124,13 +124,6 @@
 		previousEndYear;
 
 
-
-	// Get max/mon counts
-		//startYear= d3.min(dataAll, function(d) { return d.year.start; }),
-		//endYear= d3.max(dataAll, function(d) { return d.year.end; }),
-		//chartStartYear = startYear - 10,
-		//chartEndYear = endYear + 20;
-
 	filterData( function() {
 		// TODO: Some filtering mechanism, probably picked up from url.
 		// so we can link to different portions of the timeline
@@ -195,9 +188,7 @@
 		.append("circle")
 			.attr("cx", function (d) { return xScale(d.year); } )
 			.attr("cy",barHeight/2)
-			.attr("r",function (d) {
-				return 0;//sizeScale(d.number);
-			} )
+			.attr("r", 0 )
 			.attr("style", function(d) { return "fill:" + fillColour.brighter(colorScale(d.number)).toString(); } )
 
 			.on("mouseover", function(d) {
@@ -218,22 +209,7 @@
 					window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
 				}
 			})
-
-			//.append("title")
-			//	.text( function(d) { return d.year + " | " + d.number + " letters"; } )
 	;
-
-	/*
-	 var name = d.name;
-	 if( name.length > 25 ) {
-	 name = name.substr(0,22) + "...";
-	 }
-
-	 var blog = getBlogData( d.id );
-	 if( blog ) {
-	 return '<a xlink:href="' + blog.href + '">' + name + '</a>';
-	 }
-	 */
 
 	// Attach name of catalogue
 	gData.append("text")
@@ -252,10 +228,7 @@
 		.attr("x", function() {
 			return chartX - this.getBBox().width;//return chartX - 250;
 		})
-		//.on("click",function(d) {
-			// TODO: Add catalogue link.
-			//window.location = "http://emlo.bodleian.ox.ac.uk/blog/?catalogue=" + d.name.replace(",","").replace(" ","-");
-		//})
+
 		//.on("mouseover", function(d) {
 		//	tooltip.style("visibility", "visible");
 		//	tooltip.html( "<b>" + d.name + "</b><br/>"
@@ -269,6 +242,7 @@
 		.append("title")
 			.text( function(d) { return d.name; } );
 
+	
 	//
 	/* Create two horizontal axes... */
 	//
