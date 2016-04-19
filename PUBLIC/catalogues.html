@@ -51,6 +51,7 @@
         }
 
         svg {
+            cursor: crosshair;
         }
         .data rect {
             fill: #2E527E;
@@ -116,6 +117,7 @@
             stroke: transparent;
             stroke-width: 10;
             /*shape-rendering: crispEdges;*/
+            cursor: pointer;
         }
         circle.outside {
             fill: white;
@@ -222,13 +224,14 @@
 </head>
 
     <body>
-        <h3 id="title">The number of letters per year per catalogue</h3>
+        <h1 id="title">Number of letters per year per catalogue in EMLO</h1>
+        <p>This is interactive chart shows the number of letters Early Modern Letters Online has a particular catalogue and year.
+        you can click on the catalogue names on the left to find more information about that catalogue, and click on the circles to see the list of letters for that year.</p>
 
-        <!--<form class="mode">
-            <span>Chart type:</span>
-            <label><input type="radio" name="mode" value="chart" checked="yes"> Chart</label>
-            <label><input type="radio" name="mode" value="years"> Years</label>
-        </form>-->
+        <p>The colour and size of each circle represents the number of letters a darker colour and larger circle indicates relatively more letters.</p>
+
+        <p>You can use the buttons or the slider to zoom in to see more detail. Only catalogues with letters in your chosen timeframe will be shown.</p>
+
         <form class="sort">
             <div class="button-bar">
                 <ul class="button-group unknown" style="display: inline-block;">
@@ -267,6 +270,7 @@
         <script src="lib/d3.min.js"></script>
         <script src="lib/d3.slider.js"></script>
         <script src="data/catalogues.js"></script>
+        <script src="data/catalogue-blog.js"></script>
         <script src="cataloguesYears.js"></script>
     </body>
 

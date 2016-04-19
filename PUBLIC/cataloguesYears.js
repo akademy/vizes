@@ -21,14 +21,16 @@
 		if( ! (catalogueName in dataTemp) ) {
 			dataTemp[catalogueName] = {
 				"start" : 2000,
-				"end" : 0
+				"end" : 0,
+				"id" : yearData["CatalogueId"]
 			};
 		}
 
 		if( yearData.year == 0 ) {
-			yearData.year = dummyYear; // A crafty cheat for entries without years.
+			yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bit me...)
 		}
 
+		// Create an entry for each year
 		dataTemp[catalogueName][yearData.year] = yearData.number;
 
 		if( yearData.year < dataTemp[catalogueName]["start"]) {
@@ -37,7 +39,12 @@
 		if( yearData.year > dataTemp[catalogueName]["end"]) {
 			dataTemp[catalogueName]["end"] = yearData.year;
 		}
+
 	}
+
+	console.log(dataTemp);
+
+
 
 	catalogues = Object.keys(dataTemp);
 	var limit = catalogues.length;//10;//
@@ -49,7 +56,8 @@
 			years = [], y;
 
 		var d = {
-			name : catName,
+			id : dataTemp[catName]["id"],
+			name : catName
 		};
 
 		for( y=start; y<=end; y++ ) {
@@ -116,13 +124,6 @@
 		previousEndYear;
 
 
-
-	// Get max/mon counts
-		//startYear= d3.min(dataAll, function(d) { return d.year.start; }),
-		//endYear= d3.max(dataAll, function(d) { return d.year.end; }),
-		//chartStartYear = startYear - 10,
-		//chartEndYear = endYear + 20;
-
 	filterData( function() {
 		// TODO: Some filtering mechanism, probably picked up from url.
 		// so we can link to different portions of the timeline
@@ -187,9 +188,7 @@
 		.append("circle")
 			.attr("cx", function (d) { return xScale(d.year); } )
 			.attr("cy",barHeight/2)
-			.attr("r",function (d) {
-				return 0;//sizeScale(d.number);
-			} )
+			.attr("r", 0 )
 			.attr("style", function(d) { return "fill:" + fillColour.brighter(colorScale(d.number)).toString(); } )
 
 			.on("mouseover", function(d) {
@@ -210,27 +209,26 @@
 					window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
 				}
 			})
-
-			//.append("title")
-			//	.text( function(d) { return d.year + " | " + d.number + " letters"; } )
 	;
 
 	// Attach name of catalogue
 	gData.append("text")
-		.text(function(d) {
-			if( d.name.length > 25 ) {
-				return d.name.substr(0,22) + "...";
+		.html(function(d) {
+			var name = d.name;
+			if( name.length > 25 ) {
+				name = name.substr(0,22) + "...";
 			}
-			return d.name;
+
+			var blog = getBlogData( d.id );
+			if( blog ) {
+				return '<a xlink:href="' + blog.href + '">' + name + '</a>';
+			}
 		})
 		.attr("y", barHeight/2)
 		.attr("x", function() {
 			return chartX - this.getBBox().width;//return chartX - 250;
 		})
-		.on("click",function(d) {
-			// TODO: Add catalogue link.
-			window.location = "http://emlo.bodleian.ox.ac.uk/blog/?catalogue=" + d.name.replace(",","").replace(" ","-");
-		})
+
 		//.on("mouseover", function(d) {
 		//	tooltip.style("visibility", "visible");
 		//	tooltip.html( "<b>" + d.name + "</b><br/>"
@@ -244,6 +242,7 @@
 		.append("title")
 			.text( function(d) { return d.name; } );
 
+	
 	//
 	/* Create two horizontal axes... */
 	//
@@ -312,7 +311,7 @@
 
 			}
 			
-			return tooltip.style("top",(d3.event.pageY-40)+"px").style("left",(d3.event.pageX+10)+"px");
+			return tooltip.style("top",(d3.event.pageY-50)+"px").style("left",(d3.event.pageX+20)+"px");
 		})
 		.on("mouseout", function() {
 			return tooltip.style("visibility", "hidden");
@@ -430,7 +429,7 @@
 			.transition()
 			.ease(ease)
 			.duration(circleDuration)
-			.attr("transform", function(d, i) {
+			.attr("transform", function() {
 				return "translate(0," + (chartHeight+barHeight*3) +")";
 			});
 
@@ -442,24 +441,14 @@
 				return "translate(0," + ((i * barHeight) + chartY) + ")";
 			});
 
-		var maxCount = d3.max(data, function(d) { return d.count; }),
-			minCount = 0;//d3.min(data, function(d) { return d.count; });
-
 		xScale.domain([chartStartYear - yearBuffer, chartEndYear+ yearBuffer ]);
-
-		// Use a log scale to show count as height of event box
-		var barHeightScale = d3.scale.log()
-			.range([5,barHeight-5])
-			.domain([minCount,maxCount]);
 
 		gData.select("g").selectAll("circle")
 			.attr("fill-opacity", "1" );
 
 		d3DataGroup = gData.select("g").selectAll("circle")
 			.data(function (d) {
-				return d.years.filter( function(d) {
-					return true;// d.year > chartStartYear - yearBuffer && d.year < chartEndYear + yearBuffer;
-				});
+				return d.years
 			},function(d) {
 				return d.year;
 			});
