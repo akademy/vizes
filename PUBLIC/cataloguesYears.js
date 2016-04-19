@@ -48,6 +48,9 @@
 			count = 0, number,
 			years = [], y;
 
+		var d = {
+			name : catName,
+		};
 
 		for( y=start; y<=end; y++ ) {
 			number = 0;
@@ -58,21 +61,21 @@
 			if( number != 0 ) {
 				years.push( {
 					"year" : y,
-					"number" : number
+					"number" : number,
+					"parent" : d
 				} );
 				count += number;
 			}
 		}
 
-		dataAll.push( {
-			name : catName,
-			count : count,
-			years: years,
-			year : {
-				"start": start,
-				"end": end
-			}
-		});
+		d.count = count;
+		d.years = years;
+		d.year = {
+			start: start,
+			end : end
+		};
+
+		dataAll.push( d );
 	}
 
 	var maxYearNumber = getMaxYearNumber(dataAll);
@@ -97,9 +100,8 @@
 		.attr("height", svgHeight);
 
 	svgWidth = chartDiv[0][0].clientWidth;
-	console.log(svgWidth,chartDiv);
 
-	var chartX = 250,
+	var chartX = 200,
 		chartY = 20,
 		chartHeight = svgHeight - chartY - 50,
 		chartWidth = svgWidth - chartX - 50;
@@ -108,7 +110,10 @@
 		defaultEndYear = 1850,
 
 		chartStartYear = defaultStartYear - 10,
-		chartEndYear = defaultEndYear + 20;
+		chartEndYear = defaultEndYear + 20,
+
+		previousStartYear,
+		previousEndYear;
 
 
 
@@ -120,6 +125,7 @@
 
 	filterData( function() {
 		// TODO: Some filtering mechanism, probably picked up from url.
+		// so we can link to different portions of the timeline
 		return true;
 	});
 
@@ -167,7 +173,13 @@
 	var overCircle = false;
 	gData.append("g").selectAll("circle")
 		.data(function (d) {
-			return d.years;
+			var data = [];
+			for( var i=0;i<d.years.length;i++) {
+				var o = d.years[i];
+				o.parent = d;
+				data.push(o);
+			}
+			return data;//d.years;
 		},function(d) {
 			return d.year;
 		})
@@ -183,10 +195,20 @@
 			.on("mouseover", function(d) {
 				var year = (d.year === dummyYear) ? "Undated" : d.year;
 				overCircle = true;
-				tooltip.text( year + " | " + d.number + " letters" );
+				tooltip.html( "<b>" + d.parent.name + "</b><br/>"
+					+ year + " | " + d.number + " letters<br/>"
+					+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search in EMLO)</small></p>');
 			})
 			.on("mouseout", function() {
 				overCircle = false;
+			})
+			.on( "click", function(d) {
+				if( d.year === dummyYear) {
+					window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
+				}
+				else {
+					window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
+				}
 			})
 
 			//.append("title")
@@ -196,15 +218,31 @@
 	// Attach name of catalogue
 	gData.append("text")
 		.text(function(d) {
+			if( d.name.length > 25 ) {
+				return d.name.substr(0,22) + "...";
+			}
 			return d.name;
 		})
 		.attr("y", barHeight/2)
 		.attr("x", function() {
-			return chartX - this.getBBox().width - 10;//return chartX - 250;
+			return chartX - this.getBBox().width;//return chartX - 250;
 		})
 		.on("click",function(d) {
-			// window.location = "http://emlo.bodleian.ox.ac.uk/blog/";
-		});
+			// TODO: Add catalogue link.
+			window.location = "http://emlo.bodleian.ox.ac.uk/blog/?catalogue=" + d.name.replace(",","").replace(" ","-");
+		})
+		//.on("mouseover", function(d) {
+		//	tooltip.style("visibility", "visible");
+		//	tooltip.html( "<b>" + d.name + "</b><br/>"
+		//		+ d.year.start + " to " + d.year.end + "<br/>"
+		//		+ d.count + "letters<br/>"
+		//		+ '<p style="text-align:right;width:100%;margin:0"><small>(click to learn more)</small></p>');
+		//})
+		//.on("mouseout", function() {
+		//	tooltip.style("visibility", "hidden");
+		//})
+		.append("title")
+			.text( function(d) { return d.name; } );
 
 	//
 	/* Create two horizontal axes... */
@@ -235,7 +273,7 @@
 	//
 	var tooltip = d3.select("body")
 		.append("div")
-		.classed("tooltip",1)
+		.classed("mytooltip",1)
 		.text("");
 
 	var guidelines;
@@ -266,7 +304,8 @@
 					.attr("x2", limitX )
 			}
 			else {
-				tooltip.text("");
+
+				tooltip.style("visibility", "hidden");
 				chart.select("g.guidelines line.mouse")
 					.attr("x1", -5 )
 					.attr("x2", -5 )
@@ -342,14 +381,37 @@
 			// Remove old bars...
 			//.remove();
 	}
-	
+
+	var initial = true;
 	function update( data ) {
 		/* Update to the correct chart, years or counts */
 
 		var d3DataGroup;
 		var yearBuffer = (chartEndYear - chartStartYear) * 0.05;
 		var circleDuration = 2000,
-			axisDuration = 100;
+			circleDelay = 0,
+			axisDuration = 2000,
+			ease = "easeInCirc";
+
+		if( initial ) {
+			circleDuration = 500;
+			circleDelay = function(d) { return (d.year - chartStartYear) * 3;};
+			axisDuration = 500;
+			ease = "linear";
+
+			initial = false;
+		}
+		else {
+			var yearChange = Math.max( Math.abs( previousStartYear - chartStartYear) , Math.abs( previousEndYear - chartEndYear) ),
+				duration = yearChange * 10;
+			if( duration > 2000) {
+				duration = 2000;
+			}
+			else if( duration < 800 ) {
+				duration = 800;
+			}
+			circleDuration = axisDuration = duration;
+		}
 
 		/* update catalogue group */
 		d3DataGroup = gData
@@ -357,6 +419,7 @@
 
 		d3DataGroup
 			.transition()
+			.ease(ease)
 			.duration(circleDuration)
 			.attr("transform", function(d, i) {
 				return "translate(0," + ((i * barHeight) + chartY) + ")";
@@ -365,6 +428,7 @@
 		d3DataGroup
 			.exit()
 			.transition()
+			.ease(ease)
 			.duration(circleDuration)
 			.attr("transform", function(d, i) {
 				return "translate(0," + (chartHeight+barHeight*3) +")";
@@ -388,6 +452,8 @@
 			.range([5,barHeight-5])
 			.domain([minCount,maxCount]);
 
+		gData.select("g").selectAll("circle")
+			.attr("fill-opacity", "1" );
 
 		d3DataGroup = gData.select("g").selectAll("circle")
 			.data(function (d) {
@@ -401,11 +467,12 @@
 		var maxNumber = getMaxYearNumber(data);
 
 		colorScale
-			.domain([1,maxNumber] ); // keep radii same for entire set, but change colour based on subset
+			.domain([1,maxNumber]); // keep radii same for entire set, but change colour based on subset
 
 		d3DataGroup
 			.transition()
-			//.delay(function(d) { return (d.year - chartStartYear) * 3;})
+			.ease(ease)
+			.delay(circleDelay)
 			.duration(circleDuration)
 			.attr("cx", function (d) { return xScale(d.year); } )
 			//.attr("cy",barHeight/2)
@@ -457,12 +524,14 @@
 		// Redraw x-axis with years
 		chart.select(".x.axis.bottom")
 			.transition()
+			.ease(ease)
 			.duration(circleDuration) // use circle duration, otherwise it "overtakes" the circle transisition
 			.call(xAxisBottom)
 			.attr("transform", "translate(0,"+ (dataChartHeight+15) + ")");
 
 		chart.select(".x.axis.top")
 			.transition()
+			.ease(ease)
 			.duration(axisDuration)
 			.call(xAxisTop);
 
@@ -516,8 +585,14 @@
 	}
 
 	function chartYears( start, end ) {
+
+		previousStartYear = chartStartYear,
+			previousEndYear = chartEndYear;
+
 		chartStartYear = start;
 		chartEndYear = end;
+
+		slider.value([start,end]);
 
 		filterDataYears( chartStartYear, chartEndYear );
 	}
@@ -537,22 +612,26 @@
 		return max;
 	}
 
+
+
 	// Update the chart on load, this makes the first circles "appear".
 	setTimeout( function() {
 		update( dataFiltered );
 	}, 10 );
 
-	setTimeout( function() {
-		//chartYears( 1680, 1750 );
-		//update( dataFiltered );
 
-	}, 1500 );
+	var slider = d3.slider()
+		.axis(true)
+		.min(defaultStartYear)
+		.max(defaultEndYear)
+		.value([defaultStartYear,defaultEndYear])
+		.on("slideend", function(evt, values) {
+			chartYears( Math.floor(values[0]), Math.ceil(values[1]) );
+			update( dataFiltered );
+			setButtons(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
+		});
 
-	setTimeout( function() {
-		//chartYears( 1500, 1850 );
-		//update( dataFiltered );
-
-	}, 3000 );
+	d3.select('#slider').call( slider );
 
 	d3.selectAll(".sort input").on("change", function() {
 		order( this.value, dataFiltered );
@@ -562,35 +641,76 @@
 	d3.select("#btnYearAll").on("click", function() {
 		chartYears( defaultStartYear, defaultEndYear );
 		update( dataFiltered );
+		setButtons(this);
 	});
-
+	
+	/*d3.select("#btnYearCustom").on("click", function() {
+		setButtons(this);
+	});*/
+	
 	d3.select("#btnYear1500").on("click", function() {
 		chartYears( 1500, 1549 );
 		update( dataFiltered );
+		setButtons(this);
 	});
 	d3.select("#btnYear1550").on("click", function() {
 		chartYears( 1550, 1599 );
 		update( dataFiltered );
+		setButtons(this);
 	});
 	d3.select("#btnYear1600").on("click", function() {
 		chartYears( 1600, 1649 );
 		update( dataFiltered );
+		setButtons(this);
 	});
 	d3.select("#btnYear1650").on("click", function() {
 		chartYears( 1650, 1699 );
 		update( dataFiltered );
+		setButtons(this);
 	});
 	d3.select("#btnYear1700").on("click", function() {
 		chartYears( 1700, 1749 );
 		update( dataFiltered );
+		setButtons(this);
 	});
 	d3.select("#btnYear1750").on("click", function() {
 		chartYears( 1750, 1799 );
 		update( dataFiltered );
+		setButtons(this);
 	});
 	d3.select("#btnYear1800").on("click", function() {
 		chartYears( 1800, 1850 );
 		update( dataFiltered );
+		setButtons(this);
 	});
+
+	d3.selectAll("#startYear,#endYear").on("change", function() {
+		var customStart = d3.select("#startYear"),
+			customEnd = d3.select("#endYear");
+
+		var start = parseInt(customStart.val() ),
+			end = parseInt(customEnd.val() );
+
+		a = start + end
+
+	});
+
+	function setButtons( button ) {
+		d3.selectAll("button").classed("highlight",0);
+		d3.select(button).classed("highlight",1);
+
+		/*var customStart = d3.select("#startYear"),
+			customEnd = d3.select("#endYear");
+
+		if( button.id === "btnYearCustom" ) {
+			customStart.attr("disabled",null);
+			customEnd.attr("disabled",null);
+		}
+		else {
+			customStart.attr("disabled",1);
+			customEnd.attr("disabled",1);
+
+		}*/
+	}
 
 })();
