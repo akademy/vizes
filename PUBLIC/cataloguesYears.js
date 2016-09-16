@@ -27,7 +27,7 @@
 		}
 
 		if( yearData.year == 0 ) {
-			yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bit me...)
+			yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
 		}
 
 		// Create an entry for each year
@@ -117,8 +117,11 @@
 	var defaultStartYear = 1500,
 		defaultEndYear = 1850,
 
-		chartStartYear = defaultStartYear - 10,
-		chartEndYear = defaultEndYear + 20,
+		defaultStartYearBuffered = dummyYear,//defaultStartYear - 10,
+		defaultEndYearBuffered = defaultEndYear + 20,
+
+		chartStartYear = defaultStartYearBuffered,
+		chartEndYear = defaultEndYearBuffered,
 
 		previousStartYear,
 		previousEndYear;
@@ -167,12 +170,13 @@
 	;
 
 	var fillColour=d3.rgb("#2E527E"),
-		colorScale = d3.scale.log()
+		fillColourNoYear=d3.rgb("#7E7E7E"),
+		colourScale = d3.scale.log()
 		.range([1.9,0.1])
 		.domain([1,maxYearNumber] ); // keep radii same for entire set, but change colour based subset
 
 	var overCircle = false;
-	gData.append("g").selectAll("circle")
+	gData.append("g").selectAll("ellipse")//"circle")
 		.data(function (d) {
 			var data = [];
 			for( var i=0;i<d.years.length;i++) {
@@ -185,30 +189,33 @@
 			return d.year;
 		})
 		.enter()
-		.append("circle")
-			.attr("cx", function (d) { return xScale(d.year); } )
-			.attr("cy",barHeight/2)
-			.attr("r", 0 )
-			.attr("style", function(d) { return "fill:" + fillColour.brighter(colorScale(d.number)).toString(); } )
+			.append("ellipse")
+				.attr("cy",barHeight/2)
+				.attr("fill", function(d) {
+					if( d.year === dummyYear ) {
+						return fillColourNoYear;
+					}
+					return fillColour;
+				} )
 
-			.on("mouseover", function(d) {
-				var year = (d.year === dummyYear) ? "Undated" : d.year;
-				overCircle = true;
-				tooltip.html( "<b>" + d.parent.name + "</b><br/>"
-					+ year + " | " + d.number + " letters<br/>"
-					+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search in EMLO)</small></p>');
-			})
-			.on("mouseout", function() {
-				overCircle = false;
-			})
-			.on( "click", function(d) {
-				if( d.year === dummyYear) {
-					window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
-				}
-				else {
-					window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
-				}
-			})
+				.on("mouseover", function(d) {
+					var year = (d.year === dummyYear) ? "Undated" : d.year;
+					overCircle = true;
+					tooltip.html( "<b>" + d.parent.name + "</b><br/>"
+						+ year + " | " + d.number + " letters<br/>"
+						+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search in EMLO)</small></p>');
+				})
+				.on("mouseout", function() {
+					overCircle = false;
+				})
+				.on( "click", function(d) {
+					if( d.year === dummyYear) {
+						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
+					}
+					else {
+						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
+					}
+				})
 	;
 
 	// Attach name of catalogue
@@ -219,9 +226,12 @@
 				name = name.substr(0,22) + "...";
 			}
 
-			var blog = getBlogData( d.id );
+			var blog = getBlogDataFromCatId( d.id );
 			if( blog ) {
 				return '<a xlink:href="' + blog.href + '">' + name + '</a>';
+			}
+			else {
+				return name + "(?)"
 			}
 		})
 		.attr("y", barHeight/2)
@@ -386,7 +396,7 @@
 		/* Update to the correct chart, years or counts */
 
 		var d3DataGroup;
-		var yearBuffer = (chartEndYear - chartStartYear) * 0.05;
+		var yearBuffer = (chartEndYear - chartStartYear) * 0.03;
 		var circleDuration = 2000,
 			circleDelay = 0,
 			axisDuration = 2000,
@@ -403,8 +413,8 @@
 		else {
 			var yearChange = Math.max( Math.abs( previousStartYear - chartStartYear) , Math.abs( previousEndYear - chartEndYear) ),
 				duration = yearChange * 10;
-			if( duration > 2000) {
-				duration = 2000;
+			if( duration > 1500) {
+				duration = 1500;
 			}
 			else if( duration < 800 ) {
 				duration = 800;
@@ -443,37 +453,55 @@
 
 		xScale.domain([chartStartYear - yearBuffer, chartEndYear+ yearBuffer ]);
 
-		gData.select("g").selectAll("circle")
-			.attr("fill-opacity", "1" );
+		gData.select("g").selectAll( "ellipse" ) //circle")
+			.attr("fill-opacity", function(d) {
+				return "0.5"
+			});
 
-		d3DataGroup = gData.select("g").selectAll("circle")
+		var maxNumber = getMaxYearNumber(data);
+		colourScale
+			.domain([1,maxNumber]); // keep radii same for entire set, but change colour based on subset
+
+		d3DataGroup = gData.select("g").selectAll("ellipse" ) //"circle")
 			.data(function (d) {
 				return d.years
 			},function(d) {
 				return d.year;
 			});
 
-		var maxNumber = getMaxYearNumber(data);
-
-		colorScale
-			.domain([1,maxNumber]); // keep radii same for entire set, but change colour based on subset
-
 		d3DataGroup
 			.transition()
 			.ease(ease)
 			.delay(circleDelay)
 			.duration(circleDuration)
-			.attr("cx", function (d) { return xScale(d.year); } )
-			//.attr("cy",barHeight/2)
-			.attr("r",function (d) {
+			.attr("cx", function (d) {
+				return xScale(d.year);
+			})
+			.attr("rx", function (d) {
+				if( d.year == dummyYear ) {
+					return Math.min( sizeScale(d.number), 20 );
+				}
+				return (xScale(d.year) - xScale(d.year-1))/2;//sizeScale.invert(2);
+			})
+			.attr("ry",function (d) {
 				if( d.year == dummyYear ) {
 					return Math.min( sizeScale(d.number), 20 );
 				}
 				return sizeScale(d.number);
-			} )
+			})
 			.attr("fill-opacity", function(d) {
 				var op;
-				if( d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer ) {
+
+				if( d.year === dummyYear ) {
+					if( chartStartYear === defaultStartYearBuffered ) {
+						op = 1;
+					}
+					else {
+						op = 0;
+					}
+
+				}
+				else if( d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer ) {
 					// totally outside of range
 					op = 0;
 				}
@@ -495,8 +523,14 @@
 				return op.toString();
 			})
 			.attr("fill", function(d) {
-				var scale = colorScale(d.number),
+				var scale = colourScale(d.number), colour;
+				if( d.year === dummyYear ) {
+					colour = fillColourNoYear.brighter(scale).toString();
+					console.log(colour);
+				}
+				else {
 					colour = fillColour.brighter(scale).toString();
+				}
 				return colour;
 			} );
 
@@ -611,66 +645,71 @@
 
 	var slider = d3.slider()
 		.axis(true)
-		.min(defaultStartYear)
-		.max(defaultEndYear)
+		.min(defaultStartYearBuffered)
+		.max(defaultEndYearBuffered)
 		.value([defaultStartYear,defaultEndYear])
 		.on("slideend", function(evt, values) {
 			chartYears( Math.floor(values[0]), Math.ceil(values[1]) );
 			update( dataFiltered );
-			setButtons(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
+			setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
 		});
 
 	d3.select('#slider').call( slider );
 
-	d3.selectAll(".sort input").on("change", function() {
-		order( this.value, dataFiltered );
+	d3.select("#btnSortNameAsc").on("click", function() {
+		order( "nameAsc", dataFiltered );
+		setButtonsOrder(this);
+	});
+	d3.select("#btnSortCountAsc").on("click", function() {
+		order( "countAsc", dataFiltered );
+		setButtonsOrder(this);
+	});
+	d3.select("#btnSortYearEndAsc").on("click", function() {
+		order( "endAsc", dataFiltered );
+		setButtonsOrder(this);
 	});
 
 
 	d3.select("#btnYearAll").on("click", function() {
-		chartYears( defaultStartYear, defaultEndYear );
+		chartYears( defaultStartYearBuffered, defaultEndYearBuffered );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
-	
-	/*d3.select("#btnYearCustom").on("click", function() {
-		setButtons(this);
-	});*/
 	
 	d3.select("#btnYear1500").on("click", function() {
 		chartYears( 1500, 1549 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 	d3.select("#btnYear1550").on("click", function() {
 		chartYears( 1550, 1599 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 	d3.select("#btnYear1600").on("click", function() {
 		chartYears( 1600, 1649 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 	d3.select("#btnYear1650").on("click", function() {
 		chartYears( 1650, 1699 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 	d3.select("#btnYear1700").on("click", function() {
 		chartYears( 1700, 1749 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 	d3.select("#btnYear1750").on("click", function() {
 		chartYears( 1750, 1799 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 	d3.select("#btnYear1800").on("click", function() {
 		chartYears( 1800, 1850 );
 		update( dataFiltered );
-		setButtons(this);
+		setButtonsYears(this);
 	});
 
 	d3.selectAll("#startYear,#endYear").on("change", function() {
@@ -684,8 +723,8 @@
 
 	});
 
-	function setButtons( button ) {
-		d3.selectAll("button").classed("highlight",0);
+	function setButtonsYears( button ) {
+		d3.selectAll(".years button").classed("highlight",0);
 		d3.select(button).classed("highlight",1);
 
 		/*var customStart = d3.select("#startYear"),
@@ -700,6 +739,11 @@
 			customEnd.attr("disabled",1);
 
 		}*/
+	}
+
+	function setButtonsOrder( button ) {
+		d3.selectAll(".order button").classed("highlight",0);
+		d3.select(button).classed("highlight",1);
 	}
 
 })();
