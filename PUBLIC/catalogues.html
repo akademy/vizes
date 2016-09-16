@@ -9,10 +9,12 @@
 
     <style>
 
-
-        form {
-            padding: 20px;
-        }
+		#intro {
+			max-width: 1000px;
+		}
+		#intro, #timeline-controls {
+			margin: 1% 3%;
+		}
 
         .custom-years {
             width:80%;
@@ -112,19 +114,18 @@
             color: white;
 
         }
-        circle {
-            fill : none;
+        ellipse, circle {
             stroke: transparent;
             stroke-width: 10;
             /*shape-rendering: crispEdges;*/
             cursor: pointer;
         }
-        circle.outside {
+        ellipse.outside, circle.outside {
             fill: white;
             stroke: black;
             stroke-width: 1;
         }
-        .data circle:hover {
+        .data ellipse:hover, .data circle:hover {
             fill: #EFC319 !important;
             stroke: #EFC319;
             stroke-width:10;
@@ -224,6 +225,7 @@
 </head>
 
     <body>
+		<div id="intro">
         <h1 id="title">Number of letters per year per catalogue in EMLO</h1>
         <p>This is interactive chart shows the number of letters Early Modern Letters Online has a particular catalogue and year.
         you can click on the catalogue names on the left to find more information about that catalogue, and click on the circles to see the list of letters for that year.</p>
@@ -231,46 +233,46 @@
         <p>The colour and size of each circle represents the number of letters a darker colour and larger circle indicates relatively more letters.</p>
 
         <p>You can use the buttons or the slider to zoom in to see more detail. Only catalogues with letters in your chosen timeframe will be shown.</p>
+		</div>
 
-        <form class="sort">
-            <div class="button-bar">
-                <ul class="button-group unknown" style="display: inline-block;">
-                    <li><button type="button" class="highlight" id="btnYearAll">All</button></li>
-                    <!--<li><button type="button" id="btnYearCustom">Custom</button></li>-->
-                    <li><button type="button" id="btnYear1500">1500 - 1549</button></li>
-                    <li><button type="button" id="btnYear1550">1550 - 1599</button></li>
-                    <li><button type="button" id="btnYear1600">1600 - 1649</button></li>
-                    <li><button type="button" id="btnYear1650">1650 - 1699</button></li>
-                    <li><button type="button" id="btnYear1700">1700 - 1749</button></li>
-                    <li><button type="button" id="btnYear1750">1750 - 1799</button></li>
-                    <li><button type="button" id="btnYear1800">1800 - 1850</button></li>
-                </ul>
-            </div>
-            <div class="custom-years">
-                <!-- <label for="startYear">Start year</label><input id="startYear" disabled="true" type="number" value="1500" min="1500" max="1850"/>
-                <label for="endYear">End year</label><input id="endYear"  disabled="true" type="number" value="1850" min="1500" max="1850"/> -->
-                <div id="slider"></div>
-            </div>
+		<div id="timeline-controls">
+			<form>
+				<div class="years button-bar">
+					<ul class="button-group unknown" style="display: inline-block;">
+						<li>Years: </li>
+						<li><button type="button" class="highlight" id="btnYearAll">All</button></li>
+						<!--<li><button type="button" id="btnYearCustom">Custom</button></li>-->
+						<li><button type="button" id="btnYear1500">1500 - 1549</button></li>
+						<li><button type="button" id="btnYear1550">1550 - 1599</button></li>
+						<li><button type="button" id="btnYear1600">1600 - 1649</button></li>
+						<li><button type="button" id="btnYear1650">1650 - 1699</button></li>
+						<li><button type="button" id="btnYear1700">1700 - 1749</button></li>
+						<li><button type="button" id="btnYear1750">1750 - 1799</button></li>
+						<li><button type="button" id="btnYear1800">1800 - 1850</button></li>
+					</ul>
+				</div>
 
-            <div class="order">
-                <span>Order by:</span>
-                <label><input type="radio" name="sort" value="countAsc"> Letter Count</label>
-                <!--<label><input type="radio" name="sort" value="countDesc"> Count descending</label>-->
-                <label><input type="radio" name="sort" value="nameAsc" checked="yes"> Catalogue Name</label>
-                <!--<label><input type="radio" name="sort" value="nameDesc"> Name descending</label>-->
-                <!-- BROKE! <label><input type="radio" name="sort" value="yearStartAsc"> Year start</label> -->
-                <!--<label><input type="radio" name="sort" value="yearStartDesc"> Year start descending</label>-->
-                <label><input type="radio" name="sort" value="yearEndAsc"> Year end</label>
-                <!--<label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>-->
-            </div>
-        </form>
+				<div class="custom-years" style="max-width:1000px">
+					<div id="slider"></div>
+				</div>
+
+				<div class="order">
+					<ul class="button-group unknown" style="display: inline-block;">
+						<li>Order:</li>
+						<li><button type="button" id="btnSortNameAsc" class="highlight" >Catalogue</button></li>
+						<li><button type="button" id="btnSortCountAsc">Letter Count</button></li>
+						<li><button type="button" id="btnSortYearEndAsc">Ending year</button></li>
+					</ul>
+				</div>
+			</form>
+		</div>
 
         <div class="chart" style="width:100%"></div>
 
         <script src="lib/d3.min.js"></script>
         <script src="lib/d3.slider.js"></script>
         <script src="data/catalogues.js"></script>
-        <script src="data/catalogue-blog.js"></script>
+        <script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
         <script src="cataloguesYears.js"></script>
     </body>
 
