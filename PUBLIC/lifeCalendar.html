@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		rect:hover {
+			fill: red !important;
+		}
+
+		rect {
+			fill : #0B0;
+		}
+		.ten {
+			fill : #090;
+		}
+		.year {
+			fill : yellow !important;
+		}
+		.gone {
+			fill: #B00;
+		}
+		.gone.ten {
+			fill: #900;
+		}
+	</style>
+</head>
+
+<body>
+<h3 id="title"></h3>
+
+Japan	1	83.7	1	86.8	6	80.5	1	74.9
+Switzerland	2	83.4	6	85.3	1	81.3	4	73.1
+Singapore	3	83.1	2	86.1	10	80.0	2	73.9
+Australia	4	82.8	7	84.8	3	80.9	15	71.9
+Spain	4	82.8	3	85.5	9	80.1	9	72.4
+<svg class="chart"></svg>
+
+<script src="lib/d3.min.js"></script>
+<script src="lifeCalendar.js"></script>
+</body>
+
+</html>
