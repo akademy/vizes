@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	    <meta charset="UTF-8">
+	    <title></title>
+
+	    <link rel="stylesheet" href="http://emlo.bodleian.ox.ac.uk/css/app.css" />
+	    <script src="http://emlo.bodleian.ox.ac.uk/bower_components/modernizr/modernizr.min.mat.js"></script>
+
+	    <style>
+
+			#intro {
+				max-width: 1000px;
+			}
+			#intro, #timeline-controls {
+				margin: 1% 3%;
+			}
+
+	        .custom-years {
+	            width:80%;
+	            padding-bottom: 35px;
+	        }
+
+	        button {
+	            padding: 3px 0;
+	            width: 125px;
+	        }
+
+
+	        .highlight:focus,
+	        .highlight {
+	            background-color: #EFC319;
+	            color: black;
+	        }
+
+	        /*
+	        .custom-years input[type='number'] {
+	            width: 100px;
+	            margin: 0 30px 0 10px;
+	        }
+
+	        .custom-years input[type='number'],
+	        .custom-years label {
+	            display:inline;
+	        }
+	        */
+
+	        .order label {
+	            display:inline;
+	            margin-right: 10px;
+	        }
+	        .order input {
+	        }
+
+	        svg {
+	            cursor: crosshair;
+	        }
+	        .data rect {
+	            fill: #2E527E;
+	        }
+
+	        .data:hover rect {
+	            fill: #EFC319 !important;
+	        }
+	        .data:hover text {
+	            fill: #2E527E !important;
+	            text-decoration: underline;
+	        }
+
+	        .data text {
+	            cursor: pointer;
+	        }
+	        .data text.excluded {
+	            fill: grey;
+	        }
+
+	        .chart text {
+	            fill: black;
+	            font: 10px sans-serif;
+	            font-size: 13px;
+	            text-anchor: right;
+	        }
+
+	        .axis path,
+	        .axis line {
+	            fill: none;
+	            stroke: none;
+	        }
+
+	        .guidelines line {
+	            stroke:#ccc;
+	            shape-rendering: crispEdges;
+	        }
+
+	        .tick:first-child text,
+	        .tick:last-child text,  /* doesnt work? */
+	        .tick:nth-last-child(2) text {
+	            font-weight: bold;
+	        }
+
+	        line.mouse {
+	            stroke: #777;
+	            stroke-width:1;
+	        }
+
+	        .mytooltip {
+	            position:absolute;
+	            background: goldenrod;
+	            background: rgba(209, 164, 35, 0.69);
+	            padding: 5px;
+	            border-radius: 10px;
+	            z-index:10;
+	            visibility : hidden;
+	            color: white;
+
+	        }
+	        ellipse, circle {
+	            stroke: transparent;
+	            stroke-width: 10;
+	            /*shape-rendering: crispEdges;*/
+	            cursor: pointer;
+	        }
+	        ellipse.outside, circle.outside {
+	            fill: white;
+	            stroke: black;
+	            stroke-width: 1;
+	        }
+	        .data ellipse:hover, .data circle:hover {
+	            fill: #EFC319 !important;
+	            stroke: #EFC319;
+	            stroke-width:10;
+	        }
+
+
+	        .d3-slider {
+	            position: relative;
+	            font-family: Verdana,Arial,sans-serif;
+	            font-size: 1.1em;
+	            border: 1px solid #aaaaaa;
+	            z-index: 2;
+	        }
+
+	        .d3-slider-horizontal {
+	            height: .8em;
+	        }
+
+	        .d3-slider-range {
+	            background:#2980b9;
+	            left:0px;
+	            right:0px;
+	            height: 0.8em;
+	            position: absolute;
+	        }
+
+	        .d3-slider-range-vertical {
+	            background:#2980b9;
+	            left:0px;
+	            right:0px;
+	            position: absolute;
+	            top:0;
+	        }
+
+	        .d3-slider-vertical {
+	            width: .8em;
+	            height: 100px;
+	        }
+
+	        .d3-slider-handle {
+	            position: absolute;
+	            width: 1.2em;
+	            height: 1.2em;
+	            border: 1px solid #d3d3d3;
+	            border-radius: 4px;
+	            background: #eee;
+	            background: linear-gradient(to bottom, #eee 0%, #ddd 100%);
+	            z-index: 3;
+	        }
+
+	        .d3-slider-handle:hover {
+	            border: 1px solid #999999;
+	        }
+
+	        .d3-slider-horizontal .d3-slider-handle {
+	            top: -.3em;
+	            margin-left: -.6em;
+	        }
+
+	        .d3-slider-axis {
+	            position: relative;
+	            z-index: 1;
+	        }
+
+	        .d3-slider-axis-bottom {
+	            top: .8em;
+	        }
+
+	        .d3-slider-axis-right {
+	            left: .8em;
+	        }
+
+	        .d3-slider-axis path {
+	            stroke-width: 0;
+	            fill: none;
+	        }
+
+	        .d3-slider-axis line {
+	            fill: none;
+	            stroke: #aaa;
+	            shape-rendering: crispEdges;
+	        }
+
+	        .d3-slider-axis text {
+	            font-size: 11px;
+	        }
+
+	        .d3-slider-vertical .d3-slider-handle {
+	            left: -.25em;
+	            margin-left: 0;
+	            margin-bottom: -.6em;
+	        }
+
+
+
+	    </style>
+	</head>
+
+	<body>
+		<div id="intro">
+			<h1 id="title">Star Trek</h1>
+			<p>Using EMLO timeline to display Star Trek information</p>
+		</div>
+
+		<div id="timeline-controls">
+			<form>
+				<div class="years button-bar">
+					<ul class="button-group unknown" style="display: inline-block;">
+						<li>Years: </li>
+						<li><button type="button" class="highlight" id="btnYearAll">All</button></li>
+						<!--<li><button type="button" id="btnYearCustom">Custom</button></li>-->
+						<li><button type="button" id="btnYear1500">1960 - 1970</button></li>
+						<li><button type="button" id="btnYear1550">1970 - 1980</button></li>
+						<li><button type="button" id="btnYear1600">1980 - 1990</button></li>
+						<li><button type="button" id="btnYear1650">1990 - 2000</button></li>
+						<li><button type="button" id="btnYear1700">2000 - 2010</button></li>
+						<li><button type="button" id="btnYear1750">2010 - 2020</button></li>
+					</ul>
+				</div>
+
+				<div class="custom-years" style="max-width:1000px">
+					<div id="slider"></div>
+				</div>
+
+				<div class="order">
+					<ul class="button-group unknown" style="display: inline-block;">
+						<li>Order:</li>
+						<li><button type="button" id="btnSortNameAsc" class="highlight" >Catalogue</button></li>
+						<li><button type="button" id="btnSortCountAsc">Letter Count</button></li>
+						<li><button type="button" id="btnSortYearEndAsc">Ending year</button></li>
+					</ul>
+				</div>
+			</form>
+		</div>
+
+        <div class="chart" style="width:100%"></div>
+
+        <script src="lib/d3.min.js"></script>
+        <script src="lib/d3.slider.js"></script>
+        <script src="data/startrek.js"></script>
+        <script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
+        <script src="cataloguesYears.js"></script>
+		<script>
+			var dataTemp = [];
+			console.log("1",dataTemp);
+			for( var i=0; i < startrek.length; i++ ) {
+				var episodeData = startrek[i],
+						series = episodeData.Series;
+
+				if( ! (series in dataTemp) ) {
+					dataTemp[series] = {
+						"start" : 10000,
+						"end" : 0,
+						"id" : series
+					};
+				}
+
+				var year = new Date(episodeData["Air date"]).getFullYear();
+				if( !(year in dataTemp[series]) ) {
+					dataTemp[series][year] = 1;
+				}
+				else {
+					dataTemp[series][year] += 1;
+				}
+
+				if( year < dataTemp[series]["start"]) {
+					dataTemp[series]["start"] = year;
+				}
+				if( year > dataTemp[series]["end"]) {
+					dataTemp[series]["end"] = year;
+				}
+			}
+			console.log("2",dataTemp);
+			createChart( dataTemp )
+		</script>
+    </body>
+
+</html>
