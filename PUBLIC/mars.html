@@ -18,6 +18,19 @@
         .planet-body.gas {
             fill:#f8f;
         }
+        .x.axis {
+            //fill: red;
+        }
+        .tick {
+            fill: white;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: white;
+            shape-rendering: crispEdges;
+        }
     </style>
 </head>
 <body style="background-color: #999999">
@@ -174,14 +187,26 @@
             systems.append("svg:circle")
                     .classed("star",1)
                     .attr("cx", function () {
-                        return 0;
+                        return -940;
                     })
                     .attr("cy", function () {
                         return systemHeight / 2;
                     })
                     .attr("r", function () {
-                        return systemHeight / 2.2 ;
+                        return 1000 ;
                     })
+            ;
+
+            systems.append("svg:text")
+                    .classed("star",1)
+                    .attr("x", function () {
+                        return 10;
+                    })
+                    .attr("y", function () {
+                        return systemHeight + 30;
+                    })
+                    .text( "Sun" )
+                    .attr("style","fill:black;")
             ;
 
 
@@ -221,7 +246,30 @@
                     .attr("style","fill:white;")
                     .attr("y", systemHeight + 30 );
 
+            // generate xscale range
+
+            var distanceExtent  = d3.extent( planets.data(), function (d) { return d.distance; });
+            var xScale = d3.scale.linear()
+                   .domain([0,distanceExtent[1]])
+                    .range([0,systemWidth]);
+
+
+            // Create horizontal axis...
+            var xAxis = d3.svg.axis()
+                    .scale(xScale)
+                    .orient("bottom");
+
+            // ...Draw the x-axis
+            systems.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0,"+ (systemHeight ) + ")")
+                    .call(xAxis);
+
+            //////////////////
+
             console.log(planets.data());
+
+
         }
 
         function update(data) {
@@ -259,7 +307,7 @@
                     .data( function(d) {
                         return d.bodies.sort( function (d1, d2) {
                             if( order_by_radius ) {
-                                return d1.radius - d2.radius;
+                                return d2.radius - d1.radius;
                             }
                             else {
                                 return d1.distance - d2.distance;
