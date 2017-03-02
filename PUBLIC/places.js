@@ -25,7 +25,7 @@
 
 		if( !isNaN(lat) && !isNaN(long) ) {
 
-			coordinates.push( [lat, long, intensity] );
+			coordinates.push( [long, lat, intensity] );
 
 			if( area.lat.min > lat ) { area.lat.min = lat; }
 			if( area.lat.max < lat ) { area.lat.max = lat; }
@@ -54,10 +54,10 @@
 		2);
 
 	//var heat = L.heatLayer(addressPoints, { maxZoom: 12 }).addTo(map);
-	var heat = L.heatLayer(coordinates, { maxZoom: 2 }).addTo(map);
+	//var heat = L.heatLayer(coordinates, { maxZoom: 2 }).addTo(map);
 
 
-	/*L.mapbox.featureLayer({
+	L.mapbox.featureLayer({
 		// this feature is in the GeoJSON format: see geojson.org
 		// for the full specification
 		type: 'Feature',
@@ -67,7 +67,7 @@
 			// x, y is the standard for GeoJSON and many formats
 			coordinates: coordinates
 		}
-	}).addTo(map);*/
+	}).addTo(map);
 
 
 })();
