@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <style>
+            svg {
+                margin-top: 30px;
+            }
+            .data rect {
+                fill: #2E527E;
+            }
+
+            .data:hover rect {
+                fill: #EFC319 !important;
+            }
+            .data:hover text {
+                fill: #2E527E !important;
+                text-decoration: underline;
+            }
+
+            .data text {
+                cursor: pointer;
+            }
+            .data text.excluded {
+                fill: grey;
+            }
+
+            .chart text {
+                fill: black;
+                font: 10px sans-serif;
+                font-size: 14px;
+                text-anchor: right;
+            }
+
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: none;
+            }
+
+            .guidelines line {
+                stroke:#ccc;
+                shape-rendering: crispEdges;
+            }
+
+            line.mouse {
+                stroke: #333;
+            }
+
+            .tooltip {
+                position:absolute;
+                background: goldenrod;
+                background: rgba(209, 164, 35, 0.69);
+                padding: 5px;
+                border-radius: 10px;
+                z-index:10;
+                visibility : hidden;
+
+            }
+            circle {
+                fill : none;
+                stroke: transparent;
+                stroke-width: 10;
+                /*shape-rendering: crispEdges;*/
+            }
+            circle.outside {
+                fill: white;
+                stroke: black;
+                stroke-width: 1;
+            }
+            .data circle:hover {
+                fill: #EFC319 !important;
+                stroke: #EFC319;
+                stroke-width:10;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h3 id="title">BBC Book popularity</h3>
+
+        <form class="sort">
+            <span>Order by:</span>
+            <label><input type="radio" name="sort" value="positionAsc" checked="yes"> Position</label>
+            <!--<label><input type="radio" name="sort" value="countDesc"> Count descending</label>-->
+            <label><input type="radio" name="sort" value="titleAsc"> Title</label>
+            <!--<label><input type="radio" name="sort" value="nameDesc"> Name descending</label>-->
+            <!-- BROKE! <label><input type="radio" name="sort" value="yearStartAsc"> Year start</label> -->
+            <!--<label><input type="radio" name="sort" value="yearStartDesc"> Year start descending</label>-->
+            <label><input type="radio" name="sort" value="surnameAsc"> Author</label>
+            <!--<label><input type="radio" name="sort" value="yearEndDesc"> Year end descending</label>-->
+        </form>
+
+        <svg class="chart"></svg>
+
+        <script src="lib/d3.min.js"></script>
+        <script src="data/books.js"></script>
+        <script src="js/books.js"></script>
+    </body>
+
+</html>
