@@ -2,53 +2,25 @@
  * Created by matthew on 05/12/2015.
  */
 
-(function createChart() {
-
-	var dataPostgres = catalogueYearsCount;
-	var dataTemp = {},
-		dummyYear = 1490;
+function createChart(dataTemp, dummyYear) {
 
 	var dataAll = [], dataFiltered = [], catalogues;
+	dummyYear = dummyYear || 0; // TODO: I need to calculate a dummy year...
 
 	//
 	/* Convert dataAll into a usable format */
 	//
 
-	for( var i=0; i < dataPostgres.length; i++ ) {
-		var yearData = dataPostgres[i],
-			catalogueName = yearData["Catalogue"];
-
-		if( ! (catalogueName in dataTemp) ) {
-			dataTemp[catalogueName] = {
-				"start" : 2000,
-				"end" : 0,
-				"id" : yearData["CatalogueId"]
-			};
-		}
-
-		if( yearData.year == 0 ) {
-			yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
-		}
-
-		// Create an entry for each year
-		dataTemp[catalogueName][yearData.year] = yearData.number;
-
-		if( yearData.year < dataTemp[catalogueName]["start"]) {
-			dataTemp[catalogueName]["start"] = yearData.year;
-		}
-		if( yearData.year > dataTemp[catalogueName]["end"]) {
-			dataTemp[catalogueName]["end"] = yearData.year;
-		}
-
-	}
-
-	console.log(dataTemp);
-
-
+	console.log("3",dataTemp);
 
 	catalogues = Object.keys(dataTemp);
 	var limit = catalogues.length;//10;//
-	for( i=0; i < limit; i++ ) {
+	//for( var i=0; i < limit; i++ ) {
+	//	var catName = catalogues[i],
+	//}
+
+	var yearsStart = 10000, yearsEnd = 0;
+	for( var i=0; i < limit; i++ ) {
 		var catName = catalogues[i],
 			start = dataTemp[catName]["start"],
 			end = dataTemp[catName]["end"],
@@ -83,12 +55,24 @@
 			end : end
 		};
 
+		if( d.year.start < yearsStart ) {
+			yearsStart = d.year.start;
+		}
+		if( d.year.end > yearsEnd ) {
+			yearsEnd = d.year.end;
+		}
+
 		dataAll.push( d );
 	}
 
 	var maxYearNumber = getMaxYearNumber(dataAll);
 
+	if( dummyYear === 0 ) {
+		dummyYear = yearsStart;
+	}
+
 	dataTemp = null;
+	console.log(dataAll);
 
 
 	//
@@ -114,11 +98,11 @@
 		chartHeight = svgHeight - chartY - 50,
 		chartWidth = svgWidth - chartX - 50;
 
-	var defaultStartYear = 1500,
-		defaultEndYear = 1850,
+	var defaultStartYear = yearsStart,//1960,//1500, // TODO Generate
+		defaultEndYear = yearsEnd, //2020, //1850,
 
 		defaultStartYearBuffered = dummyYear,//defaultStartYear - 10,
-		defaultEndYearBuffered = defaultEndYear + 20,
+		defaultEndYearBuffered = Math.ceil(defaultEndYear + ((yearsEnd - yearsStart)*0.05)),
 
 		chartStartYear = defaultStartYearBuffered,
 		chartEndYear = defaultEndYearBuffered,
@@ -140,9 +124,18 @@
 		.range([chartX,chartWidth+chartX])
 		.domain([chartStartYear, chartEndYear ]);
 
-	var sizeScale = d3.scale.log()
-		.range([1,10,barHeight/2]) // circle radii
-		.domain([1,100,maxYearNumber]);
+	var sizeScale;
+
+	if( maxYearNumber > 100 ) {
+		sizeScale = d3.scale.log()
+			.range([1,10,barHeight/2]) // circle radii
+			.domain([1,100,maxYearNumber]);
+	}
+	else {
+		sizeScale = d3.scale.linear()
+			.range([1, barHeight / 2])
+			.domain([1, maxYearNumber]);
+	}
 
 	var idFunction = function(d) { return d.name + d.originalPosition ; };
 
@@ -294,7 +287,7 @@
 
 			if( pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight ) {
 
-				var minX = xScale( 1500 );
+				var minX = xScale( defaultStartYear );
 
 				if( !overCircle ) {
 					if( pos[0] > minX ) {
@@ -526,7 +519,6 @@
 				var scale = colourScale(d.number), colour;
 				if( d.year === dummyYear ) {
 					colour = fillColourNoYear.brighter(scale).toString();
-					console.log(colour);
 				}
 				else {
 					colour = fillColour.brighter(scale).toString();
@@ -633,6 +625,21 @@
 		}
 
 		return max;
+	}
+
+	function getMinYearNumber( data ) {
+		var min = 100000;
+
+		for( var i=0;i<data.length;i++) {
+			var years = data[i].years;
+			for( var j = 0; j<years.length; j++ ) {
+				if(  years[j].year !== dummyYear && years[j].number < min  ) {
+					min = years[j].number;
+				}
+			}
+		}
+
+		return min;
 	}
 
 
@@ -745,5 +752,4 @@
 		d3.selectAll(".order button").classed("highlight",0);
 		d3.select(button).classed("highlight",1);
 	}
-
-})();
+}

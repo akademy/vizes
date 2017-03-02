@@ -528,11 +528,26 @@ var catIds = [
 	}
 ];
 
-function getBlogData( id ) {
-	for( var i=0;i<catalogueBlogData.length;i++) {
-		if( catalogueBlogData[i].catid === id ) {
-			return catalogueBlogData[i];
+
+function getBlogDataFromCatId( id ) {
+	if( id ) {
+		for( var i=0;i<catalogueBlogData.length;i++) {
+			if( catalogueBlogData[i].catid === id ) {
+				return catalogueBlogData[i];
+			}
 		}
 	}
 	return null;
+}
+
+function getBlogDataFromCatName( name ) {
+	var catId = null;
+	for( var i=0;i<catIds.length;i++) {
+		if(name === catIds[i].name ) {
+			catId = catIds[i].id;
+			break;
+		}
+	}
+	
+	return getBlogDataFromCatId( catId );
 }

@@ -274,6 +274,41 @@
         <script src="data/catalogues.js"></script>
         <script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
         <script src="cataloguesYears.js"></script>
+		<script>
+			var dataPostgres = catalogueYearsCount,
+				dataTemp = {},
+				dummyYear = 1490,
+				i;
+
+			for( i=0; i < dataPostgres.length; i++ ) {
+				var yearData = dataPostgres[i],
+						catalogueName = yearData["Catalogue"];
+
+				if( ! (catalogueName in dataTemp) ) {
+					dataTemp[catalogueName] = {
+						"start" : 2000,
+						"end" : 0,
+						"id" : yearData["CatalogueId"]
+					};
+				}
+
+				if( yearData.year == 0 ) {
+					yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
+				}
+
+				// Create an entry for each year
+				dataTemp[catalogueName][yearData.year] = yearData.number;
+
+				if( yearData.year < dataTemp[catalogueName]["start"]) {
+					dataTemp[catalogueName]["start"] = yearData.year;
+				}
+				if( yearData.year > dataTemp[catalogueName]["end"]) {
+					dataTemp[catalogueName]["end"] = yearData.year;
+				}
+			}
+
+			createChart( dataTemp, dummyYear )
+		</script>
     </body>
 
 </html>
