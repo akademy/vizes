@@ -280,6 +280,9 @@
 				dummyYear = 1490,
 				i;
 
+			//
+			// Sort out data
+			//
 			for( i=0; i < dataPostgres.length; i++ ) {
 				var yearData = dataPostgres[i],
 						catalogueName = yearData["Catalogue"];
@@ -307,7 +310,75 @@
 				}
 			}
 
-			createChart( dataTemp, dummyYear )
+			//
+			// CreateChart
+			//
+			var control = createChart( dataTemp, dummyYear );
+
+			//
+			// Handle sorting
+			//
+			function orderBy( by ) {
+				/* Change the order of "data". */
+				if( by === "nameAsc" ) {
+					return generateSort( function(o) {return o.name;}, true );
+				}
+				else if( by === "nameDesc" ) {
+					return generateSort( function(o) {return o.name;} );
+				}
+				else if( by === "yearStartAsc" ) {
+					return generateSort( function(o) {return o.year.start;}, true );
+				}
+				else if( by === "yearStartDesc" ) {
+					return generateSort( function(o) {return o.year.start;} );
+				}
+				else if( by === "yearEndAsc" ) {
+					return generateSort( function(o) {return o.year.end;}, true );
+				}
+				else if( by === "yearEndDesc" ) {
+					return generateSort( function(o) {return o.year.end;} );
+				}
+				else if( by === "countAsc" ) {
+					return generateSort( function(o) {return o.count;}, true );
+				}
+				else {
+					return  generateSort( function(o) {return o.count;} );
+				}
+
+				function generateSort( memberFunction, ascending ) {
+					/* Generate a sort function with particular features */
+					return function(a,b) {
+						var compare = ((memberFunction(a) < memberFunction(b)) ? -1 : memberFunction(a) > memberFunction(b));
+						if(compare===0) {
+							compare = ( (a.name < b.name) ? -1 : a.name > b.name );
+						}
+						return (ascending) ? compare : compare*-1;
+					};
+				}
+			}
+
+			function order( name ) {
+				var orderFunction = orderBy( name );
+				control.reorder( orderFunction );
+			}
+			function setButtonsOrder( button ) {
+				d3.selectAll(".order button").classed("highlight",0);
+				d3.select(button).classed("highlight",1);
+			}
+
+			d3.select("#btnSortNameAsc").on("click", function() {
+				order( "nameAsc" );
+				setButtonsOrder(this);
+			});
+			d3.select("#btnSortCountAsc").on("click", function() {
+				order( "countDesc" );
+				setButtonsOrder(this);
+			});
+			d3.select("#btnSortYearEndAsc").on("click", function() {
+				order( "yearEndAsc" );
+				setButtonsOrder(this);
+			});
+
 		</script>
     </body>
 

@@ -322,50 +322,11 @@ function createChart(dataTemp, dummyYear) {
 		.on("mouseout", function() {
 			return tooltip.style("visibility", "hidden");
 		});
-
-
-	function generateSort( memberFunction, ascending ) {
-		/* Generate a sort function with particular features */
-		return function(a,b) {
-			var compare = ((memberFunction(a) < memberFunction(b)) ? -1 : memberFunction(a) > memberFunction(b));
-			if(compare===0) {
-				compare = ( (a.name < b.name) ? -1 : a.name > b.name );
-			}
-			return (ascending) ? compare : compare*-1;
-		};
-	}
 	
-	function orderBy( by, data ) {
-		/* Change the order of "data". */
-		if( by === "nameAsc" ) {
-			data.sort( generateSort( function(o) {return o.name;}, true ) );
-		}
-		else if( by === "nameDesc" ) {
-			data.sort( generateSort( function(o) {return o.name;} ) );
-		}
-		else if( by === "yearStartAsc" ) {
-			data.sort( generateSort( function(o) {return o.year.start;}, true ) );
-		}
-		else if( by === "yearStartDesc" ) {
-			data.sort( generateSort( function(o) {return o.year.start;} ) );
-		}
-		else if( by === "yearEndAsc" ) {
-			data.sort( generateSort( function(o) {return o.year.end;}, true ) );
-		}
-		else if( by === "yearEndDesc" ) {
-			data.sort( generateSort( function(o) {return o.year.end;} ) );
-		}
-		else if( by === "countAsc" ) {
-			data.sort( generateSort( function(o) {return o.count;}, true ) );
-		}
-		else {
-			data.sort( generateSort( function(o) {return o.count;} ) );
-		}
-	}
 	
-	function updateOrder( value, data ) {
+	function updateOrder( orderFunction, data ) {
 		/* reorder bars on chart */
-		orderBy( value, data );
+		data.sort( orderFunction );
 		
 		chart.selectAll("g.data")
 			.data(data, idFunction )
@@ -655,8 +616,6 @@ function createChart(dataTemp, dummyYear) {
 		return min;
 	}
 
-
-
 	// Update the chart on load, this makes the first circles "appear".
 	setTimeout( function() {
 		update( _dataFiltered );
@@ -675,19 +634,6 @@ function createChart(dataTemp, dummyYear) {
 		});
 
 	d3.select('#slider').call( slider );
-
-	d3.select("#btnSortNameAsc").on("click", function() {
-		updateOrder( "nameAsc", _dataFiltered );
-		setButtonsOrder(this);
-	});
-	d3.select("#btnSortCountAsc").on("click", function() {
-		updateOrder( "countAsc", _dataFiltered );
-		setButtonsOrder(this);
-	});
-	d3.select("#btnSortYearEndAsc").on("click", function() {
-		updateOrder( "yearEndAsc", _dataFiltered );
-		setButtonsOrder(this);
-	});
 
 
 	d3.select("#btnYearAll").on("click", function() {
@@ -760,18 +706,13 @@ function createChart(dataTemp, dummyYear) {
 
 		}*/
 	}
-
-	function setButtonsOrder( button ) {
-		d3.selectAll(".order button").classed("highlight",0);
-		d3.select(button).classed("highlight",1);
-	}
 	
 	return {
 		showYears : function( yearStart, yearEnd ) {
 			chartYears( yearStart, yearEnd );
 		},
 		reorder : function( sortFunction ) {
-			
+			updateOrder( sortFunction, _dataFiltered );
 		}
 	}
 }
