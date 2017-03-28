@@ -379,6 +379,62 @@
 				setButtonsOrder(this);
 			});
 
+
+			//
+			// Set up zoom
+			//
+			d3.select("#btnYearAll").on("click", function() {
+				control.showYears(); // all
+				setButtonsYears(this);
+			});
+
+			d3.select("#btnYear1500").on("click", function() {
+				control.showYears( 1500, 1549 );
+				setButtonsYears(this);
+			});
+			d3.select("#btnYear1550").on("click", function() {
+				control.showYears( 1550, 1599 );
+				setButtonsYears(this);
+			});
+			d3.select("#btnYear1600").on("click", function() {
+				control.showYears( 1600, 1649 );
+				setButtonsYears(this);
+			});
+			d3.select("#btnYear1650").on("click", function() {
+				control.showYears( 1650, 1699 );
+				setButtonsYears(this);
+			});
+			d3.select("#btnYear1700").on("click", function() {
+				control.showYears( 1700, 1749 );
+				setButtonsYears(this);
+			});
+			d3.select("#btnYear1750").on("click", function() {
+				control.showYears( 1750, 1799 );
+				setButtonsYears(this);
+			});
+			d3.select("#btnYear1800").on("click", function() {
+				control.showYears( 1800, 1850 );
+				setButtonsYears(this);
+			});
+
+			function setButtonsYears( button ) {
+				d3.selectAll(".years button").classed("highlight",0);
+				d3.select(button).classed("highlight",1);
+			}
+
+			var slider = d3.slider()
+					.axis(true)
+					.min(1500)
+					.max(1850)
+					.value([1501,1849])
+					.on("slideend", function(evt, values) {
+						control.showYears( Math.floor(values[0]), Math.ceil(values[1]) );
+						setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
+					});
+
+			d3.select('#slider').call( slider );
+
+
 		</script>
     </body>
 

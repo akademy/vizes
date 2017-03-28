@@ -575,15 +575,17 @@ function createChart(dataTemp, dummyYear) {
 
 	function chartYears( start, end ) {
 
-		previousStartYear = chartStartYear,
-			previousEndYear = chartEndYear;
-
+		previousStartYear = chartStartYear;
+		previousEndYear = chartEndYear;
+		
 		chartStartYear = start;
 		chartEndYear = end;
 
 		slider.value([start,end]);
 
 		_dataFiltered = filterDataYears( _dataAll, chartStartYear, chartEndYear );
+		
+		update( _dataFiltered );
 	}
 
 	function getMaxYearNumber( data ) {
@@ -620,95 +622,12 @@ function createChart(dataTemp, dummyYear) {
 	setTimeout( function() {
 		update( _dataFiltered );
 	}, 10 );
-
-
-	var slider = d3.slider()
-		.axis(true)
-		.min(defaultStartYearBuffered)
-		.max(defaultEndYearBuffered)
-		.value([defaultStartYear,defaultEndYear])
-		.on("slideend", function(evt, values) {
-			chartYears( Math.floor(values[0]), Math.ceil(values[1]) );
-			update( _dataFiltered );
-			setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
-		});
-
-	d3.select('#slider').call( slider );
-
-
-	d3.select("#btnYearAll").on("click", function() {
-		chartYears( defaultStartYearBuffered, defaultEndYearBuffered );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
 	
-	d3.select("#btnYear1500").on("click", function() {
-		chartYears( 1500, 1549 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-	d3.select("#btnYear1550").on("click", function() {
-		chartYears( 1550, 1599 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-	d3.select("#btnYear1600").on("click", function() {
-		chartYears( 1600, 1649 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-	d3.select("#btnYear1650").on("click", function() {
-		chartYears( 1650, 1699 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-	d3.select("#btnYear1700").on("click", function() {
-		chartYears( 1700, 1749 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-	d3.select("#btnYear1750").on("click", function() {
-		chartYears( 1750, 1799 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-	d3.select("#btnYear1800").on("click", function() {
-		chartYears( 1800, 1850 );
-		update( _dataFiltered );
-		setButtonsYears(this);
-	});
-
-	d3.selectAll("#startYear,#endYear").on("change", function() {
-		var customStart = d3.select("#startYear"),
-			customEnd = d3.select("#endYear");
-
-		var start = parseInt(customStart.val() ),
-			end = parseInt(customEnd.val() );
-
-		a = start + end
-
-	});
-
-	function setButtonsYears( button ) {
-		d3.selectAll(".years button").classed("highlight",0);
-		d3.select(button).classed("highlight",1);
-
-		/*var customStart = d3.select("#startYear"),
-			customEnd = d3.select("#endYear");
-
-		if( button.id === "btnYearCustom" ) {
-			customStart.attr("disabled",null);
-			customEnd.attr("disabled",null);
-		}
-		else {
-			customStart.attr("disabled",1);
-			customEnd.attr("disabled",1);
-
-		}*/
-	}
 	
 	return {
 		showYears : function( yearStart, yearEnd ) {
+			yearStart = yearStart || defaultStartYearBuffered;
+			yearEnd = yearEnd || defaultEndYearBuffered;
 			chartYears( yearStart, yearEnd );
 		},
 		reorder : function( sortFunction ) {
