@@ -169,7 +169,7 @@ function createChart(dataTemp, dummyYear) {
 		.domain([1,maxYearNumber] ); // keep radii same for entire set, but change colour based subset
 
 	var overCircle = false;
-	gData.append("g").selectAll("rect")//"ellipse")//"circle")
+	gData.append("g").selectAll("rect")
 		.data(function (d) {
 			var data = [];
 			for( var i=0;i<d.years.length;i++) {
@@ -185,8 +185,8 @@ function createChart(dataTemp, dummyYear) {
 			.append("rect")//"ellipse")
 				.attr("y",barHeight/2)
 				.attr("height",0)
-				.attr("rx", 13 )
-				.attr("ry", 13 )
+				.attr("rx", 0 )
+				.attr("ry", 0 )
 				.attr("fill", function(d) {
 					if( d.year === dummyYear ) {
 						return fillColourNoYear;
