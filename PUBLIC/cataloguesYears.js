@@ -4,7 +4,7 @@
 
 function createChart(dataTemp, dummyYear) {
 
-	var dataAll = [], dataFiltered = [], catalogues;
+	var _dataAll = [], _dataFiltered = [], catalogues;
 	dummyYear = dummyYear || 0; // TODO: I need to calculate a dummy year...
 
 	//
@@ -62,17 +62,17 @@ function createChart(dataTemp, dummyYear) {
 			yearsEnd = d.year.end;
 		}
 
-		dataAll.push( d );
+		_dataAll.push( d );
 	}
 
-	var maxYearNumber = getMaxYearNumber(dataAll);
+	var maxYearNumber = getMaxYearNumber(_dataAll);
 
 	if( dummyYear === 0 ) {
 		dummyYear = yearsStart;
 	}
 
 	dataTemp = null;
-	console.log(dataAll);
+	console.log(_dataAll);
 
 
 	//
@@ -86,7 +86,7 @@ function createChart(dataTemp, dummyYear) {
 	var svgWidth = 1200,// = screen.availWidth
 		svgHeight = 2000;// = screen.availHeight - 200
 
-	svgHeight = dataAll.length * 50;
+	svgHeight = _dataAll.length * 50;
 
 	chart.attr("width", "100%" )  //svgWidth)
 		.attr("height", svgHeight);
@@ -111,13 +111,13 @@ function createChart(dataTemp, dummyYear) {
 		previousEndYear;
 
 
-	filterData( function() {
+	_dataFiltered = filterData( _dataAll, function() {
 		// TODO: Some filtering mechanism, probably picked up from url.
 		// so we can link to different portions of the timeline
 		return true;
 	});
 
-	var barHeight = chartHeight / dataFiltered.length;
+	var barHeight = chartHeight / _dataFiltered.length;
 
 	// generate xscale range
 	var xScale = d3.scale.linear()
@@ -140,7 +140,7 @@ function createChart(dataTemp, dummyYear) {
 	var idFunction = function(d) { return d.name + d.originalPosition ; };
 
 	// Set the order to start with
-	orderBy("nameAsc", dataFiltered);
+	orderBy("nameAsc", _dataFiltered);
 
 	chart.append( "g" )
 		.attr("class","guidelines")
@@ -153,7 +153,7 @@ function createChart(dataTemp, dummyYear) {
 
 	// Attach dataFiltered (and create) g areas, which we transform into position
 	var gData = chart.selectAll("g.data")
-		.data(dataFiltered, idFunction )
+		.data(_dataFiltered, idFunction )
 		.enter()
 			.append("g")
 				.attr("class","data")
@@ -169,7 +169,7 @@ function createChart(dataTemp, dummyYear) {
 		.domain([1,maxYearNumber] ); // keep radii same for entire set, but change colour based subset
 
 	var overCircle = false;
-	gData.append("g").selectAll("ellipse")//"circle")
+	gData.append("g").selectAll("rect")//"ellipse")//"circle")
 		.data(function (d) {
 			var data = [];
 			for( var i=0;i<d.years.length;i++) {
@@ -182,8 +182,11 @@ function createChart(dataTemp, dummyYear) {
 			return d.year;
 		})
 		.enter()
-			.append("ellipse")
-				.attr("cy",barHeight/2)
+			.append("rect")//"ellipse")
+				.attr("y",barHeight/2)
+				.attr("height",0)
+				.attr("rx", 13 )
+				.attr("ry", 13 )
 				.attr("fill", function(d) {
 					if( d.year === dummyYear ) {
 						return fillColourNoYear;
@@ -360,7 +363,7 @@ function createChart(dataTemp, dummyYear) {
 		}
 	}
 	
-	function order( value, data ) {
+	function updateOrder( value, data ) {
 		/* reorder bars on chart */
 		orderBy( value, data );
 		
@@ -446,7 +449,7 @@ function createChart(dataTemp, dummyYear) {
 
 		xScale.domain([chartStartYear - yearBuffer, chartEndYear+ yearBuffer ]);
 
-		gData.select("g").selectAll( "ellipse" ) //circle")
+		gData.select("g").selectAll( "rect" )//ellipse" ) //circle")
 			.attr("fill-opacity", function(d) {
 				return "0.5"
 			});
@@ -455,7 +458,7 @@ function createChart(dataTemp, dummyYear) {
 		colourScale
 			.domain([1,maxNumber]); // keep radii same for entire set, but change colour based on subset
 
-		d3DataGroup = gData.select("g").selectAll("ellipse" ) //"circle")
+		d3DataGroup = gData.select("g").selectAll("rect")//"ellipse" ) //"circle")
 			.data(function (d) {
 				return d.years
 			},function(d) {
@@ -467,16 +470,26 @@ function createChart(dataTemp, dummyYear) {
 			.ease(ease)
 			.delay(circleDelay)
 			.duration(circleDuration)
-			.attr("cx", function (d) {
+			.attr("y", function(d) {
+				var height;
+				if( d.year == dummyYear ) {
+					height = Math.min( sizeScale(d.number), 20 );
+				}
+				else {
+					height = sizeScale(d.number);
+				}
+				return (barHeight-height)/2;
+			})
+			.attr("x", function (d) {
 				return xScale(d.year);
 			})
-			.attr("rx", function (d) {
+			.attr("width", function (d) {
 				if( d.year == dummyYear ) {
 					return Math.min( sizeScale(d.number), 20 );
 				}
-				return (xScale(d.year) - xScale(d.year-1))/2;//sizeScale.invert(2);
+				return (xScale(d.year) - xScale(d.year-1));//sizeScale.invert(2);
 			})
-			.attr("ry",function (d) {
+			.attr("height",function (d) {
 				if( d.year == dummyYear ) {
 					return Math.min( sizeScale(d.number), 20 );
 				}
@@ -584,12 +597,12 @@ function createChart(dataTemp, dummyYear) {
 
 	}
 
-	function filterData( filterer ) {
-		dataFiltered = dataAll.filter( filterer );
+	function filterData( data, filterer ) {
+		return data.filter( filterer );
 	}
 
-	function filterDataYears( start, end ) {
-		filterData( function(d) {
+	function filterDataYears( data, start, end ) {
+		return filterData( data, function(d) {
 			for( var y=0;y<d.years.length;y+=1 ) {
 				if( d.years[y].year != dummyYear && d.years[y].year > start && d.years[y].year < end ) {
 					return true;
@@ -609,7 +622,7 @@ function createChart(dataTemp, dummyYear) {
 
 		slider.value([start,end]);
 
-		filterDataYears( chartStartYear, chartEndYear );
+		_dataFiltered = filterDataYears( _dataAll, chartStartYear, chartEndYear );
 	}
 
 	function getMaxYearNumber( data ) {
@@ -646,7 +659,7 @@ function createChart(dataTemp, dummyYear) {
 
 	// Update the chart on load, this makes the first circles "appear".
 	setTimeout( function() {
-		update( dataFiltered );
+		update( _dataFiltered );
 	}, 10 );
 
 
@@ -657,65 +670,65 @@ function createChart(dataTemp, dummyYear) {
 		.value([defaultStartYear,defaultEndYear])
 		.on("slideend", function(evt, values) {
 			chartYears( Math.floor(values[0]), Math.ceil(values[1]) );
-			update( dataFiltered );
+			update( _dataFiltered );
 			setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
 		});
 
 	d3.select('#slider').call( slider );
 
 	d3.select("#btnSortNameAsc").on("click", function() {
-		order( "nameAsc", dataFiltered );
+		updateOrder( "nameAsc", _dataFiltered );
 		setButtonsOrder(this);
 	});
 	d3.select("#btnSortCountAsc").on("click", function() {
-		order( "countAsc", dataFiltered );
+		updateOrder( "countAsc", _dataFiltered );
 		setButtonsOrder(this);
 	});
 	d3.select("#btnSortYearEndAsc").on("click", function() {
-		order( "endAsc", dataFiltered );
+		updateOrder( "yearEndAsc", _dataFiltered );
 		setButtonsOrder(this);
 	});
 
 
 	d3.select("#btnYearAll").on("click", function() {
 		chartYears( defaultStartYearBuffered, defaultEndYearBuffered );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	
 	d3.select("#btnYear1500").on("click", function() {
 		chartYears( 1500, 1549 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	d3.select("#btnYear1550").on("click", function() {
 		chartYears( 1550, 1599 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	d3.select("#btnYear1600").on("click", function() {
 		chartYears( 1600, 1649 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	d3.select("#btnYear1650").on("click", function() {
 		chartYears( 1650, 1699 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	d3.select("#btnYear1700").on("click", function() {
 		chartYears( 1700, 1749 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	d3.select("#btnYear1750").on("click", function() {
 		chartYears( 1750, 1799 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 	d3.select("#btnYear1800").on("click", function() {
 		chartYears( 1800, 1850 );
-		update( dataFiltered );
+		update( _dataFiltered );
 		setButtonsYears(this);
 	});
 
@@ -752,4 +765,14 @@ function createChart(dataTemp, dummyYear) {
 		d3.selectAll(".order button").classed("highlight",0);
 		d3.select(button).classed("highlight",1);
 	}
+	
+	return {
+		showYears : function( yearStart, yearEnd ) {
+			chartYears( yearStart, yearEnd );
+		},
+		reorder : function( sortFunction ) {
+			
+		}
+	}
 }
+ 
