@@ -6,13 +6,11 @@ function createChart(dataTemp, config) {
 
 	var _dataAll = [], _dataFiltered = [], catalogues;
 	dummyYear = config.dummyYear || 0; // TODO: I need to calculate a dummy year...
-
+	config.scaleMarkers = config.scaleMarkers || 1;
+	
 	//
 	/* Convert dataAll into a usable format */
 	//
-
-	console.log("3",dataTemp);
-
 	catalogues = Object.keys(dataTemp);
 	var limit = catalogues.length;//10;//
 	//for( var i=0; i < limit; i++ ) {
@@ -72,7 +70,12 @@ function createChart(dataTemp, config) {
 	}
 
 	dataTemp = null;
-	console.log(_dataAll);
+
+	_dataFiltered = filterData( _dataAll, function() {
+		// TODO: Some filtering mechanism, probably picked up from url.
+		// so we can link to different portions of the timeline
+		return true;
+	});
 
 
 	//
@@ -86,7 +89,7 @@ function createChart(dataTemp, config) {
 	var svgWidth = 1200,// = screen.availWidth
 		svgHeight = 2000;// = screen.availHeight - 200
 
-	svgHeight = _dataAll.length * 50;
+	svgHeight = _dataAll.length * 50 ;
 
 	chart.attr("width", "100%" )  //svgWidth)
 		.attr("height", svgHeight);
@@ -97,6 +100,8 @@ function createChart(dataTemp, config) {
 		chartY = 20,
 		chartHeight = svgHeight - chartY - 50,
 		chartWidth = svgWidth - chartX - 50;
+
+	var barHeight = chartHeight / _dataAll.length;
 
 	var defaultStartYear = yearsStart,//1960,//1500, // TODO Generate
 		defaultEndYear = yearsEnd, //2020, //1850,
@@ -109,15 +114,6 @@ function createChart(dataTemp, config) {
 
 		previousStartYear,
 		previousEndYear;
-
-
-	_dataFiltered = filterData( _dataAll, function() {
-		// TODO: Some filtering mechanism, probably picked up from url.
-		// so we can link to different portions of the timeline
-		return true;
-	});
-
-	var barHeight = chartHeight / _dataFiltered.length;
 
 	// generate xscale range
 	var xScale = d3.scale.linear()
@@ -435,7 +431,7 @@ function createChart(dataTemp, config) {
 				else {
 					height = sizeScale(d.number);
 				}
-				return (barHeight-height)/2;
+				return (barHeight-(height* config.scaleMarkers))/2;
 			})
 			.attr("x", function (d) {
 				return xScale(d.year);
@@ -450,7 +446,7 @@ function createChart(dataTemp, config) {
 				if( d.year == dummyYear ) {
 					return Math.min( sizeScale(d.number), 20 );
 				}
-				return sizeScale(d.number);
+				return sizeScale(d.number) * config.scaleMarkers;
 			})
 			.attr("fill-opacity", function(d) {
 				var op;

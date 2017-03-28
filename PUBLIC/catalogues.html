@@ -124,9 +124,9 @@
 			stroke-width: 0.1;
 		}
 
-		/*.data:hover rect {
-			 fill: #EFC319 !important;
-		}*/
+		.data:hover rect {
+			 fill: #096DCC !important;
+		}
 		.data rect:hover {
 			fill: #EFC319 !important;
 			stroke: #EFC319;
@@ -345,7 +345,8 @@
 						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
 					}
 				},
-				dummyYear : dummyYear
+				dummyYear : dummyYear,
+				scaleMarkers : 2
 			};
 			var control = createChart( dataTemp, config );
 
