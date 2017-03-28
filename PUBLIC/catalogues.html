@@ -315,7 +315,39 @@
 			//
 			// CreateChart
 			//
-			var control = createChart( dataTemp, dummyYear );
+			var config = {
+				groupNameHtml: function(d) {
+					var name = d.name;
+					if( name.length > 25 ) {
+						name = name.substr(0,22) + "...";
+					}
+
+					var blog = getBlogDataFromCatId( d.id );
+					if( blog ) {
+						return '<a xlink:href="' + blog.href + '">' + name + '</a>';
+					}
+					else {
+						return name + "(?)"
+					}
+				},
+				markerHoverHtml : function(d) {
+
+					var year = (d.year === dummyYear) ? "No year" : d.year;
+					return "<b>" + d.parent.name + "</b><br/>"
+							+ year + " | " + d.number + " letters<br/>"
+							+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search for these in EMLO)</small></p>'
+				},
+				markerClick : function(d) {
+					if( d.year === dummyYear) {
+						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
+					}
+					else {
+						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
+					}
+				},
+				dummyYear : dummyYear
+			};
+			var control = createChart( dataTemp, config );
 
 			//
 			// Handle sorting

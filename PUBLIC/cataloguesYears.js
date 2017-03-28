@@ -2,10 +2,10 @@
  * Created by matthew on 05/12/2015.
  */
 
-function createChart(dataTemp, dummyYear) {
+function createChart(dataTemp, config) {
 
 	var _dataAll = [], _dataFiltered = [], catalogues;
-	dummyYear = dummyYear || 0; // TODO: I need to calculate a dummy year...
+	dummyYear = config.dummyYear || 0; // TODO: I need to calculate a dummy year...
 
 	//
 	/* Convert dataAll into a usable format */
@@ -168,7 +168,7 @@ function createChart(dataTemp, dummyYear) {
 		.range([1.9,0.1])
 		.domain([1,maxYearNumber] ); // keep radii same for entire set, but change colour based subset
 
-	var overCircle = false;
+	var overMarker = false;
 	gData.append("g").selectAll("rect")
 		.data(function (d) {
 			var data = [];
@@ -195,21 +195,20 @@ function createChart(dataTemp, dummyYear) {
 				} )
 
 				.on("mouseover", function(d) {
-					var year = (d.year === dummyYear) ? "Undated" : d.year;
-					overCircle = true;
-					tooltip.html( "<b>" + d.parent.name + "</b><br/>"
-						+ year + " | " + d.number + " letters<br/>"
-						+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search in EMLO)</small></p>');
+					overMarker = true;
+					
+					var tip = d.year;
+					if( config.markerHoverHtml ) {
+						tip = config.markerHoverHtml(d);
+					}
+					tooltip.html( tip );
 				})
 				.on("mouseout", function() {
-					overCircle = false;
+					overMarker = false;
 				})
 				.on( "click", function(d) {
-					if( d.year === dummyYear) {
-						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
-					}
-					else {
-						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
+					if( config.markerClick ) {
+						config.markerClick(d);
 					}
 				})
 	;
@@ -217,17 +216,14 @@ function createChart(dataTemp, dummyYear) {
 	// Attach name of catalogue
 	gData.append("text")
 		.html(function(d) {
-			var name = d.name;
-			if( name.length > 25 ) {
-				name = name.substr(0,22) + "...";
-			}
-
-			var blog = getBlogDataFromCatId( d.id );
-			if( blog ) {
-				return '<a xlink:href="' + blog.href + '">' + name + '</a>';
-			}
-			else {
-				return name + "(?)"
+			if( config.groupNameHtml ) {
+				return config.groupNameHtml(d);
+			} else {
+				var name = d.name;
+				if( name.length > 25 ) {
+					name = name.substr(0,22) + "...";
+				}
+				return name;
 			}
 		})
 		.attr("y", barHeight/2)
@@ -292,7 +288,7 @@ function createChart(dataTemp, dummyYear) {
 
 				var minX = xScale( defaultStartYear );
 
-				if( !overCircle ) {
+				if( !overMarker ) {
 					if( pos[0] > minX ) {
 						tooltip.text(Math.floor(xScale.invert(pos[0])));
 						tooltip.style("visibility", "visible");

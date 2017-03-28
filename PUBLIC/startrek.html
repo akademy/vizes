@@ -55,14 +55,7 @@
 	        svg {
 	            cursor: crosshair;
 	        }
-	        .data:hover text {
-	            fill: #2E527E !important;
-	            text-decoration: underline;
-	        }
 
-	        .data text {
-	            cursor: pointer;
-	        }
 	        .data text.excluded {
 	            fill: grey;
 	        }
@@ -124,9 +117,6 @@
 				stroke-width: 0.1;
 			}
 
-			/*.data:hover rect {
-				 fill: #EFC319 !important;
-			}*/
 	        .data rect:hover {
 	            fill: #EFC319 !important;
 	            stroke: #EFC319;
@@ -229,7 +219,7 @@
 	<body>
 		<div id="intro">
 			<h1 id="title">Star Trek</h1>
-			<p>Using EMLO timeline to display Star Trek information</p>
+			<p>Generalising the EMLO Catalogue timeline to display Star Trek episode information</p>
 		</div>
 
 		<div id="timeline-controls">
@@ -272,16 +262,16 @@
         <script src="cataloguesYears.js"></script>
 		<script>
 			var dataTemp = [];
-			console.log("1",dataTemp);
+
 			for( var i=0; i < startrek.length; i++ ) {
 				var episodeData = startrek[i],
-						series = episodeData.Series;
+						series = fullnameFromShort(episodeData.Series);
 
 				if( ! (series in dataTemp) ) {
 					dataTemp[series] = {
 						"start" : 10000,
 						"end" : 0,
-						"id" : series
+						"id" : episodeData.Series
 					};
 				}
 
@@ -301,7 +291,46 @@
 				}
 			}
 
-			var control = createChart( dataTemp );
+			console.log( dataTemp) ;
+
+			var config = {
+				markerHoverHtml : function(d) {
+					var name = "Star Trek";
+
+					name += ":" + fullnameFromShort(d.parent.name);
+
+					return "<b>" + name + "</b><br/>"
+					+ d.year + " | " + d.number + " episodes<br/>";
+				},
+				dummyYear: 1960
+			};
+			var control = createChart( dataTemp, config );
+
+			function fullnameFromShort( short ) {
+				var name = short;
+				if( short === "TOS" ) {
+					name = "The Original Series";
+				}
+				else if( short === "TNG" ) {
+					name = "The Next Generation";
+				}
+				else if( short === "TAS" ) {
+					name = "The Animated Series";
+				}
+				else if( short === "DS9" ) {
+					name = "Deep Space 9";
+				}
+				else if( short === "VOY" ) {
+					name = "Voyager";
+				}
+				else if( short === "ENT" ) {
+					name = "Enterprise";
+				}
+				else if( short === "DIS" ) {
+					name = "Discovery";
+				}
+				return name;
+			}
 
 			//
 			// Handle sorting
