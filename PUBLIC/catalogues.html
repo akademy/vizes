@@ -55,13 +55,6 @@
         svg {
             cursor: crosshair;
         }
-        .data rect {
-            fill: #2E527E;
-        }
-
-        .data:hover rect {
-            fill: #EFC319 !important;
-        }
         .data:hover text {
             fill: #2E527E !important;
             text-decoration: underline;
@@ -114,22 +107,31 @@
             color: white;
 
         }
-        ellipse, circle {
-            stroke: transparent;
-            stroke-width: 10;
-            /*shape-rendering: crispEdges;*/
-            cursor: pointer;
-        }
-        ellipse.outside, circle.outside {
-            fill: white;
-            stroke: black;
-            stroke-width: 1;
-        }
-        .data ellipse:hover, .data circle:hover {
-            fill: #EFC319 !important;
-            stroke: #EFC319;
-            stroke-width:10;
-        }
+		rect {
+			stroke: transparent;
+			stroke-width: 10;
+			/*shape-rendering: crispEdges;*/
+			cursor: pointer;
+		}
+		rect.outside {
+			fill: white;
+			stroke: black;
+			stroke-width: 1;
+		}
+		.data rect {
+			fill: #2E527E;
+			stroke: white;
+			stroke-width: 0.1;
+		}
+
+		/*.data:hover rect {
+			 fill: #EFC319 !important;
+		}*/
+		.data rect:hover {
+			fill: #EFC319 !important;
+			stroke: #EFC319;
+			stroke-width:10;
+		}
 
 
         .d3-slider {
