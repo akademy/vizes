@@ -229,10 +229,9 @@
     <body>
 		<div id="intro">
         <h1 id="title">Number of letters per year per catalogue in EMLO</h1>
-        <p>This is interactive chart shows the number of letters Early Modern Letters Online has a particular catalogue and year.
-        you can click on the catalogue names on the left to find more information about that catalogue, and click on the circles to see the list of letters for that year.</p>
+        <p>This is interactive chart shows the number of letters across the whole of Early Modern Letters Online.</p>
 
-        <p>The colour and size of each circle represents the number of letters a darker colour and larger circle indicates relatively more letters.</p>
+        <p>The size of each bar represents the number of letters.</p>
 
         <p>You can use the buttons or the slider to zoom in to see more detail. Only catalogues with letters in your chosen timeframe will be shown.</p>
 		</div>
@@ -254,7 +253,7 @@
 					</ul>
 				</div>
 
-				<div class="custom-years" style="max-width:1000px">
+				<div class="custom-years" style="margin-left:233px;max-width:100%">
 					<div id="slider"></div>
 				</div>
 			</form>
@@ -331,7 +330,9 @@
 					}
 				},
 				dummyYear : dummyYear,
-				scaleMarkers : 1
+				scaleMarkers : 1,
+				groupHeight: 200,
+				groupGapHeight: 0
 			};
 			var control = createChart( dataTemp, config );
 

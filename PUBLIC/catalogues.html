@@ -16,11 +16,6 @@
 			margin: 1% 3%;
 		}
 
-        .custom-years {
-            width:80%;
-            padding-bottom: 35px;
-        }
-
         button {
             padding: 3px 0;
             width: 125px;
@@ -133,6 +128,10 @@
 			stroke-width:10;
 		}
 
+		.custom-years {
+			width:100%;
+			padding-bottom: 35px;
+		}
 
         .d3-slider {
             position: relative;
@@ -254,10 +253,6 @@
 					</ul>
 				</div>
 
-				<div class="custom-years" style="max-width:1000px">
-					<div id="slider"></div>
-				</div>
-
 				<div class="order">
 					<ul class="button-group unknown" style="display: inline-block;">
 						<li>Order:</li>
@@ -266,6 +261,11 @@
 						<li><button type="button" id="btnSortYearEndAsc">Ending year</button></li>
 					</ul>
 				</div>
+
+				<div class="custom-years" style="padding-left:233px;max-width:100%">
+					<div id="slider"></div>
+				</div>
+
 			</form>
 		</div>
 
