@@ -5,13 +5,11 @@ var timeline = {
 	noYear: "no year",
 	createChart: function (dataTemp, config) {
 
-		const noYear = "no year";
-
 		var _dataAll = [],
 			_dataFiltered = [],
 			catalogues;
 
-		var dummyYear = config.dummyYear || noYear; // TODO: I need to calculate a dummy year...
+		//var dummyYear = config.dummyYear || noYear; // TODO: I need to calculate a dummy year...
 		config.scaleMarkers = config.scaleMarkers || 1;
 
 		//
@@ -101,7 +99,8 @@ var timeline = {
 		// Set some defaults
 
 		var scaleHeight = 30,
-			groupNameWidth = 200,
+			groupNameWidth = 190,
+			noYearSpace = 50,
 			groupHeight = config.groupHeight || 20,
 			groupGapHeight = config.groupGapHeight || 5, // TODO: Have gaps between bar groups!
 			chartHeight = _dataAll.length * (groupHeight + groupGapHeight);
@@ -113,7 +112,7 @@ var timeline = {
 
 		var svgWidth = chartDiv[0][0].clientWidth;
 
-		var chartX = groupNameWidth,
+		var chartX = groupNameWidth,// + noYearSpace,
 			chartY = scaleHeight,
 			chartWidth = svgWidth - chartX;
 
@@ -131,7 +130,7 @@ var timeline = {
 
 		// generate xscale range
 		var xScale = d3.scale.linear()
-			.range([chartX, chartX + chartWidth])
+			.range([chartX + noYearSpace, chartX + chartWidth])
 			.domain([chartStartYear, chartEndYear]);
 
 		var sizeScale;
@@ -196,7 +195,7 @@ var timeline = {
 			.attr("rx", 0)
 			.attr("ry", 0)
 			.attr("fill", function (d) {
-				if (d.year === dummyYear) {
+				if (d.year === timeline.noYear ) {
 					return fillColourNoYear;
 				}
 				return fillColour;
@@ -413,7 +412,7 @@ var timeline = {
 
 			xScale.domain([chartStartYear - yearBuffer, chartEndYear + yearBuffer]);
 
-			gData.select("g").selectAll("rect")//ellipse" ) //circle")
+			gData.select("g").selectAll("rect")
 				.attr("fill-opacity", function (d) {
 					return "0.5"
 				});
@@ -422,7 +421,7 @@ var timeline = {
 			colourScale
 				.domain([1, maxNumber]); // keep radii same for entire set, but change colour based on subset
 
-			d3DataGroup = gData.select("g").selectAll("rect")//"ellipse" ) //"circle")
+			d3DataGroup = gData.select("g").selectAll("rect")
 				.data(function (d) {
 					return d.years
 				}, function (d) {
@@ -436,28 +435,28 @@ var timeline = {
 				.duration(circleDuration)
 				.attr("y", function (d) {
 					var height;
-					//if( d.year == dummyYear ) {
-					//	height = Math.min( sizeScale(d.number), 20 );
-					//}
-					//else {
-					height = sizeScale(d.number);
-					//}
+					if( d.year === timeline.noYear ) {
+						height = Math.min( sizeScale(d.number), 20 );
+					}
+					else {
+						height = sizeScale(d.number);
+					}
 					return (groupHeight - (height * config.scaleMarkers)) / 2;
 				})
 				.attr("x", function (d) {
-					if (d.year === dummyYear) {
-						return xScale(1495);
+					if (d.year === timeline.noYear) {
+						return chartX + noYearSpace/2;
 					}
 					return xScale(d.year);
 				})
 				.attr("width", function (d) {
-					if (d.year === dummyYear) {
+					if (d.year === timeline.noYear) {
 						return Math.min(sizeScale(d.number), 20);
 					}
 					return (xScale(d.year) - xScale(d.year - 1));
 				})
 				.attr("height", function (d) {
-					if (d.year === dummyYear) {
+					if (d.year === timeline.noYear) {
 						return Math.min(sizeScale(d.number), 20);
 					}
 					return sizeScale(d.number) * config.scaleMarkers;
@@ -465,7 +464,7 @@ var timeline = {
 				.attr("fill-opacity", function (d) {
 					var op;
 
-					if (d.year === dummyYear) {
+					if (d.year === timeline.noYear) {
 						if (chartStartYear === defaultStartYearBuffered) {
 							op = 1;
 						}
@@ -495,7 +494,7 @@ var timeline = {
 				})
 				.attr("fill", function (d) {
 					var scale = colourScale(d.number), colour;
-					if (d.year === dummyYear) {
+					if (d.year === timeline.noYear) {
 						colour = fillColourNoYear.brighter(scale).toString();
 					}
 					else {
@@ -578,7 +577,7 @@ var timeline = {
 		function filterDataYears(data, start, end) {
 			return filterData(data, function (d) {
 				for (var y = 0; y < d.years.length; y += 1) {
-					if (d.years[y].year != dummyYear && d.years[y].year > start && d.years[y].year < end) {
+					if (d.years[y].year !== timeline.noYear && d.years[y].year > start && d.years[y].year < end) {
 						return true;
 					}
 				}
@@ -607,7 +606,7 @@ var timeline = {
 			for (var i = 0; i < data.length; i++) {
 				var years = data[i].years;
 				for (var j = 0; j < years.length; j++) {
-					if (years[j].year !== dummyYear && years[j].number > max) {
+					if (years[j].year !== timeline.noYear && years[j].number > max) {
 						max = years[j].number;
 					}
 				}
@@ -622,7 +621,7 @@ var timeline = {
 			for (var i = 0; i < data.length; i++) {
 				var years = data[i].years;
 				for (var j = 0; j < years.length; j++) {
-					if (years[j].year !== dummyYear && years[j].number < min) {
+					if (years[j].year !== timeline.noYear && years[j].number < min) {
 						min = years[j].number;
 					}
 				}
