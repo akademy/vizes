@@ -314,12 +314,14 @@ function createChart(dataTemp, config) {
 		});
 	
 	
-	function updateOrder( orderFunction, data ) {
+	function updateOrder( orderFunction ) {
 		/* reorder bars on chart */
-		data.sort( orderFunction );
+
+		_dataAll.sort( orderFunction );
+		_dataFiltered = filterDataYears( _dataAll, chartStartYear, chartEndYear );
 		
 		chart.selectAll("g.data")
-			.data(data, idFunction )
+			.data(_dataFiltered, idFunction )
 			// Update existing bars...
 			.transition()
 			.delay( 0 )
@@ -613,7 +615,7 @@ function createChart(dataTemp, config) {
 			chartYears( yearStart, yearEnd );
 		},
 		reorder : function( sortFunction ) {
-			updateOrder( sortFunction, _dataFiltered );
+			updateOrder( sortFunction );
 		}
 	}
 }
