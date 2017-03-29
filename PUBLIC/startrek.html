@@ -12,14 +12,12 @@
 			#intro {
 				max-width: 1000px;
 			}
-			#intro, #timeline-controls {
+			#intro, .timeline-controls {
 				margin: 1% 3%;
 			}
-
-	        .custom-years {
-	            width:80%;
-	            padding-bottom: 35px;
-	        }
+			.timeline-controls {
+				padding-left:233px;
+			}
 
 	        button {
 	            padding: 3px 0;
@@ -125,6 +123,11 @@
 	        }
 
 
+			.custom-years {
+				width:100%;
+				padding-bottom: 35px;
+			}
+
 	        .d3-slider {
 	            position: relative;
 	            font-family: Verdana,Arial,sans-serif;
@@ -212,10 +215,6 @@
 	            margin-bottom: -.6em;
 	        }
 
-			svg {
-				border: 1px solid black;
-			}
-
 	    </style>
 	</head>
 
@@ -225,7 +224,17 @@
 			<p>Generalising the EMLO <a href="catalogues.html">Catalogue</a> timeline to display Star Trek episode information</p>
 		</div>
 
-		<div id="timeline-controls">
+		<div class="timeline-controls">
+			<form>
+				<div class="custom-years" style="max-width:100%">
+					<div id="slider"></div>
+				</div>
+			</form>
+		</div>
+
+        <div class="chart" style="width:100%"></div>
+
+		<div class="timeline-controls">
 			<form>
 				<div class="years button-bar">
 					<ul class="button-group unknown" style="display: inline-block;">
@@ -241,10 +250,6 @@
 					</ul>
 				</div>
 
-				<div class="custom-years" style="max-width:1000px">
-					<div id="slider"></div>
-				</div>
-
 				<div class="order">
 					<ul class="button-group unknown" style="display: inline-block;">
 						<li>Order:</li>
@@ -255,8 +260,6 @@
 				</div>
 			</form>
 		</div>
-
-        <div class="chart" style="width:100%"></div>
 
         <script src="lib/d3.min.js"></script>
         <script src="lib/d3.slider.js"></script>
