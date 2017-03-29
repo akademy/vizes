@@ -86,25 +86,26 @@ function createChart(dataTemp, config) {
 		chart = chartDiv.append("svg"); // create our svg
 
 	// Set some defaults
-	var svgWidth = 1200,// = screen.availWidth
-		svgHeight = 2000;// = screen.availHeight - 200
 
-	svgHeight = _dataAll.length * 50 ;
+	var scaleHeight = 30,
+		groupNameWidth = 200,
+		groupHeight = config.groupHeight || 20,
+		groupGapHeight = config.groupGapHeight || 5, // TODO: Have gaps between bar groups!
+		chartHeight =  _dataAll.length * (groupHeight + groupGapHeight);
 
-	chart.attr("width", "100%" )  //svgWidth)
+	var svgHeight = chartHeight + scaleHeight * 2;
+
+	chart.attr("width", "100%" )
 		.attr("height", svgHeight);
 
-	svgWidth = chartDiv[0][0].clientWidth;
+	var svgWidth = chartDiv[0][0].clientWidth;
 
-	var chartX = 200,
-		chartY = 20,
-		chartHeight = svgHeight - chartY - 50,
-		chartWidth = svgWidth - chartX - 50;
+	var chartX = groupNameWidth,
+		chartY = scaleHeight,
+		chartWidth = svgWidth - chartX;
 
-	var barHeight = chartHeight / _dataAll.length;
-
-	var defaultStartYear = yearsStart,//1960,//1500, // TODO Generate
-		defaultEndYear = yearsEnd, //2020, //1850,
+	var defaultStartYear = yearsStart,
+		defaultEndYear = yearsEnd,
 
 		defaultStartYearBuffered = dummyYear,//defaultStartYear - 10,
 		defaultEndYearBuffered = Math.ceil(defaultEndYear + ((yearsEnd - yearsStart)*0.05)),
@@ -117,26 +118,22 @@ function createChart(dataTemp, config) {
 
 	// generate xscale range
 	var xScale = d3.scale.linear()
-		.range([chartX,chartWidth+chartX])
-		.domain([chartStartYear, chartEndYear ]);
+		.range([chartX, chartX + chartWidth])
+		.domain([chartStartYear, chartEndYear]);
 
 	var sizeScale;
-
 	if( maxYearNumber > 100 ) {
 		sizeScale = d3.scale.log()
-			.range([1,10,barHeight/2]) // circle radii
+			.range([1,10,groupHeight])
 			.domain([1,100,maxYearNumber]);
 	}
 	else {
 		sizeScale = d3.scale.linear()
-			.range([1, barHeight / 2])
+			.range([1, groupHeight])
 			.domain([1, maxYearNumber]);
 	}
 
-	var idFunction = function(d) { return d.name + d.originalPosition ; };
-
-	// Set the order to start with
-	orderBy("nameAsc", _dataFiltered);
+	var idFunction = function(d) { return d.name; };
 
 	chart.append( "g" )
 		.attr("class","guidelines")
@@ -154,7 +151,7 @@ function createChart(dataTemp, config) {
 			.append("g")
 				.attr("class","data")
 				.attr("transform", function(d, i) {
-					return "translate(0," + ((i * barHeight) + chartY) + ")";
+					return "translate(0," + ( (i * (groupHeight + groupGapHeight) ) + chartY) + ")";
 				})
 	;
 
@@ -166,7 +163,7 @@ function createChart(dataTemp, config) {
 
 	var overMarker = false;
 	gData.append("g").selectAll("rect")
-		.data(function (d) {
+		.data( function (d) {
 			var data = [];
 			for( var i=0;i<d.years.length;i++) {
 				var o = d.years[i];
@@ -174,12 +171,12 @@ function createChart(dataTemp, config) {
 				data.push(o);
 			}
 			return data;//d.years;
-		},function(d) {
+		}, function(d) {
 			return d.year;
 		})
 		.enter()
-			.append("rect")//"ellipse")
-				.attr("y",barHeight/2)
+			.append("rect")
+				.attr("y", groupHeight/2 ) // Start in middle
 				.attr("height",0)
 				.attr("rx", 0 )
 				.attr("ry", 0 )
@@ -222,7 +219,7 @@ function createChart(dataTemp, config) {
 				return name;
 			}
 		})
-		.attr("y", barHeight/2)
+		.attr("y", groupHeight * 0.4 )
 		.attr("x", function() {
 			return chartX - this.getBBox().width;//return chartX - 250;
 		})
@@ -255,14 +252,15 @@ function createChart(dataTemp, config) {
 		.tickFormat( d3.format("g") );
 
 	chart.append("g")
-		.attr("class", "x axis bottom")
-		.attr("transform", "translate(0,"+ (chartHeight + chartY) + ")")
-		.call(xAxisBottom);
-
-	chart.append("g")
 		.attr("class", "x axis top")
 		.attr("transform", "translate(0," + chartY + ")")
 		.call(xAxisTop);
+
+	chart.append("g")
+		.attr("class", "x axis bottom")
+		.attr("transform", "translate(0,"+ (svgHeight - scaleHeight) + ")")
+		.call(xAxisBottom);
+
 
 
 	//
@@ -327,17 +325,9 @@ function createChart(dataTemp, config) {
 			.delay( 0 )
 			.duration(1000)
 			.attr("transform", function(d, i) {
-				return "translate(0," + ((i * barHeight) + chartY) + ")";
+				return "translate(0," + ( (i * (groupHeight + groupGapHeight) ) + chartY) + ")";
 			})
 		;
-			//.enter()
-			// Add new bars...
-			//.attr("transform", function(d, i) {
-			//	return "translate(0," + i * barHeight + ")";
-			//})
-			//.exit()
-			// Remove old bars...
-			//.remove();
 	}
 
 	var initial = true;
@@ -380,7 +370,7 @@ function createChart(dataTemp, config) {
 			.ease(ease)
 			.duration(circleDuration)
 			.attr("transform", function(d, i) {
-				return "translate(0," + ((i * barHeight) + chartY) + ")";
+				return "translate(0," + ( (i * (groupHeight + groupGapHeight) ) + chartY) + ")";
 			});
 
 		d3DataGroup
@@ -389,7 +379,7 @@ function createChart(dataTemp, config) {
 			.ease(ease)
 			.duration(circleDuration)
 			.attr("transform", function() {
-				return "translate(0," + (chartHeight+barHeight*3) +")";
+				return "translate(0," + (chartHeight+groupHeight*3) +")";
 			});
 
 		d3DataGroup
@@ -397,7 +387,7 @@ function createChart(dataTemp, config) {
 			.append("g")
 			.attr("class","data")
 			.attr("transform", function(d, i) {
-				return "translate(0," + ((i * barHeight) + chartY) + ")";
+				return "translate(0," + ((i * (groupHeight+groupGapHeight)) + chartY) + ")";
 			});
 
 		xScale.domain([chartStartYear - yearBuffer, chartEndYear+ yearBuffer ]);
@@ -431,19 +421,19 @@ function createChart(dataTemp, config) {
 				else {
 					height = sizeScale(d.number);
 				}
-				return (barHeight-(height* config.scaleMarkers))/2;
+				return (groupHeight-(height* config.scaleMarkers))/2;
 			})
 			.attr("x", function (d) {
 				return xScale(d.year);
 			})
 			.attr("width", function (d) {
-				if( d.year == dummyYear ) {
+				if( d.year === dummyYear ) {
 					return Math.min( sizeScale(d.number), 20 );
 				}
-				return (xScale(d.year) - xScale(d.year-1));//sizeScale.invert(2);
+				return (xScale(d.year) - xScale(d.year-1));
 			})
 			.attr("height",function (d) {
-				if( d.year == dummyYear ) {
+				if( d.year === dummyYear ) {
 					return Math.min( sizeScale(d.number), 20 );
 				}
 				return sizeScale(d.number) * config.scaleMarkers;
@@ -458,7 +448,6 @@ function createChart(dataTemp, config) {
 					else {
 						op = 0;
 					}
-
 				}
 				else if( d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer ) {
 					// totally outside of range
@@ -500,21 +489,22 @@ function createChart(dataTemp, config) {
 			//.attr("r",0 );
 
 
-		var dataChartHeight = (barHeight*data.length);
+		var dataChartHeight = ( (groupHeight+groupGapHeight) * data.length );
 
 		// Redraw x-axis with years
-		chart.select(".x.axis.bottom")
-			.transition()
-			.ease(ease)
-			.duration(circleDuration) // use circle duration, otherwise it "overtakes" the circle transisition
-			.call(xAxisBottom)
-			.attr("transform", "translate(0,"+ (dataChartHeight+15) + ")");
-
 		chart.select(".x.axis.top")
 			.transition()
 			.ease(ease)
 			.duration(axisDuration)
 			.call(xAxisTop);
+
+		chart.select(".x.axis.bottom")
+			.transition()
+			.ease(ease)
+			.duration(circleDuration) // use circle duration, otherwise it "overtakes" the circle transition
+			.call(xAxisBottom)
+			.attr("transform", "translate(0,"+ (dataChartHeight+chartY) + ")");
+
 
 		var xAxisTicks = xScale.ticks();
 
