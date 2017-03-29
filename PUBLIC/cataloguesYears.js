@@ -219,7 +219,7 @@ function createChart(dataTemp, config) {
 				return name;
 			}
 		})
-		.attr("y", groupHeight * 0.4 )
+		.attr("y", groupHeight * 0.53 )
 		.attr("x", function() {
 			return chartX - this.getBBox().width;//return chartX - 250;
 		})
