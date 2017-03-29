@@ -316,25 +316,24 @@
 				},
 				markerHoverHtml : function(d) {
 
-					var year = (d.year === dummyYear) ? "No year" : d.year;
+					var year = (d.year === timeline.noYear) ? "No year" : d.year;
 					return "<b>" + d.parent.name + "</b><br/>"
 							+ year + " | " + d.number + " letters<br/>"
 							+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search for these in EMLO)</small></p>'
 				},
 				markerClick : function(d) {
-					if( d.year === dummyYear) {
+					if( d.year === timeline.noYear) {
 						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999";
 					}
 					else {
 						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year;
 					}
 				},
-				dummyYear : dummyYear,
 				scaleMarkers : 1,
 				groupHeight: 200,
 				groupGapHeight: 0
 			};
-			var control = createChart( dataTemp, config );
+			var control = timeline.createChart( dataTemp, config );
 
 			//
 			// Set up zoom

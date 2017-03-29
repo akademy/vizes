@@ -279,7 +279,7 @@
 		<script>
 			var dataPostgres = catalogueYearsCount,
 				dataTemp = {},
-				dummyYear = 1490,
+				//dummyYear = 1490,
 				i;
 
 			//
@@ -297,18 +297,22 @@
 					};
 				}
 
-				if( yearData.year == 0 ) {
-					yearData.year = dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
+				if( yearData.year === "" ) {
+					yearData.year = timeline.noYear; //dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
 				}
 
 				// Create an entry for each year
 				dataTemp[catalogueName][yearData.year] = yearData.number;
 
-				if( yearData.year < dataTemp[catalogueName]["start"]) {
-					dataTemp[catalogueName]["start"] = yearData.year;
-				}
-				if( yearData.year > dataTemp[catalogueName]["end"]) {
-					dataTemp[catalogueName]["end"] = yearData.year;
+				if( yearData.year !== timeline.noYear) {
+
+					if (yearData.year < dataTemp[catalogueName]["start"]) {
+						dataTemp[catalogueName]["start"] = yearData.year;
+					}
+
+					if (yearData.year > dataTemp[catalogueName]["end"]) {
+						dataTemp[catalogueName]["end"] = yearData.year;
+					}
 				}
 			}
 
@@ -322,7 +326,7 @@
 						name = name.substr(0,22) + "...";
 					}
 
-					var blog = getBlogDataFromCatId( d.id );
+					var blog = "";//getBlogDataFromCatId( d.id );
 					if( blog ) {
 						return '<a xlink:href="' + blog.href + '">' + name + '</a>';
 					}
@@ -332,25 +336,24 @@
 				},
 				markerHoverHtml : function(d) {
 
-					var year = (d.year === dummyYear) ? "No year" : d.year;
+					var year = (d.year === timeline.noYear) ? "No year" : d.year;
 					return "<b>" + d.parent.name + "</b><br/>"
 							+ year + " | " + d.number + " letters<br/>"
 							+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search for these in EMLO)</small></p>'
 				},
 				markerClick : function(d) {
-					if( d.year === dummyYear) {
+					if( d.year === timeline.noYear) {
 						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
 					}
 					else {
 						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
 					}
 				},
-				dummyYear : dummyYear,
 				scaleMarkers : 1,
 				groupHeight: 50,
 				groupGapHeight: 10
 			};
-			var control = createChart( dataTemp, config );
+			var control = timeline.createChart( dataTemp, config );
 
 			//
 			// Handle sorting
@@ -463,7 +466,7 @@
 					.axis(true)
 					.min(1500)
 					.max(1850)
-					.value([1501,1849])
+					.value([1500,1850])
 					.on("slideend", function(evt, values) {
 						control.showYears( Math.floor(values[0]), Math.ceil(values[1]) );
 						setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too
