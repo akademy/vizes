@@ -131,12 +131,16 @@ var timeline = {
 
 		// generate xscale range
 		var xScale = d3.scale.linear()
-			.range([chartX + noYearSpace, chartX + chartWidth])
-			.domain([chartStartYear, chartEndYear]);
+				.range([chartX + noYearSpace, chartX + chartWidth])
+				.domain([chartStartYear, chartEndYear]);
 
 		var sizeScale = d3.scale.linear()
 				.range([2, groupHeight])
 				.domain([1, maxYearNumber]);
+
+		var pieColourScale = d3.scale.log()
+				.range(1.9,0.1)
+				.domain([1,50000]); // TODO: get real numbers
 
 		var fillColour = d3.rgb("#2E527E"),
 			fillColourNoYear = d3.rgb("#7E7E7E"),
@@ -170,7 +174,9 @@ var timeline = {
 
 		var arc = d3.svg.arc()
 			.innerRadius(0)
-			.outerRadius(noYearSpace/2);//radius);
+			.outerRadius(function(d) {
+				return noYearSpace/2;//pieScale(d.data.count);
+			});
 
 		var pie = d3.layout.pie()
 			.value(function(d) { return d.value; })
@@ -186,16 +192,20 @@ var timeline = {
 			.data( function(d) {
 				var pieData = [];
 				if( d.noYears > 0 ) {
-					pieData.push({value: d.noYears, noYear: true, id : d.id, name: d.name })
+					pieData.push({value: d.noYears, noYear: true, id : d.id, name: d.name, count: d.count })
 				}
-				pieData.push({value: d.count-d.noYears, noYear: false, id : d.id, name: d.name });
+				pieData.push({value: d.count-d.noYears, noYear: false, id : d.id, name: d.name, count: d.count });
 				return pie(pieData);
 			})
 			.enter()
 			.append('path')
 			.attr('d', arc )
 			.attr('fill', function(d) {
-				return d.data.noYear ? fillColourNoYear : fillColour;
+				if( d.data.noYear ) {
+					return fillColourNoYear;
+				}
+				var scale = colourScale(d.data.count);
+				return fillColour.brighter(scale).toString();
 			});
 
 		var overMarker = false;
