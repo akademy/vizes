@@ -47,7 +47,7 @@
         .order input {
         }
 
-        svg {
+        svg {dummyYear
             cursor: crosshair;
         }
         .data:hover text {
@@ -325,7 +325,7 @@
 						name = name.substr(0,22) + "...";
 					}
 
-					var blog = "";//getBlogDataFromCatId( d.id );
+					var blog = getBlogDataFromCatId( d.id );
 					if( blog ) {
 						return '<a xlink:href="' + blog.href + '">' + name + '</a>';
 					}
@@ -338,7 +338,7 @@
 					var year = (d.year === timeline.noYear) ? "No year" : d.year;
 					return "<b>" + d.parent.name + "</b><br/>"
 							+ year + " | " + d.number + " letters<br/>"
-							+ '<p style="text-align:right;width:100%;margin:0"><small>(click to search for these in EMLO)</small></p>'
+							+ '<p style="text-align:right;width:100%;margin:0"><small>(click to show these in EMLO)</small></p>'
 				},
 				markerClick : function(d) {
 					if( d.year === timeline.noYear) {
@@ -423,36 +423,36 @@
 			// Set up zoom
 			//
 			d3.select("#btnYearAll").on("click", function() {
-				control.showYears(); // all
+				changeYears(); // all
 				setButtonsYears(this);
 			});
 
 			d3.select("#btnYear1500").on("click", function() {
-				control.showYears( 1500, 1549 );
+				changeYears( 1500, 1549 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1550").on("click", function() {
-				control.showYears( 1550, 1599 );
+				changeYears( 1550, 1599 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1600").on("click", function() {
-				control.showYears( 1600, 1649 );
+				changeYears( 1600, 1649 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1650").on("click", function() {
-				control.showYears( 1650, 1699 );
+				changeYears( 1650, 1699 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1700").on("click", function() {
-				control.showYears( 1700, 1749 );
+				changeYears( 1700, 1749 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1750").on("click", function() {
-				control.showYears( 1750, 1799 );
+				changeYears( 1750, 1799 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1800").on("click", function() {
-				control.showYears( 1800, 1850 );
+				changeYears( 1800, 1850 );
 				setButtonsYears(this);
 			});
 
@@ -461,11 +461,20 @@
 				d3.select(button).classed("highlight",1);
 			}
 
+			function changeYears( from, to ) {
+				if( !from && !to ) {
+					from = control.startYear;
+					to = control.endYear;
+				}
+				control.showYears( from, to );
+				slider.value([from, to]);
+			}
+
 			var slider = d3.slider()
 					.axis(true)
-					.min(1500)
-					.max(1850)
-					.value([1500,1850])
+					.min(control.startYear)
+					.max(control.endYear)
+					.value([control.startYear,control.endYear])
 					.on("slideend", function(evt, values) {
 						control.showYears( Math.floor(values[0]), Math.ceil(values[1]) );
 						setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too

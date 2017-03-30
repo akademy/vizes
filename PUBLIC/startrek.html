@@ -310,7 +310,9 @@
 				},
 				dummyYear: 1960
 			};
+
 			var control = timeline.createChart( dataTemp, config );
+
 
 			function fullnameFromShort( short ) {
 				var name = short;
@@ -407,46 +409,55 @@
 			// Set up zoom
 			//
 			d3.select("#btnYearAll").on("click", function() {
-				control.showYears(); // all
+				changeYears(); // all
 				setButtonsYears(this);
 			});
 
 			d3.select("#btnYear1960").on("click", function() {
-				control.showYears( 1960, 1970 );
+				changeYears( 1960, 1970 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1970").on("click", function() {
-				control.showYears( 1970, 1980 );
+				changeYears( 1970, 1980 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1980").on("click", function() {
-				control.showYears( 1980, 1990 );
+				changeYears( 1980, 1990 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear1990").on("click", function() {
-				control.showYears( 1990, 2000 );
+				changeYears( 1990, 2000 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear2000").on("click", function() {
-				control.showYears( 2000, 2010 );
+				changeYears( 2000, 2010 );
 				setButtonsYears(this);
 			});
 			d3.select("#btnYear2010").on("click", function() {
-				control.showYears( 2010, 2020 );
+				changeYears( 2010, 2020 );
 				setButtonsYears(this);
 			});
-
 
 			function setButtonsYears( button ) {
 				d3.selectAll(".years button").classed("highlight",0);
 				d3.select(button).classed("highlight",1);
 			}
 
+			function changeYears( from, to ) {
+				if( !from && !to ) {
+					from = control.startYear;
+					to = control.endYear;
+				}
+				control.showYears( from, to );
+				slider.value([from, to]);
+			}
+
+
 			var slider = d3.slider()
 					.axis(true)
-					.min(1960)
-					.max(2020)
-					.value([1960,2020])
+					.min(control.startYear)
+					.max(control.endYear)
+					.value([control.startYear,control.endYear])
 					.on("slideend", function(evt, values) {
 						control.showYears( Math.floor(values[0]), Math.ceil(values[1]) );
 						setButtonsYears(null); // this is a bit of a cheat, it should really highlight the right button depending on years "slid" too

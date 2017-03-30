@@ -585,8 +585,6 @@ var timeline = {
 			chartStartYear = start;
 			chartEndYear = end;
 
-			slider.value([start, end]);
-
 			_dataFiltered = filterDataYears(_dataAll, chartStartYear, chartEndYear);
 
 			update(_dataFiltered);
@@ -636,7 +634,9 @@ var timeline = {
 			},
 			reorder: function (sortFunction) {
 				updateOrder(sortFunction);
-			}
+			},
+			startYear : defaultStartYear,
+			endYear : defaultEndYear
 		}
 	}
 };
