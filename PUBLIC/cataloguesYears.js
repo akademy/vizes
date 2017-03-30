@@ -52,6 +52,7 @@ var timeline = {
 					count += number;
 				}
 			}
+
 			if( timeline.noYear in dataTemp[catName] ) {
 				years.push({
 					"year": timeline.noYear,
@@ -59,7 +60,6 @@ var timeline = {
 					"parent": d
 				});
 			}
-
 
 			d.count = count;
 			d.years = years;
@@ -410,10 +410,10 @@ var timeline = {
 
 			xScale.domain([chartStartYear - yearBuffer, chartEndYear + yearBuffer]);
 
-			gData.select("g").selectAll("rect")
-				.attr("fill-opacity", function (d) {
-					return "0.5"
-				});
+			//gData.select("g").selectAll("rect")
+			//	.attr("fill-opacity", function (d) {
+			//		return "0.5"
+			//	});
 
 			var maxNumber = getMaxYearNumber(data);
 			colourScale
