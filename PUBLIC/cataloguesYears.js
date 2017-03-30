@@ -133,17 +133,9 @@ var timeline = {
 			.range([chartX + noYearSpace, chartX + chartWidth])
 			.domain([chartStartYear, chartEndYear]);
 
-		var sizeScale;
-		if (maxYearNumber > 100) {
-			sizeScale = d3.scale.log()
-				.range([1, 10, groupHeight])
-				.domain([1, 100, maxYearNumber]);
-		}
-		else {
-			sizeScale = d3.scale.linear()
-				.range([1, groupHeight])
+		var sizeScale = d3.scale.linear()
+				.range([2, groupHeight])
 				.domain([1, maxYearNumber]);
-		}
 
 		var idFunction = function (d) {
 			return d.name;
