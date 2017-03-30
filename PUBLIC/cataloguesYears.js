@@ -306,15 +306,21 @@ var timeline = {
 						.attr("x2", limitX)
 				}
 				else {
-
 					tooltip.style("visibility", "hidden");
 					chart.select("g.guidelines line.mouse")
 						.attr("x1", -5)
 						.attr("x2", -5)
-
 				}
 
-				return tooltip.style("top", (d3.event.pageY - 50) + "px").style("left", (d3.event.pageX + 20) + "px");
+				tooltip.style("top", (d3.event.pageY - 50) + "px");
+				var tooltipWidth = (tooltip.style("width").replace("px","") * 1) + 20;
+				if( d3.event.pageX > chartWidth/2 + chartX ) {
+					tooltip.style("left", (d3.event.pageX - tooltipWidth ) + "px");
+				}
+				else {
+					tooltip.style("left", (d3.event.pageX + 20) + "px");
+				}
+				return tooltip
 			})
 			.on("mouseout", function () {
 				return tooltip.style("visibility", "hidden");
