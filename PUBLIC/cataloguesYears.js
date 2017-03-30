@@ -7,6 +7,7 @@ var timeline = {
 
 		var _dataAll = [],
 			_dataFiltered = [],
+			_dataNoYear =[],
 			catalogues;
 
 		//var dummyYear = config.dummyYear || noYear; // TODO: I need to calculate a dummy year...
@@ -54,11 +55,11 @@ var timeline = {
 			}
 
 			if( timeline.noYear in dataTemp[catName] ) {
-				years.push({
-					"year": timeline.noYear,
-					"number": dataTemp[catName][timeline.noYear],
-					"parent": d
-				});
+				d.noYears = dataTemp[catName][timeline.noYear];
+				count += d.noYears;
+			}
+			else {
+				d.noYears = 0;
 			}
 
 			d.count = count;
@@ -99,8 +100,8 @@ var timeline = {
 		// Set some defaults
 
 		var scaleHeight = 30,
-			groupNameWidth = 190,
-			noYearSpace = 50,
+			groupNameWidth = 200,
+			noYearSpace = 30,
 			groupHeight = config.groupHeight || 20,
 			groupGapHeight = config.groupGapHeight || 5, // TODO: Have gaps between bar groups!
 			chartHeight = _dataAll.length * (groupHeight + groupGapHeight);
@@ -137,6 +138,12 @@ var timeline = {
 				.range([2, groupHeight])
 				.domain([1, maxYearNumber]);
 
+		var fillColour = d3.rgb("#2E527E"),
+			fillColourNoYear = d3.rgb("#7E7E7E"),
+			colourScale = d3.scale.log()
+				.range([1.9, 0.1])
+				.domain([1, maxYearNumber]); // keep radii same for entire set, but change colour based subset
+
 		var idFunction = function (d) {
 			return d.name;
 		};
@@ -161,14 +168,40 @@ var timeline = {
 				})
 			;
 
-		var fillColour = d3.rgb("#2E527E"),
-			fillColourNoYear = d3.rgb("#7E7E7E"),
-			colourScale = d3.scale.log()
-				.range([1.9, 0.1])
-				.domain([1, maxYearNumber]); // keep radii same for entire set, but change colour based subset
+		var arc = d3.svg.arc()
+			.innerRadius(0)
+			.outerRadius(noYearSpace/2);//radius);
+
+		var pie = d3.layout.pie()
+			.value(function(d) { return d.value; })
+			.sort(null);
+
+		var path = gData
+			.append("g")
+			.attr("class","pie")
+			.attr("transform", function () {
+				return "translate(" + (chartX + noYearSpace/2) + "," + groupHeight/2 + ")";
+			})
+			.selectAll('path')
+			.data( function(d) {
+				var pieData = [];
+				if( d.noYears > 0 ) {
+					pieData.push({value: d.noYears, noYear: true, id : d.id, name: d.name })
+				}
+				pieData.push({value: d.count-d.noYears, noYear: false, id : d.id, name: d.name });
+				return pie(pieData);
+			})
+			.enter()
+			.append('path')
+			.attr('d', arc )
+			.attr('fill', function(d) {
+				return d.data.noYear ? fillColourNoYear : fillColour;
+			});
 
 		var overMarker = false;
-		gData.append("g").selectAll("rect")
+		gData.append("g")
+			.attr("class","bars")
+			.selectAll("rect")
 			.data(function (d) {
 				var data = [];
 				for (var i = 0; i < d.years.length; i++) {
@@ -227,7 +260,7 @@ var timeline = {
 			})
 			.attr("y", groupHeight * 0.53)
 			.attr("x", function () {
-				return chartX - this.getBBox().width;//return chartX - 250;
+				return chartX - 10 - this.getBBox().width;//return chartX - 250;
 			})
 
 			//.on("mouseover", function(d) {
@@ -419,7 +452,7 @@ var timeline = {
 			colourScale
 				.domain([1, maxNumber]); // keep radii same for entire set, but change colour based on subset
 
-			d3DataGroup = gData.select("g").selectAll("rect")
+			d3DataGroup = gData.select("g.bars").selectAll("rect")
 				.data(function (d) {
 					return d.years
 				}, function (d) {
