@@ -111,7 +111,6 @@
 	            stroke-width: 1;
 	        }
 			.data rect {
-				fill: #740000;
 				stroke: white;
 				stroke-width: 0.1;
 			}
@@ -308,7 +307,8 @@
 					return "<b>" + name + "</b><br/>"
 					+ d.year + " | " + d.number + " episodes<br/>";
 				},
-				dummyYear: 1960
+				fillColourBase: "#710a0a",
+				//pieSize : 30
 			};
 
 			var control = timeline.createChart( dataTemp, config );
