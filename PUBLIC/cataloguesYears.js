@@ -10,9 +10,23 @@ var timeline = {
 			_dataNoYear =[],
 			catalogues;
 
-		//var dummyYear = config.dummyYear || noYear; // TODO: I need to calculate a dummy year...
 		config.scaleMarkers = config.scaleMarkers || 1;
 
+		config.fillColourBase =  config.fillColourBase || "#2E527E";
+		config.fillColourNoYearBase = config.fillColourNoYearBase || "#7E7E7E";
+
+		config.groupHeight = config.groupHeight || 25;
+		
+		if( config.groupGapHeight === undefined ) {
+			config.groupGapHeight = 5; // can be zero
+		}
+		if( config.groupNameWidth === undefined ) {
+			config.groupNameWidth = 200; // can be zero
+		}
+		if( config.pieSize === undefined ) {
+			config.pieSize = Math.min(config.groupHeight, 25);
+		}
+		
 		//
 		/* Convert dataAll into a usable format */
 		//
@@ -95,17 +109,16 @@ var timeline = {
 		//
 
 		var chartDiv = d3.select(".chart"),
-			chart = chartDiv.append("svg"); // create our svg
-
-		// Set some defaults
+			chart = chartDiv.append("svg");
 
 		var scaleHeight = 30,
-			groupNameWidth = 200,
-			noYearSpace = 30,
-			groupHeight = config.groupHeight || 20,
-			groupGapHeight = config.groupGapHeight || 5, // TODO: Have gaps between bar groups!
-			chartHeight = _dataAll.length * (groupHeight + groupGapHeight);
-
+			groupNameWidth = 200;
+		
+		var	noYearSpace = config.pieSize,
+			groupHeight = config.groupHeight,
+			groupGapHeight = config.groupGapHeight;
+		
+		var chartHeight = _dataAll.length * (groupHeight + groupGapHeight);
 		var svgHeight = chartHeight + scaleHeight * 2;
 
 		chart.attr("width", "100%")
@@ -138,15 +151,15 @@ var timeline = {
 				.range([2, groupHeight])
 				.domain([1, maxYearNumber]);
 
-		var pieColourScale = d3.scale.log()
-				.range(1.9,0.1)
+		var pieScale = d3.scale.log()
+				.range([noYearSpace/3,noYearSpace/2])
 				.domain([1,50000]); // TODO: get real numbers
 
-		var fillColour = d3.rgb("#2E527E"),
-			fillColourNoYear = d3.rgb("#7E7E7E"),
+		var fillColour = d3.rgb(config.fillColourBase),
+			fillColourNoYear = d3.rgb(config.fillColourNoYearBase),
 			colourScale = d3.scale.log()
 				.range([1.9, 0.1])
-				.domain([1, maxYearNumber]); // keep radii same for entire set, but change colour based subset
+				.domain([1, maxYearNumber]);
 
 		var idFunction = function (d) {
 			return d.name;
@@ -175,7 +188,7 @@ var timeline = {
 		var arc = d3.svg.arc()
 			.innerRadius(0)
 			.outerRadius(function(d) {
-				return noYearSpace/2;//pieScale(d.data.count);
+				return pieScale(d.data.count);//noYearSpace/2;//
 			});
 
 		var pie = d3.layout.pie()
@@ -285,9 +298,12 @@ var timeline = {
 					return name;
 				}
 			})
-			.attr("y", groupHeight * 0.53)
+			.attr("y", function() {
+				var box = this.getBBox();
+				return groupHeight * 0.56;//( groupHeight - box.height )/2;// TODO: Get this to work...
+			})
 			.attr("x", function () {
-				return chartX - 10 - this.getBBox().width;//return chartX - 250;
+				return chartX - this.getBBox().width - 10; // This -10 is really naughty... but there must be a gap after the text...
 			})
 
 			//.on("mouseover", function(d) {
