@@ -18,7 +18,7 @@
 
         button {
             padding: 3px 0;
-            width: 125px;
+            width: 155px;
         }
 
 
@@ -255,7 +255,7 @@
 				<div class="order">
 					<ul class="button-group unknown" style="display: inline-block;">
 						<li>Order:</li>
-						<li><button type="button" id="btnSortNameAsc" class="highlight" >Catalogue</button></li>
+						<li><button type="button" id="btnSortNameAsc" class="highlight" >Catalogue Name</button></li>
 						<li><button type="button" id="btnSortCountAsc">Letter Count</button></li>
 						<li><button type="button" id="btnSortYearEndAsc">Ending year</button></li>
 					</ul>
@@ -378,12 +378,12 @@
 				else if( by === "nameDesc" ) {
 					return generateSort( function(o) {return o.name;} );
 				}
-				else if( by === "yearStartAsc" ) {
-					return generateSort( function(o) {return o.year.start;}, true );
-				}
-				else if( by === "yearStartDesc" ) {
-					return generateSort( function(o) {return o.year.start;} );
-				}
+				//else if( by === "yearStartAsc" ) {
+				//	return generateSort( function(o) {return o.year.start;}, true );
+				//}
+				//else if( by === "yearStartDesc" ) {
+				//	return generateSort( function(o) {return o.year.start;} );
+				//}
 				else if( by === "yearEndAsc" ) {
 					return generateSort( function(o) {return o.year.end;}, true );
 				}
@@ -418,16 +418,35 @@
 				d3.select(button).classed("highlight",1);
 			}
 
+			var sort = "nameAsc";
 			d3.select("#btnSortNameAsc").on("click", function() {
-				order( "nameAsc" );
+				if( sort === "nameAsc" ) {
+					sort = "nameDesc";
+				}
+				else {
+					sort = "nameAsc";
+				}
+				order( sort );
 				setButtonsOrder(this);
 			});
 			d3.select("#btnSortCountAsc").on("click", function() {
-				order( "countDesc" );
+				if( sort === "countDesc" ) {
+					sort = "countAsc";
+				}
+				else {
+					sort = "countDesc";
+				}
+				order( sort );
 				setButtonsOrder(this);
 			});
 			d3.select("#btnSortYearEndAsc").on("click", function() {
-				order( "yearEndAsc" );
+				if( sort === "yearEndAsc" ) {
+					sort = "yearEndDesc";
+				}
+				else {
+					sort = "yearEndAsc";
+				}
+				order( sort );
 				setButtonsOrder(this);
 			});
 
