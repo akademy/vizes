@@ -188,13 +188,30 @@ var timeline = {
 			.attr("transform", function () {
 				return "translate(" + (chartX + noYearSpace/2) + "," + groupHeight/2 + ")";
 			})
+			.on("mouseover", function (d) {
+				overMarker = true;
+
+				var tip = d.count;
+				if (config.pieHoverHtml) {
+					tip = config.pieHoverHtml(d);
+				}
+				tooltip.html( tip );
+			})
+			.on("mouseout", function () {
+				overMarker = false;
+			})
+			.on("click", function () {
+				if( config.pieClick ) {
+					config.pieClick(d);
+				}
+			})
 			.selectAll('path')
 			.data( function(d) {
 				var pieData = [];
 				if( d.noYears > 0 ) {
-					pieData.push({value: d.noYears, noYear: true, id : d.id, name: d.name, count: d.count })
+					pieData.push( { value: d.noYears, noYear: true, id : d.id, name: d.name, count: d.count } )
 				}
-				pieData.push({value: d.count-d.noYears, noYear: false, id : d.id, name: d.name, count: d.count });
+				pieData.push( { value: d.count-d.noYears, noYear: false, id : d.id, name: d.name, count: d.count } );
 				return pie(pieData);
 			})
 			.enter()
@@ -240,7 +257,7 @@ var timeline = {
 				overMarker = true;
 
 				var tip = d.year;
-				if (config.markerHoverHtml) {
+				if( config.markerHoverHtml ) {
 					tip = config.markerHoverHtml(d);
 				}
 				tooltip.html(tip);
@@ -249,7 +266,7 @@ var timeline = {
 				overMarker = false;
 			})
 			.on("click", function (d) {
-				if (config.markerClick) {
+				if( config.markerClick ) {
 					config.markerClick(d);
 				}
 			})
