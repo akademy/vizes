@@ -326,6 +326,13 @@
 						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year;
 					}
 				},
+				pieHoverHtml : function(d) {
+					var tip = d.count + " letters in total<br/>";
+					if( d.noYears > 0 ) {
+						tip += "(including " + d.noYears + " letters with unknown years)";
+					}
+					return tip;
+				},
 				scaleMarkers : 1,
 				groupHeight: 200,
 				groupGapHeight: 0
