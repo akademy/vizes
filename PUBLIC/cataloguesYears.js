@@ -168,11 +168,32 @@ var timeline = {
 		chart.append("g")
 			.attr("class", "guidelines")
 			.append("line")
-			.classed("mouse", 1)
+			//.classed("mouse", 1)
 			.attr("x1", -1)
 			.attr("x2", -1)
 			.attr("y1", chartY)
 			.attr("y2", chartY + chartHeight);
+
+		var brush = d3.svg.brush()
+			.x(xScale)
+			.on("brushend", function() {
+				var extent = brush.extent();
+				var start = Math.min( extent[0], extent[1] ),
+					end = Math.max( extent[0], extent[1] );
+
+				if( end - start >= 1 ) {
+					chartYears( Math.floor(start),Math.ceil(end) );
+				}
+
+				d3.select(".brush").call(brush.clear());
+			});
+
+		chart.append("g")
+			.attr("class", "brush")
+			.call(brush)
+				.selectAll('rect')
+				.attr('height', chartHeight);
+
 
 		// Attach dataFiltered (and create) g areas, which we transform into position
 		var gData = chart.selectAll("g.data")
@@ -275,10 +296,11 @@ var timeline = {
 				}
 				tooltip.html(tip);
 			})
-			.on("mouseout", function () {
+			 .on("mouseout", function () {
 				overMarker = false;
 			})
-			.on("click", function (d) {
+			  .on("click", function (d) {
+				console.log("click");
 				if( config.markerClick ) {
 					config.markerClick(d);
 				}
@@ -328,12 +350,12 @@ var timeline = {
 		var xAxisBottom = d3.svg.axis()
 				.scale(xScale)
 				.orient("bottom")
-				.tickFormat(d3.format("g")),
+				.tickFormat(d3.format("f1")),
 
 			xAxisTop = d3.svg.axis()
 				.scale(xScale)
 				.orient("top")
-				.tickFormat(d3.format("g"));
+				.tickFormat(d3.format("f1"));
 
 		chart.append("g")
 			.attr("class", "x axis top")
@@ -587,6 +609,14 @@ var timeline = {
 
 			var dataChartHeight = ( (groupHeight + groupGapHeight) * data.length );
 
+			var xAxisTickLimit;
+			if( chartEndYear - chartStartYear <= 5 ) {
+				xAxisTickLimit = chartEndYear - chartStartYear;
+			}
+
+			xAxisTop.ticks(xAxisTickLimit);
+			xAxisBottom.ticks(xAxisTickLimit);
+
 			// Redraw x-axis with years
 			chart.select(".x.axis.top")
 				.transition()
@@ -602,7 +632,7 @@ var timeline = {
 				.attr("transform", "translate(0," + (dataChartHeight + chartY) + ")");
 
 
-			var xAxisTicks = xScale.ticks();
+			var xAxisTicks = xScale.ticks(xAxisTickLimit);
 
 			// Create some guidelines so we can see where years come in.
 			var guidelines = chart.select("g.guidelines").selectAll("line.guideline")
@@ -661,6 +691,12 @@ var timeline = {
 
 		function chartYears(start, end) {
 
+			if( start > end ) {
+				var realStart = end;
+				end = start;
+				start = realStart;
+			}
+
 			previousStartYear = chartStartYear;
 			previousEndYear = chartEndYear;
 
@@ -670,6 +706,10 @@ var timeline = {
 			_dataFiltered = filterDataYears(_dataAll, chartStartYear, chartEndYear);
 
 			update(_dataFiltered);
+			
+			if( config.yearChange ) {
+				config.yearChange( start, end )
+			}
 		}
 
 		function getMaxYearNumber(data) {

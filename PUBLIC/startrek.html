@@ -214,6 +214,9 @@
 	            margin-bottom: -.6em;
 	        }
 
+			.brush {
+				fill:rgb(173, 1, 5);
+			}
 	    </style>
 	</head>
 
@@ -306,6 +309,9 @@
 
 					return "<b>" + name + "</b><br/>"
 					+ d.year + " | " + d.number + " episodes<br/>";
+				},
+				yearChange : function( start, end ) {
+					setButtonsYears(null);
 				},
 				fillColourBase: "#710a0a",
 				//pieSize : 30

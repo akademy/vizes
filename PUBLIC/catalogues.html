@@ -219,7 +219,9 @@
             margin-bottom: -.6em;
         }
 
-
+		.brush {
+			fill:rgb(239, 195, 25);
+		}
 
     </style>
 </head>
@@ -341,12 +343,16 @@
 							+ '<p style="text-align:right;width:100%;margin:0"><small>(click to show these in EMLO)</small></p>';
 				},
 				markerClick : function(d) {
+					var url;
+
 					if( d.year === timeline.noYear) {
-						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
+						url = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_from_year=9999&col_cat=" + d.parent.name;
 					}
 					else {
-						window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
+						url = "http://emlo.bodleian.ox.ac.uk/forms/advanced?dat_sin_year=" + d.year + "&col_cat=" + d.parent.name;
 					}
+
+					window.open( url, '_blank');
 				},
 				pieHoverHtml : function(d) {
 					var tip = d.count + " letters in total<br/>";
@@ -360,6 +366,9 @@
 				pieClick : function(d) {
 					console.log(d);
 					//window.location = "http://emlo.bodleian.ox.ac.uk/forms/advanced?col_cat=" + d.name;
+				},
+				yearChange : function( start, end ) {
+					setButtonsYears(null);
 				},
 				scaleMarkers : 1,
 				groupHeight: 50,
