@@ -117,7 +117,8 @@ var timeline = {
 			chart = chartDiv.append("svg");
 
 		var scaleHeight = 30,
-			groupNameWidth = 200;
+			groupNameWidth = 200,
+			rightSideGap = 40;
 		
 		var	noYearSpace = config.pieSize,
 			groupHeight = config.groupHeight,
@@ -131,9 +132,9 @@ var timeline = {
 
 		var svgWidth = chartDiv[0][0].clientWidth;
 
-		var chartX = groupNameWidth,// + noYearSpace,
+		var chartX = groupNameWidth + noYearSpace,
 			chartY = scaleHeight,
-			chartWidth = svgWidth - chartX;
+			chartWidth = svgWidth - chartX - rightSideGap;
 
 		var defaultStartYear = yearsStart,
 			defaultEndYear = yearsEnd,
@@ -146,6 +147,39 @@ var timeline = {
 
 			previousStartYear,
 			previousEndYear;
+
+		var debug = false;
+		if( debug ) {
+			// Paint group name space
+			chart.append("rect")
+				.attr("fill", "rgba(50,50,50,0.7")
+				.attr("stroke", "green")
+				.attr("stroke-width", "10")
+				.attr("x", 0)
+				.attr("y", 0)
+				.attr("width", groupNameWidth)
+				.attr("height", chartHeight);
+
+			// Paint piechart space
+			chart.append("rect")
+				.attr("fill", "rgba(100,100,100,0.7")
+				.attr("stroke", "red")
+				.attr("stroke-width", "10")
+				.attr("x", groupNameWidth)
+				.attr("y", chartY + 10)
+				.attr("width", noYearSpace)
+				.attr("height", chartHeight);
+
+			// Paint main chart space
+			chart.append("rect")
+				.attr("fill", "rgba(150,150,150,0.7")
+				.attr("stroke", "blue")
+				.attr("stroke-width", "10")
+				.attr("x", chartX)
+				.attr("y", chartY)
+				.attr("width", chartWidth)
+				.attr("height", chartHeight);
+		}
 
 		// generate xscale range
 		var xScale = d3.time.scale()
@@ -226,7 +260,7 @@ var timeline = {
 			.append("g")
 			.attr("class","pie")
 			.attr("transform", function () {
-				return "translate(" + (chartX + noYearSpace/2) + "," + groupHeight/2 + ")";
+				return "translate(" + (chartX - noYearSpace/2) + "," + groupHeight/2 + ")";
 			})
 			.on("mouseover", function (d) {
 				overMarker = true;
@@ -330,7 +364,7 @@ var timeline = {
 				return groupHeight * 0.56;//( groupHeight - box.height )/2;// TODO: Get this to work...
 			})
 			.attr("x", function () {
-				return chartX - this.getBBox().width - 10; // This -10 is really naughty... but there must be a gap after the text...
+				return groupNameWidth - this.getBBox().width - 10; // This -10 is really naughty... but there must be a gap after the text...
 			})
 
 			//.on("mouseover", function(d) {
@@ -458,7 +492,7 @@ var timeline = {
 			/* Update to the correct chart, years or counts */
 
 			var d3DataGroup;
-			var yearBuffer = Math.ceil( (chartEndYear - chartStartYear) * 0.03 );
+			var yearBuffer = 0;//Math.ceil( (chartEndYear - chartStartYear) * 0.03 );
 			var circleDuration = 2000,
 				circleDelay = 0,
 				axisDuration = 2000,
