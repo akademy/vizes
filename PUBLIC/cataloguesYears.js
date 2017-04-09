@@ -69,7 +69,7 @@ var timeline = {
 				}
 			}
 
-			if( timeline.noYear in dataTemp[catName] ) {
+			if( timeline.noYear in dataTemp[catName] ) { // TODO: Remove the need for this.
 				d.noYears = dataTemp[catName][timeline.noYear];
 				count += d.noYears;
 			}
@@ -138,7 +138,7 @@ var timeline = {
 		var defaultStartYear = yearsStart,
 			defaultEndYear = yearsEnd,
 
-			defaultStartYearBuffered = defaultStartYear,//Math.ceil(defaultStartYear - ((yearsEnd - yearsStart) * 0.05)), //dummyYear,//defaultStartYear - 10,
+			defaultStartYearBuffered = defaultStartYear,//Math.ceil(defaultStartYear - ((yearsEnd - yearsStart) * 0.05)),
 			defaultEndYearBuffered = defaultEndYear,//Math.ceil(defaultEndYear + ((yearsEnd - yearsStart) * 0.05)),
 
 			chartStartYear = defaultStartYearBuffered,
@@ -539,45 +539,21 @@ var timeline = {
 				.delay(circleDelay)
 				.duration(circleDuration)
 				.attr("y", function (d) {
-					var height;
-					//if( d.year === timeline.noYear ) {
-					//	height = Math.min( sizeScale(d.number), 20 );
-					//}
-					//else {
-						height = sizeScale(d.number);
-					//}
-					return (groupHeight - (height * config.scaleMarkers)) / 2;
+					return (groupHeight - (sizeScale(d.number) * config.scaleMarkers)) / 2;
 				})
 				.attr("x", function (d) {
-					//if (d.year === timeline.noYear) {
-					//	return chartX + noYearSpace/2;
-					//}
 					return xScale(yearToDate(d.year));
 				})
 				.attr("width", function (d) {
-					//if (d.year === timeline.noYear) {
-					//	return Math.min(sizeScale(d.number), 20);
-					//}
 					return xScale(yearToDate(d.year)) - xScale(yearToDate(d.year - 1));
 				})
 				.attr("height", function (d) {
-					//if (d.year === timeline.noYear) {
-					//	return Math.min(sizeScale(d.number), 20);
-					//}
 					return sizeScale(d.number) * config.scaleMarkers;
 				})
 				.attr("fill-opacity", function (d) {
 					var op;
 
-					if (d.year === timeline.noYear) {
-						if (chartStartYear === defaultStartYearBuffered) {
-							op = 1;
-						}
-						else {
-							op = 0;
-						}
-					}
-					else if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
+					if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
 						// totally outside of range
 						op = 0;
 					}
@@ -598,13 +574,9 @@ var timeline = {
 					return op.toString();
 				})
 				.attr("fill", function (d) {
-					var scale = colourScale(d.number), colour;
-					if (d.year === timeline.noYear) {
-						colour = fillColourNoYear.brighter(scale).toString();
-					}
-					else {
+					var scale = colourScale(d.number),
 						colour = fillColour.brighter(scale).toString();
-					}
+
 					return colour;
 				});
 
@@ -690,7 +662,7 @@ var timeline = {
 		function filterDataYears(data, start, end) {
 			return filterData(data, function (d) {
 				for (var y = 0; y < d.years.length; y += 1) {
-					if (d.years[y].year !== timeline.noYear && d.years[y].year > start && d.years[y].year < end) {
+					if ( d.years[y].year > start && d.years[y].year < end) {
 						return true;
 					}
 				}
@@ -727,7 +699,7 @@ var timeline = {
 			for (var i = 0; i < data.length; i++) {
 				var years = data[i].years;
 				for (var j = 0; j < years.length; j++) {
-					if (years[j].year !== timeline.noYear && years[j].number > max) {
+					if ( years[j].number > max) {
 						max = years[j].number;
 					}
 				}
@@ -742,7 +714,7 @@ var timeline = {
 			for (var i = 0; i < data.length; i++) {
 				var years = data[i].years;
 				for (var j = 0; j < years.length; j++) {
-					if (years[j].year !== timeline.noYear && years[j].number < min) {
+					if ( years[j].number < min) {
 						min = years[j].number;
 					}
 				}
