@@ -37,7 +37,8 @@ var timeline = {
 		//}
 
 		var yearsStart = dataTemp[catalogues[0]]["start"],
-			yearsEnd = dataTemp[catalogues[0]]["end"];
+			yearsEnd = dataTemp[catalogues[0]]["end"],
+			maxGroupNumber = 50000;
 
 		for (var i = 0; i < limit; i++) {
 
@@ -88,6 +89,10 @@ var timeline = {
 			}
 			if (d.year.end > yearsEnd) {
 				yearsEnd = d.year.end;
+			}
+
+			if( count > maxGroupNumber ) {
+				maxGroupNumber = count;
 			}
 
 			_dataAll.push(d);
@@ -143,9 +148,9 @@ var timeline = {
 			previousEndYear;
 
 		// generate xscale range
-		var xScale = d3.scale.linear()
+		var xScale = d3.time.scale()
 				.range([chartX + noYearSpace, chartX + chartWidth])
-				.domain([chartStartYear, chartEndYear]);
+				.domain([yearToDate(chartStartYear), yearToDate(chartEndYear)]);
 
 		var sizeScale = d3.scale.linear()
 				.range([2, groupHeight])
@@ -153,7 +158,7 @@ var timeline = {
 
 		var pieScale = d3.scale.log()
 				.range([noYearSpace/3,noYearSpace/2])
-				.domain([1,50000]); // TODO: get real numbers
+				.domain([1,maxGroupNumber]);
 
 		var fillColour = d3.rgb(config.fillColourBase),
 			fillColourNoYear = d3.rgb(config.fillColourNoYearBase),
@@ -177,13 +182,14 @@ var timeline = {
 		var brush = d3.svg.brush()
 			.x(xScale)
 			.on("brushend", function() {
-				var extent = brush.extent();
-				var start = Math.min( extent[0], extent[1] ),
-					end = Math.max( extent[0], extent[1] );
+				var extent = brush.extent(),
+					start = (new Date(extent[0])).getFullYear(), //Math.min( extent[0], extent[1] ),
+					end = (new Date(extent[1])).getFullYear();//Math.max( extent[0], extent[1] );
 
-				if( end - start >= 1 ) {
-					chartYears( Math.floor(start),Math.ceil(end) );
+				if( end - start <= 2 ) {
+					end = start + 2;
 				}
+				chartYears( Math.floor(start),Math.ceil(end) );
 
 				d3.select(".brush").call(brush.clear());
 			});
@@ -300,7 +306,6 @@ var timeline = {
 				overMarker = false;
 			})
 			  .on("click", function (d) {
-				console.log("click");
 				if( config.markerClick ) {
 					config.markerClick(d);
 				}
@@ -350,12 +355,12 @@ var timeline = {
 		var xAxisBottom = d3.svg.axis()
 				.scale(xScale)
 				.orient("bottom")
-				.tickFormat(d3.format("f1")),
+				.tickFormat(d3.time.format("%Y"));//d3.format("f1")),
 
 			xAxisTop = d3.svg.axis()
 				.scale(xScale)
 				.orient("top")
-				.tickFormat(d3.format("f1"));
+				.tickFormat(d3.time.format("%Y"));//"f1"));
 
 		chart.append("g")
 			.attr("class", "x axis top")
@@ -376,6 +381,8 @@ var timeline = {
 			.classed("mytooltip", 1)
 			.text("");
 
+		var formatTooltipYear = d3.time.format( "%Y" );
+
 		chart
 			.on("mouseover", function () {
 				return tooltip.style("visibility", "visible");
@@ -385,11 +392,11 @@ var timeline = {
 
 				if (pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight) {
 
-					var minX = xScale(chartStartYear);//defaultStartYear);
+					var minX = xScale(yearToDate(chartStartYear));//defaultStartYear);
 
 					if (!overMarker) {
 						if (pos[0] > minX) {
-							tooltip.text( Math.floor(xScale.invert(pos[0])) );
+							tooltip.text( formatTooltipYear(xScale.invert(pos[0]) ) );
 							tooltip.style("visibility", "visible");
 						}
 						else {
@@ -411,6 +418,7 @@ var timeline = {
 				}
 
 				tooltip.style("top", (d3.event.pageY - 50) + "px");
+				// Work out tooltip direction, left or right
 				var tooltipWidth = (tooltip.style("width").replace("px","") * 1) + 20;
 				if( d3.event.pageX > chartWidth/2 + chartX ) {
 					tooltip.style("left", (d3.event.pageX - tooltipWidth ) + "px");
@@ -418,6 +426,7 @@ var timeline = {
 				else {
 					tooltip.style("left", (d3.event.pageX + 20) + "px");
 				}
+
 				return tooltip
 			})
 			.on("mouseout", function () {
@@ -449,7 +458,7 @@ var timeline = {
 			/* Update to the correct chart, years or counts */
 
 			var d3DataGroup;
-			var yearBuffer = (chartEndYear - chartStartYear) * 0.03;
+			var yearBuffer = Math.ceil( (chartEndYear - chartStartYear) * 0.03 );
 			var circleDuration = 2000,
 				circleDelay = 0,
 				axisDuration = 2000,
@@ -506,7 +515,7 @@ var timeline = {
 					return "translate(0," + ((i * (groupHeight + groupGapHeight)) + chartY) + ")";
 				});
 
-			xScale.domain([chartStartYear - yearBuffer, chartEndYear + yearBuffer]);
+			xScale.domain([yearToDate(chartStartYear - yearBuffer), yearToDate(chartEndYear + yearBuffer)]);
 
 			//gData.select("g").selectAll("rect")
 			//	.attr("fill-opacity", function (d) {
@@ -531,30 +540,30 @@ var timeline = {
 				.duration(circleDuration)
 				.attr("y", function (d) {
 					var height;
-					if( d.year === timeline.noYear ) {
-						height = Math.min( sizeScale(d.number), 20 );
-					}
-					else {
+					//if( d.year === timeline.noYear ) {
+					//	height = Math.min( sizeScale(d.number), 20 );
+					//}
+					//else {
 						height = sizeScale(d.number);
-					}
+					//}
 					return (groupHeight - (height * config.scaleMarkers)) / 2;
 				})
 				.attr("x", function (d) {
-					if (d.year === timeline.noYear) {
-						return chartX + noYearSpace/2;
-					}
-					return xScale(d.year);
+					//if (d.year === timeline.noYear) {
+					//	return chartX + noYearSpace/2;
+					//}
+					return xScale(yearToDate(d.year));
 				})
 				.attr("width", function (d) {
-					if (d.year === timeline.noYear) {
-						return Math.min(sizeScale(d.number), 20);
-					}
-					return (xScale(d.year) - xScale(d.year - 1));
+					//if (d.year === timeline.noYear) {
+					//	return Math.min(sizeScale(d.number), 20);
+					//}
+					return xScale(yearToDate(d.year)) - xScale(yearToDate(d.year - 1));
 				})
 				.attr("height", function (d) {
-					if (d.year === timeline.noYear) {
-						return Math.min(sizeScale(d.number), 20);
-					}
+					//if (d.year === timeline.noYear) {
+					//	return Math.min(sizeScale(d.number), 20);
+					//}
 					return sizeScale(d.number) * config.scaleMarkers;
 				})
 				.attr("fill-opacity", function (d) {
@@ -632,7 +641,7 @@ var timeline = {
 				.attr("transform", "translate(0," + (dataChartHeight + chartY) + ")");
 
 
-			var xAxisTicks = xScale.ticks(xAxisTickLimit);
+			var xAxisTicks = xScale.ticks();//xAxisTickLimit);
 
 			// Create some guidelines so we can see where years come in.
 			var guidelines = chart.select("g.guidelines").selectAll("line.guideline")
@@ -642,10 +651,10 @@ var timeline = {
 				.transition()
 				.duration(circleDuration)
 				.attr("x1", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("x2", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("y1", chartY)
 				.attr("y2", chartY + dataChartHeight);
@@ -655,10 +664,10 @@ var timeline = {
 				.append("line")
 				.classed("guideline", 1)
 				.attr("x1", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("x2", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("y1", chartY)
 				.attr("y2", chartY + dataChartHeight);
@@ -742,11 +751,15 @@ var timeline = {
 			return min;
 		}
 
-		// Update the chart on load, this makes the first circles "appear".
+		function yearToDate( intYear ) {
+			return new Date( intYear+"" );
+		}
+
+
+		// Update the chart on load, this makes the first rectangles "appear".
 		setTimeout(function () {
 			update(_dataFiltered);
 		}, 10);
-
 
 		return {
 			showYears: function (yearStart, yearEnd) {
