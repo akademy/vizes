@@ -217,15 +217,32 @@ var timeline = {
 			.x(xScale)
 			.on("brushend", function() {
 				var extent = brush.extent(),
-					start = (new Date(extent[0])).getFullYear(), //Math.min( extent[0], extent[1] ),
-					end = (new Date(extent[1])).getFullYear();//Math.max( extent[0], extent[1] );
+					startDate = new Date(extent[0]),
+					endDate= new Date(extent[1]),
+					startDateYear = startDate.getFullYear(),
+					endDateYear = endDate.getFullYear();
 
-				if( end - start <= 2 ) {
-					end = start + 2;
+				// Round to nearest year
+				var startDateYearJuly = new Date( startDateYear,7,1,0,0,0,0 ),
+					endDateYearJuly = new Date( endDateYear,7,1,0,0,0,0 );
+
+				if( startDate > startDateYearJuly ) {
+					startDateYear += 1;
 				}
-				chartYears( Math.floor(start),Math.ceil(end) );
+				if( endDate > endDateYearJuly ) {
+					endDateYear += 1;
+				}
 
-				d3.select(".brush").call(brush.clear());
+				if( endDateYear - startDateYear <= 2 ) {
+					endDateYear = startDateYear + 2;
+				}
+
+				chartYears( startDateYear, endDateYear );
+
+				d3.select( ".brush" ).call( brush.clear() );
+
+				console.log( startDate, endDate );
+				console.log( startDateYear, endDateYear );
 			});
 
 		chart.append("g")
