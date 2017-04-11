@@ -725,6 +725,17 @@ var timeline = {
 				.attr('y', chartY)
 				.attr('height', dataChartHeight);
 
+			var svgHeight = chart.attr("height"),
+				svgHeightChangeDuration = circleDelay + circleDuration;
+
+			if( svgHeight < dataChartHeight ) {
+				svgHeightChangeDuration = 0;
+			}
+
+			chart
+				.transition()
+				.delay(svgHeightChangeDuration)
+				.attr("height", dataChartHeight + scaleHeight + scaleHeight);
 		}
 
 		function filterData(data, filterer) {
