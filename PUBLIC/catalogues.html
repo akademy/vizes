@@ -259,6 +259,7 @@
 						<li>Order:</li>
 						<li><button type="button" id="btnSortNameAsc" class="highlight" >Catalogue Name</button></li>
 						<li><button type="button" id="btnSortCountAsc">Letter Count</button></li>
+						<li><button type="button" id="btnSortYearStartAsc">Starting year</button></li>
 						<li><button type="button" id="btnSortYearEndAsc">Ending year</button></li>
 					</ul>
 				</div>
@@ -388,12 +389,12 @@
 				else if( by === "nameDesc" ) {
 					return generateSort( function(o) {return o.name;} );
 				}
-				//else if( by === "yearStartAsc" ) {
-				//	return generateSort( function(o) {return o.year.start;}, true );
-				//}
-				//else if( by === "yearStartDesc" ) {
-				//	return generateSort( function(o) {return o.year.start;} );
-				//}
+				else if( by === "yearStartAsc" ) {
+					return generateSort( function(o) {return o.year.start;}, true );
+				}
+				else if( by === "yearStartDesc" ) {
+					return generateSort( function(o) {return o.year.start;} );
+				}
 				else if( by === "yearEndAsc" ) {
 					return generateSort( function(o) {return o.year.end;}, true );
 				}
@@ -459,7 +460,16 @@
 				order( sort );
 				setButtonsOrder(this);
 			});
-
+			d3.select("#btnSortYearStartAsc").on("click", function() {
+				if( sort === "yearStartAsc" ) {
+					sort = "yearStartDesc";
+				}
+				else {
+					sort = "yearStartAsc";
+				}
+				order( sort );
+				setButtonsOrder(this);
+			});
 
 			//
 			// Set up zoom
