@@ -118,7 +118,7 @@ var timeline = {
 
 		var scaleHeight = 30,
 			groupNameWidth = 200,
-			rightSideGap = 40;
+			sideGap = 10;
 		
 		var	noYearSpace = config.pieSize,
 			groupHeight = config.groupHeight,
@@ -127,23 +127,21 @@ var timeline = {
 		var chartHeight = _dataAll.length * (groupHeight + groupGapHeight);
 		var svgHeight = chartHeight + scaleHeight * 2;
 
-		chart.attr("width", "100%")
+		chart
+			.attr("width", "100%")
 			.attr("height", svgHeight);
 
 		var svgWidth = chartDiv[0][0].clientWidth;
 
-		var chartX = groupNameWidth + noYearSpace,
+		var chartX = groupNameWidth + noYearSpace + sideGap,
 			chartY = scaleHeight,
-			chartWidth = svgWidth - chartX - rightSideGap;
+			chartWidth = svgWidth - chartX - sideGap;
 
 		var defaultStartYear = yearsStart,
 			defaultEndYear = yearsEnd,
 
-			defaultStartYearBuffered = defaultStartYear,//Math.ceil(defaultStartYear - ((yearsEnd - yearsStart) * 0.05)),
-			defaultEndYearBuffered = defaultEndYear,//Math.ceil(defaultEndYear + ((yearsEnd - yearsStart) * 0.05)),
-
-			chartStartYear = defaultStartYearBuffered,
-			chartEndYear = defaultEndYearBuffered,
+			chartStartYear = defaultStartYear,
+			chartEndYear = defaultEndYear,
 
 			previousStartYear,
 			previousEndYear;
@@ -152,7 +150,7 @@ var timeline = {
 		if( debug ) {
 			// Paint group name space
 			chart.append("rect")
-				.attr("fill", "rgba(50,50,50,0.7")
+				.attr("fill", "rgba(50,50,50,0.7)")
 				.attr("stroke", "green")
 				.attr("stroke-width", "10")
 				.attr("x", 0)
@@ -162,7 +160,7 @@ var timeline = {
 
 			// Paint piechart space
 			chart.append("rect")
-				.attr("fill", "rgba(100,100,100,0.7")
+				.attr("fill", "rgba(100,100,100,0.7)")
 				.attr("stroke", "red")
 				.attr("stroke-width", "10")
 				.attr("x", groupNameWidth)
@@ -172,7 +170,7 @@ var timeline = {
 
 			// Paint main chart space
 			chart.append("rect")
-				.attr("fill", "rgba(150,150,150,0.7")
+				.attr("fill", "rgba(150,150,150,0.7)")
 				.attr("stroke", "blue")
 				.attr("stroke-width", "10")
 				.attr("x", chartX)
@@ -183,8 +181,8 @@ var timeline = {
 
 		// generate xscale range
 		var xScale = d3.time.scale()
-				.range([chartX + noYearSpace, chartX + chartWidth])
-				.domain([yearToDate(chartStartYear), yearToDate(chartEndYear)]);
+				.range([chartX, chartX + chartWidth])
+				.domain([yearToDate(chartStartYear), yearToDate(chartEndYear+1)]);
 
 		var sizeScale = d3.scale.linear()
 				.range([2, groupHeight])
@@ -240,9 +238,6 @@ var timeline = {
 				chartYears( startDateYear, endDateYear );
 
 				d3.select( ".brush" ).call( brush.clear() );
-
-				console.log( startDate, endDate );
-				console.log( startDateYear, endDateYear );
 			});
 
 		chart.append("g")
@@ -277,7 +272,7 @@ var timeline = {
 			.append("g")
 			.attr("class","pie")
 			.attr("transform", function () {
-				return "translate(" + (chartX - noYearSpace/2) + "," + groupHeight/2 + ")";
+				return "translate(" + (chartX - sideGap - noYearSpace/2) + "," + groupHeight/2 + ")";
 			})
 			.on("mouseover", function (d) {
 				overMarker = true;
@@ -406,12 +401,12 @@ var timeline = {
 		var xAxisBottom = d3.svg.axis()
 				.scale(xScale)
 				.orient("bottom")
-				.tickFormat(d3.time.format("%Y"));//d3.format("f1")),
+				.tickFormat(d3.time.format("%Y"));
 
 			xAxisTop = d3.svg.axis()
 				.scale(xScale)
 				.orient("top")
-				.tickFormat(d3.time.format("%Y"));//"f1"));
+				.tickFormat(d3.time.format("%Y"));
 
 		chart.append("g")
 			.attr("class", "x axis top")
@@ -441,9 +436,9 @@ var timeline = {
 			.on("mousemove", function () {
 				var pos = d3.mouse(chart.node());
 
-				if (pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight) {
+				//if (pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight) {
 
-					var minX = xScale(yearToDate(chartStartYear));//defaultStartYear);
+					var minX = xScale(yearToDate(chartStartYear));
 
 					if (!overMarker) {
 						if (pos[0] > minX) {
@@ -459,14 +454,14 @@ var timeline = {
 
 					chart.select("g.guidelines line.mouse")
 						.attr("x1", limitX)
-						.attr("x2", limitX)
-				}
-				else {
-					tooltip.style("visibility", "hidden");
-					chart.select("g.guidelines line.mouse")
-						.attr("x1", -5)
-						.attr("x2", -5)
-				}
+						.attr("x2", limitX);
+				//}
+				//else {
+				//	tooltip.style("visibility", "hidden");
+				//	chart.select("g.guidelines line.mouse")
+				//		.attr("x1", -5)
+				//		.attr("x2", -5)
+				//}
 
 				tooltip.style("top", (d3.event.pageY - 50) + "px");
 				// Work out tooltip direction, left or right
@@ -566,12 +561,7 @@ var timeline = {
 					return "translate(0," + ((i * (groupHeight + groupGapHeight)) + chartY) + ")";
 				});
 
-			xScale.domain([yearToDate(chartStartYear - yearBuffer), yearToDate(chartEndYear + yearBuffer)]);
-
-			//gData.select("g").selectAll("rect")
-			//	.attr("fill-opacity", function (d) {
-			//		return "0.5"
-			//	});
+			xScale.domain([yearToDate(chartStartYear - yearBuffer), yearToDate(chartEndYear + yearBuffer + 1)]);
 
 			var maxNumber = getMaxYearNumber(data);
 			colourScale
@@ -585,6 +575,9 @@ var timeline = {
 				});
 
 			d3DataGroup
+				.attr("fill-opacity", function (d) {
+					return "0.8"; // Reveal all while we transition
+				})
 				.transition()
 				.ease(ease)
 				.delay(circleDelay)
@@ -602,33 +595,55 @@ var timeline = {
 					return sizeScale(d.number) * config.scaleMarkers;
 				})
 				.attr("fill-opacity", function (d) {
-					var op;
+					var op = 1;
 
-					if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
-						// totally outside of range
+					if( d.year < chartStartYear || d.year > chartEndYear-1 ) {
 						op = 0;
 					}
-					else if (d.year > chartStartYear && d.year < chartEndYear) {
-						// totally inside range
-						op = 1;
-					}
-					else {
-						// Inside buffer region.
-						if (d.year < chartStartYear) {
-							op = (chartStartYear - d.year) / yearBuffer;
-						}
-						else {
-							op = (d.year - chartEndYear ) / yearBuffer;
-						}
-						op = 1 - op;
+					// if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
+					// 	// totally outside of range
+					// 	op = 0;
+					// }
+					// else if (d.year > chartStartYear && d.year < chartEndYear) {
+					// 	// totally inside range
+					// 	op = 1;
+					// }
+					// else {
+					// 	// Inside buffer region.
+					// 	if (d.year < chartStartYear) {
+					// 		op = (chartStartYear - d.year) / yearBuffer;
+					// 	}
+					// 	else {
+					// 		op = (d.year - chartEndYear ) / yearBuffer;
+					// 	}
+					// 	op = 1 - op;
+					// }
+					return op.toString();
+				})
+				.attr("stroke-opacity", function (d) {
+					var op = 1;
+					if( d.year < chartStartYear || d.year > chartEndYear-1 ) {
+						op = 0;
 					}
 					return op.toString();
 				})
+				.style("pointer-events", function(d) {
+					var pointerEvents = "all";
+					if( d.year < chartStartYear || d.year > chartEndYear-1 ) {
+						pointerEvents = "none";
+					}
+					return pointerEvents;
+				})
+				/*.style("visibility", function(d) {
+					var visibility = "visible";
+					if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
+						visibility = "hidden";
+					}
+					return visibility;
+				})*/
 				.attr("fill", function (d) {
-					var scale = colourScale(d.number),
-						colour = fillColour.brighter(scale).toString();
-
-					return colour;
+					var scale = colourScale(d.number);
+					return fillColour.brighter(scale).toString();
 				});
 
 			d3DataGroup
@@ -733,7 +748,7 @@ var timeline = {
 			previousEndYear = chartEndYear;
 
 			chartStartYear = start;
-			chartEndYear = end;
+			chartEndYear = end+1; //End at the end of the year
 
 			_dataFiltered = filterDataYears(_dataAll, chartStartYear, chartEndYear);
 
@@ -786,8 +801,8 @@ var timeline = {
 
 		return {
 			showYears: function (yearStart, yearEnd) {
-				yearStart = yearStart || defaultStartYearBuffered;
-				yearEnd = yearEnd || defaultEndYearBuffered;
+				yearStart = yearStart || defaultStartYear;
+				yearEnd = yearEnd || defaultEndYear;
 				chartYears(yearStart, yearEnd);
 			},
 			reorder: function (sortFunction) {
