@@ -244,6 +244,7 @@ var timeline = {
 			.attr("class", "brush")
 			.call(brush)
 				.selectAll('rect')
+				.attr('y', chartY)
 				.attr('height', chartHeight);
 
 
@@ -718,6 +719,11 @@ var timeline = {
 				.transition()
 				.duration(circleDuration)
 				.attr("y2", chartY + dataChartHeight);
+
+			d3.select( ".brush" )
+				.selectAll('rect')
+				.attr('y', chartY)
+				.attr('height', dataChartHeight);
 
 		}
 
