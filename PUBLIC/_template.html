@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+		body { background-color: white;}
+	</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="lib/d3.min.js"></script>
+<script src="js/_template.js"></script> <!-- CHANGE NAME -->
+<script>
+	// Get Data
+	var data = [11,22,33,44,55,66,77];
+
+	// Create a space for chart
+	var select = "#chart";
+	var div = d3.select( select ) // Change size
+			//.attr("height", "100%") // Cannot set a height of 100%, you need values
+			.attr("width", "100%"),
+			svgWidth = div[0][0].clientWidth,
+			svgHeight = 800;
+
+	// Configuration for chart
+	var config = {
+		select: select,
+		width: svgWidth,
+		height: svgHeight
+	};
+
+	// Chart create
+	var control = chart.create( data, config );
+</script>
+</body>
+</html>
