@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+		rect, circle, ellipse {
+			fill: none;
+			stroke: rgb(0,0,0);
+		}
+		body { background-color: white;}
+		/*@keyframes dash {
+			to {
+				stroke-dashoffset: 1000;
+			}
+		}*/
+	</style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="lib/d3.min.js"></script>
+<script src="js/loadingAnimation.js"></script>
+<script>
+
+	// Create a space for chart
+	var select = "#chart";
+	var div = d3.select( select )
+			.attr("width", "100%"),
+			svgWidth = div[0][0].clientWidth,
+			svgHeight = 800;
+
+	// Configuration for chart
+	var config = {
+		select: select,
+		width: svgWidth,
+		height: svgHeight
+	};
+
+	// Chart create
+	var control = chart.create( null, config );
+</script>
+</body>
+</html>
