@@ -51,7 +51,7 @@ var chart = {
 		// Max Length of path
 		var length = document.querySelector('.path').getTotalLength();
 		var styles = document.getElementById("chartStyles");
-		styles.appendChild( document.createTextNode("@keyframes dash { to { stroke-dashoffset: "+ (length+100) +"; } }") );
+		styles.appendChild( document.createTextNode("@keyframes dash { to { stroke-dashoffset: "+ (length+150) +"; } }") );
 
 		var scale = 0.3;
 		svg.append( "use" )
