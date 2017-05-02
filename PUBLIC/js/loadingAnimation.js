@@ -23,12 +23,15 @@ var chart = {
 		var centre = { x: _width /2,
 			y: _height / 2};
 
+		svg.append("rect").attr("x", 10).attr("y",10).attr("width",_width-20).attr("height", _height-20);
+		//svg.append("circle").attr("r",20).attr("cx", centre.x).attr("cy", centre.y );
+		
 		var waiting = svg.append("g")
 			.style("visibility","hidden")
 			.append("g")
 			.attr("id","waiting");
 
-		// Image from: https://www.shareicon.net/alarm-clock-clock-timer-tools-and-utensils-time-808457
+		// SVG data from Image: https://www.shareicon.net/alarm-clock-clock-timer-tools-and-utensils-time-808457
 		//
 		waiting.append("path")
 			.attr("d", "m436.4,278.3c0-102.3-80-186.1-180-187.2v-28.1h15.6v-20.8h-53.1v20.8h16.6v29.1c-91.2,9.7-163.3,89.8-163.3,186.3 0,64.7 32,121.9 80.8,155.6l-54.8,52 14.3,15.1 58.9-55.9c24.8,13.1 53,20.5 82.8,20.5 30.2,0 58.7-7.6 83.8-21l59.2,56.2 14.3-15.1-55.2-52.4c48.4-33.8 80.1-90.8 80.1-155.1zm-182.1,166.5c-88.4,0-161.3-74.9-161.3-166.5s71.8-166.5 161.3-166.5 161.3,74.9 161.3,166.5-72.9,166.5-161.3,166.5z")
@@ -40,24 +43,27 @@ var chart = {
 		waiting.append("path")
 			.attr("d", "m473.7,37.4c-35.1-35.1-92.1-35.1-127.3,0-1.9,1.9-3.7,3.9-5.3,5.9l126.3,127.2c2.2-1.8 4.3-3.7 6.3-5.7 35.2-35.3 35.2-92.3 0-127.4zm-6.9,102.4l-95.1-95.8c26.7-19.4 64.3-17.1 88.4,7 24.2,24.2 26.5,62.1 6.7,88.8z");
 
+		// Size of initial image
 		var gWaiting   = document.getElementById("waiting"); // or other selector like querySelector()
 		var rect = gWaiting.getBoundingClientRect(); // get the bounding rectangle
 		var waitingSize = { "width":rect.width, "height":rect.height};
 
+		// Max Length of path
 		var length = document.querySelector('.path').getTotalLength();
 		var styles = document.getElementById("chartStyles");
 		styles.appendChild( document.createTextNode("@keyframes dash { to { stroke-dashoffset: "+ (length+100) +"; } }") );
 
 		var scale = 0.3;
 		svg.append( "use" )
-			.attr( "x", centre.x-(waitingSize.width/2)*scale )
-			.attr( "y", centre.y-(waitingSize.height/2)*scale )
-			.attr( "transform","scale(0.3)" )
+			.attr( "x", (centre.x - ( (waitingSize.width*scale)/2 )) / scale )
+			.attr( "y", (centre.y - ( (waitingSize.height*scale)/2 )) / scale )
+			.attr( "transform","scale("+scale+")" )
 			.attr( "class","clock" )
 			.style( "stroke","black" )
-			.style( "fill","rgba(0,0,0,0.1)" )
+			.style( "fill","rgba(0,0,0,0.05)" )
 			.style( "stroke-dasharray",length )
-			.style( "animation","dash 5s linear alternate infinite" )
+			.style( "stroke-width", 8 )
+			.style( "animation","dash 3s linear alternate infinite" )
 			.attr( "xlink:href","#waiting" );
 
 
