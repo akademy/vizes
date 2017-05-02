@@ -37,7 +37,8 @@ var timeline = {
 		//}
 
 		var yearsStart = dataTemp[catalogues[0]]["start"],
-			yearsEnd = dataTemp[catalogues[0]]["end"];
+			yearsEnd = dataTemp[catalogues[0]]["end"],
+			maxGroupNumber = 50000;
 
 		for (var i = 0; i < limit; i++) {
 
@@ -68,7 +69,7 @@ var timeline = {
 				}
 			}
 
-			if( timeline.noYear in dataTemp[catName] ) {
+			if( timeline.noYear in dataTemp[catName] ) { // TODO: Remove the need for this.
 				d.noYears = dataTemp[catName][timeline.noYear];
 				count += d.noYears;
 			}
@@ -88,6 +89,10 @@ var timeline = {
 			}
 			if (d.year.end > yearsEnd) {
 				yearsEnd = d.year.end;
+			}
+
+			if( count > maxGroupNumber ) {
+				maxGroupNumber = count;
 			}
 
 			_dataAll.push(d);
@@ -112,7 +117,8 @@ var timeline = {
 			chart = chartDiv.append("svg");
 
 		var scaleHeight = 30,
-			groupNameWidth = 200;
+			groupNameWidth = 200,
+			sideGap = 10;
 		
 		var	noYearSpace = config.pieSize,
 			groupHeight = config.groupHeight,
@@ -121,31 +127,62 @@ var timeline = {
 		var chartHeight = _dataAll.length * (groupHeight + groupGapHeight);
 		var svgHeight = chartHeight + scaleHeight * 2;
 
-		chart.attr("width", "100%")
+		chart
+			.attr("width", "100%")
 			.attr("height", svgHeight);
 
 		var svgWidth = chartDiv[0][0].clientWidth;
 
-		var chartX = groupNameWidth,// + noYearSpace,
+		var chartX = groupNameWidth + noYearSpace + sideGap,
 			chartY = scaleHeight,
-			chartWidth = svgWidth - chartX;
+			chartWidth = svgWidth - chartX - sideGap;
 
 		var defaultStartYear = yearsStart,
 			defaultEndYear = yearsEnd,
 
-			defaultStartYearBuffered = defaultStartYear,//Math.ceil(defaultStartYear - ((yearsEnd - yearsStart) * 0.05)), //dummyYear,//defaultStartYear - 10,
-			defaultEndYearBuffered = defaultEndYear,//Math.ceil(defaultEndYear + ((yearsEnd - yearsStart) * 0.05)),
-
-			chartStartYear = defaultStartYearBuffered,
-			chartEndYear = defaultEndYearBuffered,
+			chartStartYear = defaultStartYear,
+			chartEndYear = defaultEndYear,
 
 			previousStartYear,
 			previousEndYear;
 
+		var debug = false;
+		if( debug ) {
+			// Paint group name space
+			chart.append("rect")
+				.attr("fill", "rgba(50,50,50,0.7)")
+				.attr("stroke", "green")
+				.attr("stroke-width", "10")
+				.attr("x", 0)
+				.attr("y", 0)
+				.attr("width", groupNameWidth)
+				.attr("height", chartHeight);
+
+			// Paint piechart space
+			chart.append("rect")
+				.attr("fill", "rgba(100,100,100,0.7)")
+				.attr("stroke", "red")
+				.attr("stroke-width", "10")
+				.attr("x", groupNameWidth)
+				.attr("y", chartY + 10)
+				.attr("width", noYearSpace)
+				.attr("height", chartHeight);
+
+			// Paint main chart space
+			chart.append("rect")
+				.attr("fill", "rgba(150,150,150,0.7)")
+				.attr("stroke", "blue")
+				.attr("stroke-width", "10")
+				.attr("x", chartX)
+				.attr("y", chartY)
+				.attr("width", chartWidth)
+				.attr("height", chartHeight);
+		}
+
 		// generate xscale range
-		var xScale = d3.scale.linear()
-				.range([chartX + noYearSpace, chartX + chartWidth])
-				.domain([chartStartYear, chartEndYear]);
+		var xScale = d3.time.scale()
+				.range([chartX, chartX + chartWidth])
+				.domain([yearToDate(chartStartYear), yearToDate(chartEndYear+1)]);
 
 		var sizeScale = d3.scale.linear()
 				.range([2, groupHeight])
@@ -153,7 +190,7 @@ var timeline = {
 
 		var pieScale = d3.scale.log()
 				.range([noYearSpace/3,noYearSpace/2])
-				.domain([1,50000]); // TODO: get real numbers
+				.domain([1,maxGroupNumber]);
 
 		var fillColour = d3.rgb(config.fillColourBase),
 			fillColourNoYear = d3.rgb(config.fillColourNoYearBase),
@@ -177,21 +214,37 @@ var timeline = {
 		var brush = d3.svg.brush()
 			.x(xScale)
 			.on("brushend", function() {
-				var extent = brush.extent();
-				var start = Math.min( extent[0], extent[1] ),
-					end = Math.max( extent[0], extent[1] );
+				var extent = brush.extent(),
+					startDate = new Date(extent[0]),
+					endDate= new Date(extent[1]),
+					startDateYear = startDate.getFullYear(),
+					endDateYear = endDate.getFullYear();
 
-				if( end - start >= 1 ) {
-					chartYears( Math.floor(start),Math.ceil(end) );
+				// Round to nearest year
+				var startDateYearJuly = new Date( startDateYear,7,1,0,0,0,0 ),
+					endDateYearJuly = new Date( endDateYear,7,1,0,0,0,0 );
+
+				if( startDate > startDateYearJuly ) {
+					startDateYear += 1;
+				}
+				if( endDate > endDateYearJuly ) {
+					endDateYear += 1;
 				}
 
-				d3.select(".brush").call(brush.clear());
+				if( endDateYear - startDateYear <= 2 ) {
+					endDateYear = startDateYear + 2;
+				}
+
+				chartYears( startDateYear, endDateYear );
+
+				d3.select( ".brush" ).call( brush.clear() );
 			});
 
 		chart.append("g")
 			.attr("class", "brush")
 			.call(brush)
 				.selectAll('rect')
+				.attr('y', chartY)
 				.attr('height', chartHeight);
 
 
@@ -220,7 +273,7 @@ var timeline = {
 			.append("g")
 			.attr("class","pie")
 			.attr("transform", function () {
-				return "translate(" + (chartX + noYearSpace/2) + "," + groupHeight/2 + ")";
+				return "translate(" + (chartX - sideGap - noYearSpace/2) + "," + groupHeight/2 + ")";
 			})
 			.on("mouseover", function (d) {
 				overMarker = true;
@@ -300,7 +353,6 @@ var timeline = {
 				overMarker = false;
 			})
 			  .on("click", function (d) {
-				console.log("click");
 				if( config.markerClick ) {
 					config.markerClick(d);
 				}
@@ -325,7 +377,7 @@ var timeline = {
 				return groupHeight * 0.56;//( groupHeight - box.height )/2;// TODO: Get this to work...
 			})
 			.attr("x", function () {
-				return chartX - this.getBBox().width - 10; // This -10 is really naughty... but there must be a gap after the text...
+				return groupNameWidth - this.getBBox().width - 10; // This -10 is really naughty... but there must be a gap after the text...
 			})
 
 			//.on("mouseover", function(d) {
@@ -350,12 +402,12 @@ var timeline = {
 		var xAxisBottom = d3.svg.axis()
 				.scale(xScale)
 				.orient("bottom")
-				.tickFormat(d3.format("f1")),
+				.tickFormat(d3.time.format("%Y"));
 
 			xAxisTop = d3.svg.axis()
 				.scale(xScale)
 				.orient("top")
-				.tickFormat(d3.format("f1"));
+				.tickFormat(d3.time.format("%Y"));
 
 		chart.append("g")
 			.attr("class", "x axis top")
@@ -376,6 +428,8 @@ var timeline = {
 			.classed("mytooltip", 1)
 			.text("");
 
+		var formatTooltipYear = d3.time.format( "%Y" );
+
 		chart
 			.on("mouseover", function () {
 				return tooltip.style("visibility", "visible");
@@ -383,13 +437,13 @@ var timeline = {
 			.on("mousemove", function () {
 				var pos = d3.mouse(chart.node());
 
-				if (pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight) {
+				//if (pos[0] > chartX && pos[1] > chartY && pos[0] < chartX + chartWidth && pos[1] < chartY + chartHeight) {
 
-					var minX = xScale(chartStartYear);//defaultStartYear);
+					var minX = xScale(yearToDate(chartStartYear));
 
 					if (!overMarker) {
 						if (pos[0] > minX) {
-							tooltip.text( Math.floor(xScale.invert(pos[0])) );
+							tooltip.text( formatTooltipYear(xScale.invert(pos[0]) ) );
 							tooltip.style("visibility", "visible");
 						}
 						else {
@@ -401,16 +455,17 @@ var timeline = {
 
 					chart.select("g.guidelines line.mouse")
 						.attr("x1", limitX)
-						.attr("x2", limitX)
-				}
-				else {
-					tooltip.style("visibility", "hidden");
-					chart.select("g.guidelines line.mouse")
-						.attr("x1", -5)
-						.attr("x2", -5)
-				}
+						.attr("x2", limitX);
+				//}
+				//else {
+				//	tooltip.style("visibility", "hidden");
+				//	chart.select("g.guidelines line.mouse")
+				//		.attr("x1", -5)
+				//		.attr("x2", -5)
+				//}
 
 				tooltip.style("top", (d3.event.pageY - 50) + "px");
+				// Work out tooltip direction, left or right
 				var tooltipWidth = (tooltip.style("width").replace("px","") * 1) + 20;
 				if( d3.event.pageX > chartWidth/2 + chartX ) {
 					tooltip.style("left", (d3.event.pageX - tooltipWidth ) + "px");
@@ -418,6 +473,7 @@ var timeline = {
 				else {
 					tooltip.style("left", (d3.event.pageX + 20) + "px");
 				}
+
 				return tooltip
 			})
 			.on("mouseout", function () {
@@ -449,7 +505,7 @@ var timeline = {
 			/* Update to the correct chart, years or counts */
 
 			var d3DataGroup;
-			var yearBuffer = (chartEndYear - chartStartYear) * 0.03;
+			var yearBuffer = 0;//Math.ceil( (chartEndYear - chartStartYear) * 0.03 );
 			var circleDuration = 2000,
 				circleDelay = 0,
 				axisDuration = 2000,
@@ -506,12 +562,7 @@ var timeline = {
 					return "translate(0," + ((i * (groupHeight + groupGapHeight)) + chartY) + ")";
 				});
 
-			xScale.domain([chartStartYear - yearBuffer, chartEndYear + yearBuffer]);
-
-			//gData.select("g").selectAll("rect")
-			//	.attr("fill-opacity", function (d) {
-			//		return "0.5"
-			//	});
+			xScale.domain([yearToDate(chartStartYear - yearBuffer), yearToDate(chartEndYear + yearBuffer + 1)]);
 
 			var maxNumber = getMaxYearNumber(data);
 			colourScale
@@ -525,78 +576,75 @@ var timeline = {
 				});
 
 			d3DataGroup
+				.attr("fill-opacity", function (d) {
+					return "0.8"; // Reveal all while we transition
+				})
 				.transition()
 				.ease(ease)
 				.delay(circleDelay)
 				.duration(circleDuration)
 				.attr("y", function (d) {
-					var height;
-					if( d.year === timeline.noYear ) {
-						height = Math.min( sizeScale(d.number), 20 );
-					}
-					else {
-						height = sizeScale(d.number);
-					}
-					return (groupHeight - (height * config.scaleMarkers)) / 2;
+					return (groupHeight - (sizeScale(d.number) * config.scaleMarkers)) / 2;
 				})
 				.attr("x", function (d) {
-					if (d.year === timeline.noYear) {
-						return chartX + noYearSpace/2;
-					}
-					return xScale(d.year);
+					return xScale(yearToDate(d.year));
 				})
 				.attr("width", function (d) {
-					if (d.year === timeline.noYear) {
-						return Math.min(sizeScale(d.number), 20);
-					}
-					return (xScale(d.year) - xScale(d.year - 1));
+					return xScale(yearToDate(d.year)) - xScale(yearToDate(d.year - 1));
 				})
 				.attr("height", function (d) {
-					if (d.year === timeline.noYear) {
-						return Math.min(sizeScale(d.number), 20);
-					}
 					return sizeScale(d.number) * config.scaleMarkers;
 				})
 				.attr("fill-opacity", function (d) {
-					var op;
+					var op = 1;
 
-					if (d.year === timeline.noYear) {
-						if (chartStartYear === defaultStartYearBuffered) {
-							op = 1;
-						}
-						else {
-							op = 0;
-						}
-					}
-					else if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
-						// totally outside of range
+					if( d.year < chartStartYear || d.year > chartEndYear-1 ) {
 						op = 0;
 					}
-					else if (d.year > chartStartYear && d.year < chartEndYear) {
-						// totally inside range
-						op = 1;
-					}
-					else {
-						// Inside buffer region.
-						if (d.year < chartStartYear) {
-							op = (chartStartYear - d.year) / yearBuffer;
-						}
-						else {
-							op = (d.year - chartEndYear ) / yearBuffer;
-						}
-						op = 1 - op;
+					// if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
+					// 	// totally outside of range
+					// 	op = 0;
+					// }
+					// else if (d.year > chartStartYear && d.year < chartEndYear) {
+					// 	// totally inside range
+					// 	op = 1;
+					// }
+					// else {
+					// 	// Inside buffer region.
+					// 	if (d.year < chartStartYear) {
+					// 		op = (chartStartYear - d.year) / yearBuffer;
+					// 	}
+					// 	else {
+					// 		op = (d.year - chartEndYear ) / yearBuffer;
+					// 	}
+					// 	op = 1 - op;
+					// }
+					return op.toString();
+				})
+				.attr("stroke-opacity", function (d) {
+					var op = 1;
+					if( d.year < chartStartYear || d.year > chartEndYear-1 ) {
+						op = 0;
 					}
 					return op.toString();
 				})
+				.style("pointer-events", function(d) {
+					var pointerEvents = "all";
+					if( d.year < chartStartYear || d.year > chartEndYear-1 ) {
+						pointerEvents = "none";
+					}
+					return pointerEvents;
+				})
+				/*.style("visibility", function(d) {
+					var visibility = "visible";
+					if (d.year < chartStartYear - yearBuffer || d.year > chartEndYear + yearBuffer) {
+						visibility = "hidden";
+					}
+					return visibility;
+				})*/
 				.attr("fill", function (d) {
-					var scale = colourScale(d.number), colour;
-					if (d.year === timeline.noYear) {
-						colour = fillColourNoYear.brighter(scale).toString();
-					}
-					else {
-						colour = fillColour.brighter(scale).toString();
-					}
-					return colour;
+					var scale = colourScale(d.number);
+					return fillColour.brighter(scale).toString();
 				});
 
 			d3DataGroup
@@ -632,7 +680,7 @@ var timeline = {
 				.attr("transform", "translate(0," + (dataChartHeight + chartY) + ")");
 
 
-			var xAxisTicks = xScale.ticks(xAxisTickLimit);
+			var xAxisTicks = xScale.ticks();//xAxisTickLimit);
 
 			// Create some guidelines so we can see where years come in.
 			var guidelines = chart.select("g.guidelines").selectAll("line.guideline")
@@ -642,10 +690,10 @@ var timeline = {
 				.transition()
 				.duration(circleDuration)
 				.attr("x1", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("x2", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("y1", chartY)
 				.attr("y2", chartY + dataChartHeight);
@@ -655,10 +703,10 @@ var timeline = {
 				.append("line")
 				.classed("guideline", 1)
 				.attr("x1", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("x2", function (d) {
-					return xScale(d);
+					return xScale(yearToDate(d));
 				})
 				.attr("y1", chartY)
 				.attr("y2", chartY + dataChartHeight);
@@ -672,6 +720,22 @@ var timeline = {
 				.duration(circleDuration)
 				.attr("y2", chartY + dataChartHeight);
 
+			d3.select( ".brush" )
+				.selectAll('rect')
+				.attr('y', chartY)
+				.attr('height', dataChartHeight);
+
+			var svgHeight = chart.attr("height"),
+				svgHeightChangeDuration = circleDelay + circleDuration;
+
+			if( svgHeight < dataChartHeight ) {
+				svgHeightChangeDuration = 0;
+			}
+
+			chart
+				.transition()
+				.delay(svgHeightChangeDuration)
+				.attr("height", dataChartHeight + scaleHeight + scaleHeight);
 		}
 
 		function filterData(data, filterer) {
@@ -681,7 +745,7 @@ var timeline = {
 		function filterDataYears(data, start, end) {
 			return filterData(data, function (d) {
 				for (var y = 0; y < d.years.length; y += 1) {
-					if (d.years[y].year !== timeline.noYear && d.years[y].year > start && d.years[y].year < end) {
+					if ( d.years[y].year > start && d.years[y].year < end) {
 						return true;
 					}
 				}
@@ -701,7 +765,7 @@ var timeline = {
 			previousEndYear = chartEndYear;
 
 			chartStartYear = start;
-			chartEndYear = end;
+			chartEndYear = end+1; //End at the end of the year
 
 			_dataFiltered = filterDataYears(_dataAll, chartStartYear, chartEndYear);
 
@@ -718,7 +782,7 @@ var timeline = {
 			for (var i = 0; i < data.length; i++) {
 				var years = data[i].years;
 				for (var j = 0; j < years.length; j++) {
-					if (years[j].year !== timeline.noYear && years[j].number > max) {
+					if ( years[j].number > max) {
 						max = years[j].number;
 					}
 				}
@@ -733,7 +797,7 @@ var timeline = {
 			for (var i = 0; i < data.length; i++) {
 				var years = data[i].years;
 				for (var j = 0; j < years.length; j++) {
-					if (years[j].year !== timeline.noYear && years[j].number < min) {
+					if ( years[j].number < min) {
 						min = years[j].number;
 					}
 				}
@@ -742,16 +806,20 @@ var timeline = {
 			return min;
 		}
 
-		// Update the chart on load, this makes the first circles "appear".
+		function yearToDate( intYear ) {
+			return new Date( intYear+"" );
+		}
+
+
+		// Update the chart on load, this makes the first rectangles "appear".
 		setTimeout(function () {
 			update(_dataFiltered);
 		}, 10);
 
-
 		return {
 			showYears: function (yearStart, yearEnd) {
-				yearStart = yearStart || defaultStartYearBuffered;
-				yearEnd = yearEnd || defaultEndYearBuffered;
+				yearStart = yearStart || defaultStartYear;
+				yearEnd = yearEnd || defaultEndYear;
 				chartYears(yearStart, yearEnd);
 			},
 			reorder: function (sortFunction) {
