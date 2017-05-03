@@ -17,7 +17,7 @@
 			This uses the image available <a href="https://www.shareicon.net/alarm-clock-clock-timer-tools-and-utensils-time-808457">here</a>
 			but any image can be used. Just paste in the SVG image data.</p>
 		<div id="chart"></div>
-		<script src="lib/d3.min.js"></script>
+		<script src="lib/d3/v4.8.0/d3.min.js"></script>
 		<script src="js/loadingAnimation.js"></script>
 		<script>
 
@@ -25,14 +25,14 @@
 			var select = "#chart";
 			var div = d3.select( select )
 					.attr("width", "95%"),
-					svgWidth = div[0][0].clientWidth,
+					svgWidth = div.nodes()[0].clientWidth,
 					svgHeight = 800;
 
 			// Configuration for chart
 			var config = {
 				select: select,
 				width: 500,//svgWidth,
-				height: 500,//svgHeight
+				height: 500//svgHeight
 			};
 
 			// Chart create
