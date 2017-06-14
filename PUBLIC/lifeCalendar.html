@@ -27,17 +27,27 @@
 </head>
 
 <body>
-<h3 id="title"></h3>
+<h3 id="title">Your life</h3>
+<div>
+	<label for="age">Your age</label><input id="age" value=""/><br/>
 
+	<label for="country">Country</label>
+	<select id="country">
+		<option>UK</option>
+		<option>Somewhere else</option>
+	</select>
+</div>
+<!--
 Japan	1	83.7	1	86.8	6	80.5	1	74.9
 Switzerland	2	83.4	6	85.3	1	81.3	4	73.1
 Singapore	3	83.1	2	86.1	10	80.0	2	73.9
 Australia	4	82.8	7	84.8	3	80.9	15	71.9
 Spain	4	82.8	3	85.5	9	80.1	9	72.4
+-->
 <svg class="chart"></svg>
 
 <script src="lib/d3.min.js"></script>
-<script src="lifeCalendar.js"></script>
+<script src="js/lifeCalendar.js"></script>
 </body>
 
 </html>
