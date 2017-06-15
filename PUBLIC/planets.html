@@ -1,20 +1,25 @@
 <html>
 <head>
     <style>
+	    body {
+		    color:white;
+		    background-color: black;
+	    }
         .system-line {
             stroke: white;
             stroke-dasharray: 3,3;
             stroke-width: 0.2;
         }
         .star {
-            fill: goldenrod;
+            -fill: goldenrod;
         }
         .planet-body {
             fill:white;
         }
     </style>
 </head>
-<body style="background-color: #999999">
+<body>
+<p>An ongoing experiment. A representation of the "Goldilock" zone around different stars using an svg gradient in D3.</p>
 <script src="lib/d3.min.js"></script>
 <script>
     (function() {
@@ -92,8 +97,8 @@
             }
         ];
 
-        var systemHeight = 50;
-        var systemWidth = 400;
+        var systemHeight = 100;
+        var systemWidth = 600;
 
         function initialSetup( data ) {
 
@@ -180,7 +185,10 @@
                         return systemHeight / 2;
                     })
                     .attr("r", function (d) {
-                        return systemHeight / 2.2 ;
+                        return systemHeight / (Math.random() + 1.7) ;
+                    })
+	                .attr("fill",function() {
+                    	return ["#cccc00","goldenrod","yellow"][Math.floor(Math.random()*3)];
                     })
             ;
 
