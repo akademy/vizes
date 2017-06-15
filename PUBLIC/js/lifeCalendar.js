@@ -2,7 +2,9 @@ function createChart( birthday, finalAge ) {
 
 	var daysPerYear = 365.24,
 		daysPerWeek = 7,
-		millisecondsPerWeek = 1000*60*60*24*7;
+		millisecondsPerDay = 1000*60*60*24,
+		millisecondsPerWeek = millisecondsPerDay * daysPerWeek,
+		millisecondsPerYear = millisecondsPerDay * daysPerYear;
 
 	// Set some defaults
 	var svgWidth = 700,
@@ -66,6 +68,9 @@ function createChart( birthday, finalAge ) {
 		var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 		return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear();
 	}
+	function getAge( birthday, date ) {
+		return (date - birthday) / millisecondsPerYear;
+	}
 
 	function updateChart( weeks, initial ) {
 		var blocks = chart.selectAll( ".week" )
@@ -98,8 +103,12 @@ function createChart( birthday, finalAge ) {
 
 			blocks.select("title")
 				.text( function(d) {
-					return "Week " + (d.number+1) + ", " + getDate( d.date );
+					return "Week " + (d.number+1) + ", " + getDate( d.date ) + ", Age " + roundAndClean( getAge( birthday, d.date ) );
 				} );
+		}
+
+		function roundAndClean( number ) {
+			return +(number.toFixed(1)); // remove zero when not needed
 		}
 
 		blocks
@@ -128,9 +137,9 @@ function createChart( birthday, finalAge ) {
 			.attr( "width", w - 2 )
 			.attr( "height", h - 2 )
 			.append("title")
-			.text( function(d) {
-				return "Week " + (d.number+1) + ", " + getDate( d.date );
-			} );
+			//.text( function(d) {
+			//	return "Week " + (d.number+1) + ", " + getDate( d.date );
+			//} );
 
 	}
 
