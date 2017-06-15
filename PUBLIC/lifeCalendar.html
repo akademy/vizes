@@ -8,36 +8,28 @@
 			fill: red !important;
 		}
 
-		rect {
-			fill : #0B0;
-		}
-		.ten {
-			fill : #090;
-		}
-		.year {
-			fill : yellow !important;
-		}
-		.gone {
-			fill: #B00;
-		}
-		.gone.ten {
-			fill: #900;
+		svg {
+			border: 1px solid black;
+			padding: 10px;
 		}
 	</style>
 </head>
 
 <body>
-<h3 id="title">Your life</h3>
+<h3 id="title">Your life in weeks</h3>
+<p>Each red square is a week you've lost. Each green square is a week you've left, use them wisely. (Based on an average age of death in the World of 71.5)</p>
 <div>
-	<label for="age">Your age</label>
-	<input id="age" value=""/>
+	<label for="bday">Your date of birth</label>
+	<input id="bday" type="date" name="bday" value="1997-06-30">
+	<button id="" onClick="showChart()">Show</button>
 
-	<label for="country">Country</label>
+	<!--<label for="country">Country</label>
 	<select id="country">
 		<option>UK</option>
 		<option>Somewhere else</option>
-	</select>
+	</select>-->
 </div>
+<br/>
 <!--
 Japan	1	83.7	1	86.8	6	80.5	1	74.9
 Switzerland	2	83.4	6	85.3	1	81.3	4	73.1
@@ -50,8 +42,17 @@ Spain	4	82.8	3	85.5	9	80.1	9	72.4
 <script src="lib/d3.min.js"></script>
 <script src="js/lifeCalendar.js"></script>
 <script>
-	var birthday = new Date(1997,10,10), finalAge = 80;
-	var chart = createChart( birthday, finalAge );
+
+	var chartControl = null;
+	function showChart() {
+		var birthday = bday.valueAsDate, finalAge = 71.5;
+		if( chartControl === null ) {
+			chartControl = createChart(birthday, finalAge);
+		}
+		else {
+			chartControl.setBirthday(bday.valueAsDate);
+		}
+	}
 
 </script>
 </body>

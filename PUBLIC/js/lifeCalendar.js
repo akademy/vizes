@@ -3,11 +3,10 @@ function createChart( birthday, finalAge ) {
 	var daysPerYear = 365.24,
 		daysPerWeek = 7,
 		millisecondsPerWeek = 1000*60*60*24*7;
-		//finalAge = 80;
 
 	// Set some defaults
-	var svgWidth = 800,
-		svgHeight = 800;
+	var svgWidth = 700,
+		svgHeight = 700;
 
 	// Select svg
 	var chart = d3.select( ".chart" )
@@ -19,22 +18,20 @@ function createChart( birthday, finalAge ) {
 		chartHeight = svgHeight - chartY - 50,
 		chartWidth = svgWidth - chartX - 50;
 
-	var now = new Date(),
-		birthdayMilliseconds = +birthday,
+	var birthdayMilliseconds, ageMilliseconds;
+	var weeks, weeksGoneCount, weeksFinalCount;
+	var rows, columns, w,h;
+
+	function createWeeks( birthday, finalAge ) {
+
+		var now = new Date();
+
+		birthdayMilliseconds = +birthday;
 		ageMilliseconds = now - birthdayMilliseconds;
 
-	//var now = new Date(),
-	//	birthday = new Date( now.getFullYear() - 35, now.getMonth(), now.getDate() ),
-	//	birthdayMilliseconds = birthday * 1,
-	//	age = now - birthday;
-
-	var weeks = [],
-		weeksGoneCount = ageMilliseconds / millisecondsPerWeek,
-		weeksFinalCount = (daysPerYear * finalAge) / daysPerWeek;
-
-	function createWeeks() {
-
 		weeks = [];
+		weeksGoneCount = ageMilliseconds / millisecondsPerWeek;
+		weeksFinalCount = (daysPerYear * finalAge) / daysPerWeek;
 
 		for( var i=0; i < weeksFinalCount; i++ ) {
 			weeks.push( {
@@ -43,24 +40,22 @@ function createChart( birthday, finalAge ) {
 				date : new Date( birthdayMilliseconds + (i * millisecondsPerWeek) )
 			} );
 		}
-	}
 
-	var blocks = weeksFinalCount,
-		sqrt = Math.sqrt( blocks ),
-		rows = Math.ceil( sqrt ),
+		rows = Math.ceil( Math.sqrt( weeksFinalCount ) );
 		columns = rows;
 
-	var w = ( svgWidth / columns ),
+		w = ( svgWidth / columns );
 		h = ( svgHeight / rows );
-	if( w > h ) {
-		w = h;
-	}
-	else if( h > w ) {
-		h = w;
+
+		if( w > h ) {
+			w = h;
+		}
+		else if( h > w ) {
+			h = w;
+		}
 	}
 
-
-	createWeeks( );
+	createWeeks( birthday, finalAge );
 	updateChart( weeks, true );
 
 	setTimeout( function() {
@@ -79,21 +74,54 @@ function createChart( birthday, finalAge ) {
 		if( !initial ) {
 			blocks
 				.transition()
-				.delay( function(d) { return d.number; })
-				.attr( "y", function(d, i) { return Math.floor(i / rows) * h; }  );
+				//.duration( 1500 )
+				.delay(function (d) {
+					return weeks.length - d.number;
+				})
+				.attr("y", function (d, i) {
+					return Math.floor(i / rows) * h;
+				})
+				.attr("fill", function(d,i) {
+					if( d.gone) {
+						if( ( (i+1) % 10) === 0 )
+							return "#900";
+						else
+							return "#b00";
+					}
+					else {
+						if( ( (i+1) % 10) === 0 )
+							return "#090";
+						else
+							return "#0b0";
+					}
+				})
 		}
 
 		blocks
 			.enter()
 			.append( "rect" )
 			.classed( "week", true )
-			.classed( "ten", function(d, i) { return ( (i+1) % 10) === 0; })
+			.attr("fill", function(d,i) {
+				if(d.gone){
+					if( ( (i+1) % 10) === 0 )
+						return "#900";
+					else
+						return "#b00";
+				}
+				else {
+					if( ( (i+1) % 10) === 0 )
+						return "#090";
+					else
+						return "#0b0";
+				}
+			})
+			//.classed( "ten", function(d, i) { return ( (i+1) % 10) === 0; })
 			//.classed( "year", function(d, i) { return ( (i+1) % 52) === 0; })
-			.classed( "gone", function(d) { return d.gone; })
+			//.classed( "gone", function(d) { return d.gone; })
 			.attr( "y", function(d, i) { return (initial) ? -100 : Math.floor(i / rows) * h; } )
 			.attr( "x", function(d, i) { return (i % columns) * w; } )
-			.attr( "width", w - 1 )
-			.attr( "height", h - 1 )
+			.attr( "width", w - 2 )
+			.attr( "height", h - 2 )
 			.append("title")
 			.text( function(d) {
 				return "Week " + (d.number+1) + ", " + getDate( d.date );
@@ -102,8 +130,13 @@ function createChart( birthday, finalAge ) {
 	}
 
 	return {
-		finalAge : function ( finalAge ) {
-			updateWeeks( age, finalAge );
+		setFinalAge : function ( finalAge ) {
+			createWeeks( birthday, finalAge );
+			updateChart( weeks, false );
+		},
+		setBirthday : function( birthday ) {
+			createWeeks( birthday, finalAge );
+			updateChart( weeks, false );
 		}
 	}
 
