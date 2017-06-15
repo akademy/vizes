@@ -94,7 +94,12 @@ function createChart( birthday, finalAge ) {
 						else
 							return "#0b0";
 					}
-				})
+				});
+
+			blocks.select("title")
+				.text( function(d) {
+					return "Week " + (d.number+1) + ", " + getDate( d.date );
+				} );
 		}
 
 		blocks
