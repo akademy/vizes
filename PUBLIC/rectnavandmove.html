@@ -42,10 +42,29 @@
 	var dummyDataNumber = 10,
 		data = [];
 
+	var namesFirst = [
+			"Philip",
+			"Thomas",
+			"Mat",
+			"Marco",
+			"Tommaso",
+			"Lucy"
+		],
+		namesLast = [
+			"Beeley",
+			"Wallnig",
+			"Wilcoxson",
+			"Quaggiotto",
+			"Elli",
+			"Smith",
+			"Jones",
+			"Edwards"
+		];
+
 	for( var i = 0, iEnd = dummyDataNumber; i < iEnd; i++ ) {
 		data.push({
 			id: i,
-			name: "Choice " + i,
+			name: namesLast[Math.floor(Math.random()*namesLast.length)] + ", " + namesFirst[Math.floor(Math.random()*namesFirst.length)],
 			size: Math.random() * 30 + 10
 		})
 	}
