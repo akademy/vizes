@@ -46,6 +46,8 @@
 						id : yearData["CatalogueId"],
 						count: 0
 					};
+
+					dataTemp[catalogueName][undated] = 0;
 				}
 
 				if( yearData.year === "" ) {
@@ -82,18 +84,21 @@
 
 			catalogueListFull = catalogueList.splice();
 
+			var sort = "nameAsc";
+			catalogueList.sort( orderBy( sort ) );
+
 			var columns = [
-				{ head: 'Catalogue Name', cl: 'title',
+				{ id: 'name', head: 'Catalogue Name ▼', cl: 'title',
 					html: function(row) { return row.name; } },
-				{ head: 'Year Start', cl: 'center',
+				{ id: 'start', head: 'Year Start  ', cl: 'center',
 					html: function(row) { return row.start; } },
-				{ head: 'Year End', cl: 'center',
+				{ id: 'end', head: 'Year End  ', cl: 'center',
 					html: function(row) { return row.end; } },
-				{ head: 'Dated', cl: 'num',
+				{ id: 'dated', head: 'Dated  ', cl: 'num',
 					html: function(row) { return (row[undated]) ? row.count - row[undated] : row.count; } },
-				{ head: 'Undated', cl: 'num',
+				{ id: 'undated', head: 'Undated  ', cl: 'num',
 					html: function(row) { return row[undated]; } },
-				{ head: 'Total', cl: 'num',
+				{ id: 'total', head: 'Total  ', cl: 'num',
 					html: function(row) { return row.count; } }
 			];
 
@@ -128,11 +133,11 @@
 					.attr('class', function(d){return d.cl;});
 
 
-			catalogueList.sort( orderBy( "nameDesc" ) );
+			/*catalogueList.sort( orderBy( "nameDesc" ) );
 			setTimeout( function() {
 				updatePosition();
 
-				/*catalogueList = catalogueList.splice(5,10);
+				catalogueList = catalogueList.splice(5,10);
 				setTimeout( function() {
 					updateData();
 
@@ -141,9 +146,9 @@
 					setTimeout( function() {
 						updatePosition();
 					}, 1000);
-				}, 1000);*/
+				}, 1000);
 
-			}, 1000 );
+			}, 1000 );*/
 
 
 			function updatePosition() {
@@ -184,12 +189,16 @@
 						})
 				}, timing);
 
-
 				selectionTd
 					.transition()
 					.delay(timing+50)
 					.duration(300)
-					.style('opacity', 1 )
+					.style('opacity', 1 );
+
+				table.select('thead').select('tr')
+					.selectAll('th')
+					.data(columns)
+					.text(function(d) { return d.head; } );
 			}
 
 			function updateData() {
@@ -199,8 +208,6 @@
 				var selection = table.select("tbody")
 					.selectAll('tr')
 					.data(catalogueList, function(d,i) {
-						//console.log(d);
-						return i;
 						return d.id;
 					});
 
@@ -260,31 +267,71 @@
 
 			}
 
+			d3.selectAll("#cat th").on("click", function( pushed ) {
+				console.log(pushed);
+				if( pushed.id === 'name') {
+					sort = (sort === "nameAsc") ? "nameDesc" : "nameAsc";
+				}
+				else if( pushed.id === 'start') {
+					sort = (sort === "startAsc") ? "startDesc" : "startAsc";
+				}
+				else if( pushed.id === 'end') {
+					sort = (sort === "endAsc") ? "endDesc" : "endAsc";
+				}
+				else if( pushed.id === 'dated') {
+					sort = (sort === "datedAsc") ? "datedDesc" : "datedAsc";
+				}
+				else if( pushed.id === 'undated') {
+					sort = (sort === "undatedAsc") ? "undatedDesc" : "undatedAsc";
+				}
+				else if( pushed.id === 'total') {
+					sort = (sort === "totalAsc") ? "totalDesc" : "totalAsc";
+				}
+
+				columns.forEach( function(column) {
+					if( pushed.head === column.head ) {
+					    column.head = column.head.substring( 0, column.head.length - 1 );
+
+						if( sort.substring( sort.length-3 ) === "Asc" ) {
+							column.head += "▼";
+						}
+						else {
+							column.head += "▲";
+						}
+                    }
+                    else {
+						column.head = column.head.substring( 0, column.head.length - 1 ) + ' ';
+                    }
+                });
+
+
+				order( sort );
+				updatePosition();
+			});
+
+			function order( by ) {
+				catalogueList.sort( orderBy( by ) );
+			}
+
 			function orderBy( by ) {
 				/* Change the order of "data". */
-				if( by === "nameAsc" ) {
-					return generateSort( function(o) {return o.name;}, true );
+				if( by === "nameAsc" || by === "nameDesc" ) {
+					return generateSort( function(o) {return o.name;}, by === "nameAsc" );
 				}
-				else if( by === "nameDesc" ) {
-					return generateSort( function(o) {return o.name;} );
+				else if( by === "startAsc" || by === "startDesc" ) {
+					return generateSort( function(o) {return o.start;}, by === "startAsc" );
 				}
-				else if( by === "yearStartAsc" ) {
-					return generateSort( function(o) {return o.start;}, true );
+				else if( by === "endAsc" || by === "endDesc" ) {
+					return generateSort( function(o) {return o.end;}, by === "endAsc" );
 				}
-				else if( by === "yearStartDesc" ) {
-					return generateSort( function(o) {return o.start;} );
+				else if( by === "datedAsc" || by === "datedDesc" ) {
+					return generateSort( function(o) { return (o[undated]) ? o.count - o[undated] : o.count; }, by === "datedAsc" );
 				}
-				else if( by === "yearEndAsc" ) {
-					return generateSort( function(o) {return o.end;}, true );
+				else if( by === "undatedAsc" || by === "undatedDesc" ) {
+					return generateSort( function(o) {return o[undated];}, by === "undatedAsc" );
 				}
-				else if( by === "yearEndDesc" ) {
-					return generateSort( function(o) {return o.end;} );
-				}
-				else if( by === "countAsc" ) {
-					return generateSort( function(o) {return o.count;}, true );
-				}
-				else /* ( by === "countDesc" ) */ {
-					return  generateSort( function(o) {return o.count;} );
+				else if( by === "totalAsc" || by === "totalDesc" ) {
+					return generateSort( function(o) {return o.count;}, by === "totalAsc" );
 				}
 
 				function generateSort( memberFunction, ascending ) {
