@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <link rel="stylesheet" href="http://emlo.bodleian.ox.ac.uk/css/app.css" />
+    <script src="http://emlo.bodleian.ox.ac.uk/bower_components/modernizr/modernizr.min.mat.js"></script>
+
+    <style>
+		th { text-align: left; }
+		th, td { padding: 0 1em 0.5ex 0;}
+		th.center, td.center { text-align: center; }
+		th.num, td.num { text-align: right; }
+    </style>
+</head>
+
+    <body>
+
+		<table id="cat"></table>
+
+        <script src="lib/d3.min.js"></script>
+        <script src="lib/d3.slider.js"></script>
+        <script src="data/catalogues.js"></script>
+        <script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
+        <script src="cataloguesYears.js"></script>
+		<script>
+			var dataPostgres = catalogueYearsCount,
+				dataTemp = {},
+				//dummyYear = 1490,
+				i;
+
+			var undated = timeline.noYear;
+
+			//
+			// Sort out data
+			//
+			for( i=0; i < dataPostgres.length; i++ ) {
+				var yearData = dataPostgres[i],
+						catalogueName = yearData["Catalogue"];
+
+				if( ! (catalogueName in dataTemp) ) {
+					dataTemp[catalogueName] = {
+						start : 2000,
+						end : 0,
+						id : yearData["CatalogueId"],
+						count: 0
+					};
+				}
+
+				if( yearData.year === "" ) {
+					yearData.year = undated; //dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
+				}
+
+				// Create an entry for each year
+				dataTemp[catalogueName][yearData.year] = yearData.number;
+				dataTemp[catalogueName].count += yearData.number;
+
+				if( yearData.year !== undated) {
+
+					if (yearData.year < dataTemp[catalogueName]["start"]) {
+						dataTemp[catalogueName]["start"] = yearData.year;
+					}
+
+					if (yearData.year > dataTemp[catalogueName]["end"]) {
+						dataTemp[catalogueName]["end"] = yearData.year;
+					}
+				}
+			}
+
+			var catalogueNames = Object.keys( dataTemp );
+			var catalogueList = [];
+
+			catalogueNames.forEach( function(name) {
+				var catData = dataTemp[name];
+				catData.name = name;
+				catalogueList.push(catData);
+			});
+
+			// Debug
+			catalogueList = catalogueList.splice(0,10);
+
+			catalogueListFull = catalogueList.splice();
+
+			var columns = [
+				{ head: 'Catalogue Name', cl: 'title',
+					html: function(row) { return row.name; } },
+				{ head: 'Year Start', cl: 'center',
+					html: function(row) { return row.start; } },
+				{ head: 'Year End', cl: 'center',
+					html: function(row) { return row.end; } },
+				{ head: 'Dated', cl: 'num',
+					html: function(row) { return (row[undated]) ? row.count - row[undated] : row.count; } },
+				{ head: 'Undated', cl: 'num',
+					html: function(row) { return row[undated]; } },
+				{ head: 'Total', cl: 'num',
+					html: function(row) { return row.count; } }
+			];
+
+			var table = d3.select("table#cat");
+
+			table.append('thead').append('tr')
+				.selectAll('th')
+				.data(columns).enter()
+				.append('th')
+				.attr('class', function(d) { return d.cl; } )
+				.text(function(d) { return d.head; } );
+
+			table.append('tbody')
+				.selectAll('tr')
+				.data(catalogueList, function(d,i){return i/*d.id*/;}).enter()
+				.append('tr')
+				.classed('cat', 1)
+				.style('opacity', '1' )
+				.selectAll('td')
+				.data(function(row, i) {
+					// evaluate column objects against the current row
+					return columns.map(function(c) {
+						var cell = {};
+						d3.keys(c).forEach(function(k) {
+							cell[k] = (typeof c[k] === 'function') ? c[k](row,i) : c[k];
+						});
+						return cell;
+					});
+				}).enter()
+					.append('td')
+					.html(function(d){return d.html;})
+					.attr('class', function(d){return d.cl;});
+
+
+			catalogueList.sort( orderBy( "nameDesc" ) );
+			setTimeout( function() {
+				updatePosition();
+
+				/*catalogueList = catalogueList.splice(5,10);
+				setTimeout( function() {
+					updateData();
+
+					catalogueList.sort( orderBy( "nameAsc" ) );
+
+					setTimeout( function() {
+						updatePosition();
+					}, 1000);
+				}, 1000);*/
+
+			}, 1000 );
+
+
+			function updatePosition() {
+				var selection = table.select("tbody")
+					.selectAll('tr')
+					.data(catalogueList, function(d,i) {
+						return i;
+					});
+
+				var selectionTd = selection
+					.selectAll('td');
+
+				var timing = 300;
+
+				selectionTd
+					.transition()
+					.duration(timing)
+					.style('opacity', 0.5 );
+
+				setTimeout( function() {
+					selectionTd
+						.data(function (row, i) {
+							// evaluate column objects against the current row
+							return columns.map(function (c) {
+
+								var cell = {};
+								d3.keys(c).forEach(function (k) {
+									cell[k] = (typeof c[k] === 'function') ? c[k](row, i) : c[k];
+								});
+								return cell;
+							});
+						})
+						.html(function (d) {
+							return d.html;
+						})
+						.attr('class', function (d) {
+							return d.cl;
+						})
+				}, timing);
+
+
+				selectionTd
+					.transition()
+					.delay(timing+50)
+					.duration(300)
+					.style('opacity', 1 )
+			}
+
+			function updateData() {
+
+				console.log("update");
+
+				var selection = table.select("tbody")
+					.selectAll('tr')
+					.data(catalogueList, function(d,i) {
+						//console.log(d);
+						return i;
+						return d.id;
+					});
+
+				selection.enter()
+					.append('tr')
+					.classed('cat',1)
+					.selectAll('td')
+					.data(function (row, i) {
+						// evaluate column objects against the current row
+						return columns.map(function (c) {
+							var cell = {};
+							d3.keys(c).forEach(function (k) {
+								cell[k] = (typeof c[k] === 'function') ? c[k](row, i) : c[k];
+							});
+							return cell;
+						});
+					}).enter()
+						.append('td')
+						.html(function (d) {
+							return d.html;
+						})
+						.attr('class', function (d) {
+							return d.cl;
+						});
+
+				selection
+					.selectAll('td')
+					.data(function (row, i) {
+						// evaluate column objects against the current row
+						return columns.map( function (c) {
+
+							var cell = {};
+							d3.keys(c).forEach(function (k) {
+								cell[k] = (typeof c[k] === 'function') ? c[k](row, i) : c[k];
+							});
+							return cell;
+						});
+					})
+					.html(function (d) {
+						return d.html;
+					})
+					.attr('class', function (d) {
+						return d.cl;
+					});
+
+				selection.exit()
+					.classed('remove',1)
+					.transition()
+					.duration(1000)
+					.style('opacity', 0.3 )
+					//.transition()
+					//.style("display", "inline-block")
+					//.transition()
+					//.duration(1000)
+					//.style("height", 0)
+					.remove();
+
+			}
+
+			function orderBy( by ) {
+				/* Change the order of "data". */
+				if( by === "nameAsc" ) {
+					return generateSort( function(o) {return o.name;}, true );
+				}
+				else if( by === "nameDesc" ) {
+					return generateSort( function(o) {return o.name;} );
+				}
+				else if( by === "yearStartAsc" ) {
+					return generateSort( function(o) {return o.start;}, true );
+				}
+				else if( by === "yearStartDesc" ) {
+					return generateSort( function(o) {return o.start;} );
+				}
+				else if( by === "yearEndAsc" ) {
+					return generateSort( function(o) {return o.end;}, true );
+				}
+				else if( by === "yearEndDesc" ) {
+					return generateSort( function(o) {return o.end;} );
+				}
+				else if( by === "countAsc" ) {
+					return generateSort( function(o) {return o.count;}, true );
+				}
+				else /* ( by === "countDesc" ) */ {
+					return  generateSort( function(o) {return o.count;} );
+				}
+
+				function generateSort( memberFunction, ascending ) {
+					/* Generate a sort function with particular features */
+					return function(a,b) {
+						var compare = ((memberFunction(a) < memberFunction(b)) ? -1 : memberFunction(a) > memberFunction(b));
+						if(compare===0) {
+							compare = ( (a.name < b.name) ? -1 : a.name > b.name );
+						}
+						return (ascending) ? compare : compare*-1;
+					};
+				}
+			}
+
+		</script>
+    </body>
+
+</html>
