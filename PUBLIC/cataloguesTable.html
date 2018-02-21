@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title></title>
+	<meta charset="UTF-8">
+	<title></title>
 
-    <link rel="stylesheet" href="http://emlo.bodleian.ox.ac.uk/css/app.css" />
-    <script src="http://emlo.bodleian.ox.ac.uk/bower_components/modernizr/modernizr.min.mat.js"></script>
+	<link rel="stylesheet" href="http://emlo.bodleian.ox.ac.uk/css/app.css" />
+	<script src="http://emlo.bodleian.ox.ac.uk/bower_components/modernizr/modernizr.min.mat.js"></script>
 
-    <style>
+	<style>
 		th { text-align: left; }
 		th, td { padding: 0 1em 0.5ex 0;}
 		th.center, td.center { text-align: center; }
 		th.num, td.num { text-align: right; }
-    </style>
+	</style>
 </head>
 
-    <body>
+	<body>
 
+		<label for="from-year">From <input id="from-year" value="1600"/></label>
+		<label for="to-year">To <input id="to-year"/></label><br/>
 		<table id="cat"></table>
 
-        <script src="lib/d3.min.js"></script>
-        <script src="lib/d3.slider.js"></script>
-        <script src="data/catalogues.js"></script>
-        <script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
-        <script src="cataloguesYears.js"></script>
+		<script src="lib/d3.min.js"></script>
+		<script src="lib/d3.slider.js"></script>
+		<script src="data/catalogues.js"></script>
+		<script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
+		<script src="cataloguesYears.js"></script>
 		<script>
+
+			var dget = function(member) { return function(d) {return d[member]}; };
+
 			var dataPostgres = catalogueYearsCount,
-				dataTemp = {},
-				//dummyYear = 1490,
-				i;
+				dataTemp = {}, i;
 
 			var undated = timeline.noYear;
 
@@ -71,7 +74,7 @@
 			}
 
 			var catalogueNames = Object.keys( dataTemp );
-			var catalogueList = [];
+			var catalogueList = [], catalogueListFull;
 
 			catalogueNames.forEach( function(name) {
 				var catData = dataTemp[name];
@@ -79,10 +82,18 @@
 				catalogueList.push(catData);
 			});
 
-			// Debug
-			catalogueList = catalogueList.splice(0,10);
 
-			catalogueListFull = catalogueList.splice();
+			// Debug
+			catalogueList = catalogueList.slice(0,3);
+
+
+			catalogueListFull = catalogueList.slice(0);
+
+			var minYear = d3.min( catalogueList, dget('start') ),
+				maxYear = d3.max( catalogueList, dget('end') );
+
+			d3.select("input#from-year").attr("value", minYear );
+			d3.select("input#to-year").attr("value", maxYear );
 
 			var sort = "nameAsc";
 			catalogueList.sort( orderBy( sort ) );
@@ -132,6 +143,101 @@
 					.html(function(d){return d.html;})
 					.attr('class', function(d){return d.cl;});
 
+
+			var previousFilter = {from:-1,to:-1};
+			function filterByYear() {
+				console.log("filterByYear");
+
+				var filterYearFromText = document.getElementById("from-year").value,
+					filterYearToText   = document.getElementById("to-year").value;
+
+				var filterYearFrom = getYear( filterYearFromText ),
+					filterYearTo   = getYear( filterYearToText );
+
+				/*if( filterYearFromText !== '' && filterYearFrom !== 0 ) {
+					// If it's not blank but not recognised use previous version
+					filterYearFrom = previousFilter.from;
+				}
+				if( filterYearToText!== '' && filterYearTo !== 0 ) {
+					// If it's not blank but not recognised use previous version
+					filterYearTo = previousFilter.to;
+				}*/
+
+				var from = (filterYearFrom !== 0),
+					to   = (filterYearTo !== 0);
+
+				if( filterYearFrom !== previousFilter.from || filterYearTo !== previousFilter.to) {
+
+					previousFilter.from =  from ? filterYearFrom : previousFilter.from;
+					previousFilter.to   =  to ? filterYearTo : previousFilter.to;
+
+					if (false) { //!from && !to) {
+						//catalogueList = catalogueListFull.slice(0);
+					}
+					else {
+						catalogueList = catalogueListFull.filter(function (cat) {
+
+							var keep = false;
+							var fromAfterStart = filterYearFrom >= cat.start,
+								toAfterStart = filterYearTo >= cat.start,
+								fromAfterEnd = filterYearFrom > cat.end,
+								toAfterEnd = filterYearTo > cat.end;
+							/*
+						OK:
+						    f   t
+							|   |     !fromAfterStart && toAfterStart && !fromAfterEnd && !toAfterEnd 0100
+							  s+++e
+
+				  	        |   |     fromAfterStart && toAfterStart && !fromAfterEnd && toAfterEnd 1101
+						  s+++e
+
+							|   |     fromAfterStart && toAfterStart && !fromAfterEnd && !toAfterEnd 1100
+						   s+++++e
+
+							|   |     !fromAfterStart && toAfterStart && !fromAfterEnd && toAfterEnd 0101
+							 s+e
+				        */
+
+							if (from && !to) {
+								if (!fromAfterEnd) {
+									keep = true;
+								}
+							}
+							else if (!from && to) {
+								if (toAfterStart) {
+									keep = true;
+								}
+							}
+							if (from && to) {
+								if (
+									(!fromAfterStart && toAfterStart && !fromAfterEnd && !toAfterEnd) ||
+									(fromAfterStart && toAfterStart && !fromAfterEnd && toAfterEnd) ||
+									(fromAfterStart && toAfterStart && !fromAfterEnd && !toAfterEnd) ||
+									(!fromAfterStart && toAfterStart && !fromAfterEnd && toAfterEnd)
+								) {
+									keep = true;
+								}
+							}
+
+							return keep;
+						});
+					}
+				}
+			}
+
+			d3.select('input#from-year').on("input",function() {
+				filterByYear();
+				updateData();
+			});
+			d3.select('input#to-year').on("input",function() {
+				filterByYear();
+				updateData();
+			});
+
+			filterByYear();
+			setTimeout( function() {
+				updateData();
+			}, 1000);
 
 			/*catalogueList.sort( orderBy( "nameDesc" ) );
 			setTimeout( function() {
@@ -256,8 +362,8 @@
 				selection.exit()
 					.classed('remove',1)
 					.transition()
-					.duration(1000)
-					.style('opacity', 0.3 )
+					.duration(500)
+					.style('opacity', 0 )
 					//.transition()
 					//.style("display", "inline-block")
 					//.transition()
@@ -267,6 +373,18 @@
 
 			}
 
+			function getYear( year ) {
+				year = +year;
+				if( !isNaN(year) ) {
+					if( year >= minYear && year <= maxYear ) {
+						return year;
+					}
+				}
+
+				return 0;
+			}
+
+			// Column ordering
 			d3.selectAll("#cat th").on("click", function( pushed ) {
 				console.log(pushed);
 				if( pushed.id === 'name') {
@@ -290,7 +408,7 @@
 
 				columns.forEach( function(column) {
 					if( pushed.head === column.head ) {
-					    column.head = column.head.substring( 0, column.head.length - 1 );
+						column.head = column.head.substring( 0, column.head.length - 1 );
 
 						if( sort.substring( sort.length-3 ) === "Asc" ) {
 							column.head += "▼";
@@ -298,11 +416,11 @@
 						else {
 							column.head += "▲";
 						}
-                    }
-                    else {
+					}
+					else {
 						column.head = column.head.substring( 0, column.head.length - 1 ) + ' ';
-                    }
-                });
+					}
+				});
 
 
 				order( sort );
@@ -347,6 +465,6 @@
 			}
 
 		</script>
-    </body>
+	</body>
 
 </html>
