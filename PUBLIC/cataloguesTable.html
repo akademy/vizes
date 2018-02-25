@@ -9,11 +9,11 @@
 
 	<style>
 		body { margin: 30px }
-		th { text-align: left; background-color: #bbb }
-		th:first-child {width: 300px}
+		th { text-align: left; background-color: #bbb; text-align:center !important }
+		th:first-child {width: 300px;text-align:left !important}
 		th, td { padding: 0 1em 0.5ex 0;}
 		th.center, td.center { text-align: center; }
-		th.num, td.num { text-align: right; }
+		/*th.num,*/ td.num { text-align: right; }
 
 		.all { font-weight: bold; background-color: #dadada }
 
@@ -139,13 +139,13 @@
 			catalogueList.sort( orderBy( sort ) );
 
 			var columns = [
-				{ id: 'name', head: 'Catalogue Name ' + arrowDown, cl: 'title',
+				{ id: 'name', head: 'Catalogue name ' + arrowDown, cl: 'title',
 					html: dget('name') },
-				{ id: 'start', head: 'Year Start ' + wideSpace, cl: 'center',
+				{ id: 'start', head: 'Year start ' + wideSpace, cl: 'center',
 					html: dget('start') },
-				{ id: 'end', head: 'Year End ' + wideSpace, cl: 'center',
+				{ id: 'end', head: 'Year end ' + wideSpace, cl: 'center',
 					html: dget('end') },
-				{ id: 'dated', head: 'Dated ' + wideSpace, cl: 'num',
+				{ id: 'dated', head: 'Letters with a year ' + wideSpace, cl: 'num',
 					html: function(row) {
 
 						var count = 0;
@@ -159,13 +159,22 @@
 						// return (row[undated]) ? row.count - row[undated] : row.count;
 					}
 				},
-				{ id: 'undated', head: 'Undated ' + wideSpace, cl: 'num',
+				{ id: 'undated', head: 'Letters with unknown years ' + wideSpace, cl: 'num',
 					html: function(row) {
 						return row[undated] ? row[undated] : '-';
 					}
 				},
 				{ id: 'total', head: 'Total ' + wideSpace, cl: 'num',
-					html: dget('count') }
+					html: function(row) {
+						var count = row[undated] ? row[undated] : 0;
+						for( var y = currentFilter.from; y <= currentFilter.to; y++ ) {
+							if( row[y] ) {
+								count += row[y];
+							}
+						}
+
+						return count;
+					} }
 			];
 
 			var table = d3.select("table#cat");
@@ -175,6 +184,7 @@
 				.data(columns).enter()
 				.append('th')
 				.attr('class', function(d) { return d.cl; } )
+				.attr('id', function(d) {return "head-" + d.id; })
 				.text(function(d) { return d.head; } );
 
 			table.append('tbody')
@@ -199,6 +209,10 @@
 					.html(function(d){return d.html;})
 					.attr('class', function(d){return d.cl;});
 
+			function updateColumnHeading() {
+				d3.select("#head-dated")
+					.html( columns[3].head.slice(0,-1) + "<br/>" + currentFilter.from + "-" + currentFilter.to + columns[3].head.slice(-1) );
+			}
 
 			function filterByYear() {
 
@@ -219,6 +233,8 @@
 
 					currentFilter.from =  haveFrom ? filterYearFrom : currentFilter.from;
 					currentFilter.to   =  haveTo ? filterYearTo : currentFilter.to;
+
+					updateColumnHeading();
 
 					if (false) { //!haveFrom && !haveTo) {
 						//catalogueList = catalogueListFull.slice(0);
@@ -357,7 +373,7 @@
 				table.select('thead').select('tr')
 					.selectAll('th')
 					.data(columns)
-					.text(function(d) { return d.head; } );
+					.html(function(d) { return d.head; } );
 			}
 
 			function updateData() {
@@ -461,7 +477,7 @@
 
 				columns.forEach( function(column) {
 					if( pushed.head === column.head ) {
-						column.head = column.head.substring( 0, column.head.length - 1 );
+						column.head = column.head.slice( 0, -1 );
 
 						if( sort.substring( sort.length-3 ) === "Asc" ) {
 							column.head += arrowDown;
@@ -475,9 +491,9 @@
 					}
 				});
 
-
 				order( sort );
 				updatePosition();
+				updateColumnHeading();
 			});
 
 			function order( by ) {
