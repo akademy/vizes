@@ -5,26 +5,37 @@
 	<title></title>
 
 	<link rel="stylesheet" href="http://emlo.bodleian.ox.ac.uk/css/app.css" />
-	<script src="http://emlo.bodleian.ox.ac.uk/bower_components/modernizr/modernizr.min.mat.js"></script>
+	<!-- <script src="http://emlo.bodleian.ox.ac.uk/bower_components/modernizr/modernizr.min.mat.js"></script> -->
 
 	<style>
-		th { text-align: left; }
+		body { margin: 30px }
+		th { text-align: left; background-color: #bbb }
+		th:first-child {width: 300px}
 		th, td { padding: 0 1em 0.5ex 0;}
 		th.center, td.center { text-align: center; }
 		th.num, td.num { text-align: right; }
+
+		.all { font-weight: bold; background-color: #dadada }
+
+		label { width: 50px; display:inline-block }
+		button { height: 30px; padding: 5px; margin-top: 5px}
 	</style>
 </head>
 
 	<body>
 
-		<label for="from-year">From <input id="from-year" value="1600"/></label>
-		<label for="to-year">To <input id="to-year"/></label><br/>
+		<p>Catalogues with dates:<br/>
+			<label for="from-year">From</label><input id="from-year" value="1600"/><br/>
+			<label for="to-year">To &nbsp;&nbsp;</label><input id="to-year"/><br/>
+			<label></label><button id="reset">Reset years</button>
+		</p>
+
 		<table id="cat"></table>
 
 		<script src="lib/d3.min.js"></script>
 		<script src="lib/d3.slider.js"></script>
 		<script src="data/catalogues.js"></script>
-		<script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script>
+		<!-- <script src="http://emlo.bodleian.ox.ac.uk/js/catalogue-blog.js"></script> -->
 		<script src="cataloguesYears.js"></script>
 		<script>
 
@@ -34,13 +45,18 @@
 				dataTemp = {}, i;
 
 			var undated = timeline.noYear;
+			var allCatalogueName = 'All Catalogues',
+				allCatalogue = {
+				name: allCatalogueName,
+				count: 0
+			};
 
 			//
 			// Sort out data
 			//
 			for( i=0; i < dataPostgres.length; i++ ) {
 				var yearData = dataPostgres[i],
-						catalogueName = yearData["Catalogue"];
+					catalogueName = yearData["Catalogue"];
 
 				if( ! (catalogueName in dataTemp) ) {
 					dataTemp[catalogueName] = {
@@ -54,7 +70,7 @@
 				}
 
 				if( yearData.year === "" ) {
-					yearData.year = undated; //dummyYear; // A crafty cheat for entries without years. (That will no doubt come back and bite me...)
+					yearData.year = undated;
 				}
 
 				// Create an entry for each year
@@ -71,6 +87,14 @@
 						dataTemp[catalogueName]["end"] = yearData.year;
 					}
 				}
+
+				if( !allCatalogue[yearData.year] ) {
+					allCatalogue[yearData.year] = yearData.number;
+				}
+				else {
+					allCatalogue[yearData.year] += yearData.number;
+				}
+				allCatalogue.count += yearData.number;
 			}
 
 			var catalogueNames = Object.keys( dataTemp );
@@ -84,33 +108,64 @@
 
 
 			// Debug
-			catalogueList = catalogueList.slice(0,3);
+			//catalogueList = catalogueList.slice(0,3);
 
+			allCatalogue.start = d3.min( catalogueList, dget('start') );
+			allCatalogue.end = d3.max( catalogueList, dget('end') );
+
+			catalogueList.push( allCatalogue );
 
 			catalogueListFull = catalogueList.slice(0);
 
-			var minYear = d3.min( catalogueList, dget('start') ),
-				maxYear = d3.max( catalogueList, dget('end') );
+			function allDates() {
 
-			d3.select("input#from-year").attr("value", minYear );
-			d3.select("input#to-year").attr("value", maxYear );
+				document.getElementById("from-year").value = allCatalogue.start;
+				document.getElementById("to-year").value = allCatalogue.end;
 
-			var sort = "nameAsc";
+				//d3.select("input#from-year").attr("value", allCatalogue.start);
+				//d3.select("input#to-year").attr("value", allCatalogue.end);
+			}
+			allDates();
+
+			var wideSpace = ' ' /*wide space U+2003*/,
+				arrowDown = '▼',
+				arrowUp = '▲',
+				sort = "nameAsc",
+				currentFilter = {
+					from:allCatalogue.start - 1, // show everything initially but allow
+					to: allCatalogue.end + 1
+				};
+
 			catalogueList.sort( orderBy( sort ) );
 
 			var columns = [
-				{ id: 'name', head: 'Catalogue Name ▼', cl: 'title',
-					html: function(row) { return row.name; } },
-				{ id: 'start', head: 'Year Start  ', cl: 'center',
-					html: function(row) { return row.start; } },
-				{ id: 'end', head: 'Year End  ', cl: 'center',
-					html: function(row) { return row.end; } },
-				{ id: 'dated', head: 'Dated  ', cl: 'num',
-					html: function(row) { return (row[undated]) ? row.count - row[undated] : row.count; } },
-				{ id: 'undated', head: 'Undated  ', cl: 'num',
-					html: function(row) { return row[undated]; } },
-				{ id: 'total', head: 'Total  ', cl: 'num',
-					html: function(row) { return row.count; } }
+				{ id: 'name', head: 'Catalogue Name ' + arrowDown, cl: 'title',
+					html: dget('name') },
+				{ id: 'start', head: 'Year Start ' + wideSpace, cl: 'center',
+					html: dget('start') },
+				{ id: 'end', head: 'Year End ' + wideSpace, cl: 'center',
+					html: dget('end') },
+				{ id: 'dated', head: 'Dated ' + wideSpace, cl: 'num',
+					html: function(row) {
+
+						var count = 0;
+						for( var y = currentFilter.from; y <= currentFilter.to; y++ ) {
+							if( row[y] ) {
+								count += row[y];
+							}
+						}
+
+						return count;
+						// return (row[undated]) ? row.count - row[undated] : row.count;
+					}
+				},
+				{ id: 'undated', head: 'Undated ' + wideSpace, cl: 'num',
+					html: function(row) {
+						return row[undated] ? row[undated] : '-';
+					}
+				},
+				{ id: 'total', head: 'Total ' + wideSpace, cl: 'num',
+					html: dget('count') }
 			];
 
 			var table = d3.select("table#cat");
@@ -126,6 +181,7 @@
 				.selectAll('tr')
 				.data(catalogueList, function(d,i){return i/*d.id*/;}).enter()
 				.append('tr')
+				.classed('all', function(row) { return row.name === allCatalogueName;} )
 				.classed('cat', 1)
 				.style('opacity', '1' )
 				.selectAll('td')
@@ -144,34 +200,27 @@
 					.attr('class', function(d){return d.cl;});
 
 
-			var previousFilter = {from:-1,to:-1};
 			function filterByYear() {
-				console.log("filterByYear");
 
 				var filterYearFromText = document.getElementById("from-year").value,
 					filterYearToText   = document.getElementById("to-year").value;
 
-				var filterYearFrom = getYear( filterYearFromText ),
+				var filterYearFromBlank = filterYearFromText === '',
+					filterYearToBlank = filterYearToText === '',
+					filterYearFrom = getYear( filterYearFromText ),
 					filterYearTo   = getYear( filterYearToText );
 
-				/*if( filterYearFromText !== '' && filterYearFrom !== 0 ) {
-					// If it's not blank but not recognised use previous version
-					filterYearFrom = previousFilter.from;
-				}
-				if( filterYearToText!== '' && filterYearTo !== 0 ) {
-					// If it's not blank but not recognised use previous version
-					filterYearTo = previousFilter.to;
-				}*/
+				var haveFrom = (filterYearFrom !== 0),
+					haveTo   = (filterYearTo !== 0);
 
-				var from = (filterYearFrom !== 0),
-					to   = (filterYearTo !== 0);
+				if( ( filterYearFromBlank && haveTo ) ||
+					( filterYearToBlank && haveFrom ) ||
+					( haveFrom && haveTo ) ) {
 
-				if( filterYearFrom !== previousFilter.from || filterYearTo !== previousFilter.to) {
+					currentFilter.from =  haveFrom ? filterYearFrom : currentFilter.from;
+					currentFilter.to   =  haveTo ? filterYearTo : currentFilter.to;
 
-					previousFilter.from =  from ? filterYearFrom : previousFilter.from;
-					previousFilter.to   =  to ? filterYearTo : previousFilter.to;
-
-					if (false) { //!from && !to) {
+					if (false) { //!haveFrom && !haveTo) {
 						//catalogueList = catalogueListFull.slice(0);
 					}
 					else {
@@ -198,17 +247,17 @@
 							 s+e
 				        */
 
-							if (from && !to) {
+							if (haveFrom && !haveTo) {
 								if (!fromAfterEnd) {
 									keep = true;
 								}
 							}
-							else if (!from && to) {
+							else if (!haveFrom && haveTo) {
 								if (toAfterStart) {
 									keep = true;
 								}
 							}
-							if (from && to) {
+							if (haveFrom && haveTo) {
 								if (
 									(!fromAfterStart && toAfterStart && !fromAfterEnd && !toAfterEnd) ||
 									(fromAfterStart && toAfterStart && !fromAfterEnd && toAfterEnd) ||
@@ -234,10 +283,14 @@
 				updateData();
 			});
 
-			filterByYear();
-			setTimeout( function() {
+			d3.select('button#reset').on("click",function() {
+				allDates();
+				filterByYear();
 				updateData();
-			}, 1000);
+			});
+
+			filterByYear();
+			updateData();
 
 			/*catalogueList.sort( orderBy( "nameDesc" ) );
 			setTimeout( function() {
@@ -376,7 +429,7 @@
 			function getYear( year ) {
 				year = +year;
 				if( !isNaN(year) ) {
-					if( year >= minYear && year <= maxYear ) {
+					if( year >= 1000 ) { // 4 digits (so that typing in years are ignored until all four digits are typed
 						return year;
 					}
 				}
@@ -386,7 +439,7 @@
 
 			// Column ordering
 			d3.selectAll("#cat th").on("click", function( pushed ) {
-				console.log(pushed);
+
 				if( pushed.id === 'name') {
 					sort = (sort === "nameAsc") ? "nameDesc" : "nameAsc";
 				}
@@ -411,14 +464,14 @@
 						column.head = column.head.substring( 0, column.head.length - 1 );
 
 						if( sort.substring( sort.length-3 ) === "Asc" ) {
-							column.head += "▼";
+							column.head += arrowDown;
 						}
 						else {
-							column.head += "▲";
+							column.head += arrowUp;
 						}
 					}
 					else {
-						column.head = column.head.substring( 0, column.head.length - 1 ) + ' ';
+						column.head = column.head.substring( 0, column.head.length - 1 ) + wideSpace;
 					}
 				});
 
@@ -455,6 +508,8 @@
 				function generateSort( memberFunction, ascending ) {
 					/* Generate a sort function with particular features */
 					return function(a,b) {
+						if( a.name === allCatalogueName ) return -1;
+						if( b.name === allCatalogueName ) return 1;
 						var compare = ((memberFunction(a) < memberFunction(b)) ? -1 : memberFunction(a) > memberFunction(b));
 						if(compare===0) {
 							compare = ( (a.name < b.name) ? -1 : a.name > b.name );
